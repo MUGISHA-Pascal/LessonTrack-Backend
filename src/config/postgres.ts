@@ -1,13 +1,17 @@
-import { Client } from "pg";
-export const postgresConnection = () => {
-  const connection = new Client({
-    user: "postgres",
-    password: "postgres",
-    database: "LessonTracker",
+import { Sequelize } from "sequelize";
+const username = "postgres";
+const password = "postgres";
+const DatabasePort = 5432;
+const database = "LessonTracker";
+export const postgresConnectionSequelize = new Sequelize(
+  database,
+  username,
+  password,
+  {
+    port: DatabasePort,
     host: "localhost",
-    port: 5432,
-  });
-  connection.connect().then(() => {
-    console.log("connected to the postgres database");
-  });
-};
+    dialect: "postgres",
+  }
+);
+
+export default postgresConnectionSequelize;
