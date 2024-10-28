@@ -2,7 +2,7 @@ import { Sequelize } from "sequelize";
 const username = "postgres";
 const password = "postgres";
 const DatabasePort = 5432;
-const database = "LessonTracker";
+const database = "LessonTracker2";
 export const postgresConnectionSequelize = new Sequelize(
   database,
   username,
