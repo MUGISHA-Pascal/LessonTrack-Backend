@@ -68,4 +68,4 @@ async function syncModel() {
 
 syncModel();
 
-module.exports = User;
+export default User;

@@ -13,68 +13,58 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
+const User_1 = __importDefault(require("./User"));
 const postgres_1 = __importDefault(require("../config/postgres"));
-const User = postgres_1.default.define("User", {
-    id: {
+const UserCourse = postgres_1.default.define("UserCourse", {
+    user_id: {
         type: sequelize_1.DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-    },
-    username: {
-        type: sequelize_1.DataTypes.STRING(50),
-        unique: true,
+        allowNull: false,
         validate: {
-            notNull: { msg: "username is not assignable to null" },
-        },
-    },
-    email: {
-        type: sequelize_1.DataTypes.STRING(100),
-        unique: true,
-        validate: {
-            notNull: { msg: "username is not assignable to null" },
-            isEmail: {
-                msg: "email is not valid",
-            },
-        },
-    },
-    phone_number: {
-        type: sequelize_1.DataTypes.NUMBER,
-        unique: true,
-    },
-    password_hash: {
-        type: sequelize_1.DataTypes.STRING(255),
-        validate: {
-            notNull: { msg: "password hash needed" },
-        },
-    },
-    role: {
-        type: sequelize_1.DataTypes.STRING(20),
-        validate: {
-            isIn: {
-                args: [["lesson_seeker", "admin", "sub_admin"]],
-                msg: "out of role scope",
-            },
             notNull: {
-                msg: "role entry needed",
+                msg: "User ID is required.",
+            },
+            isInt: {
+                msg: "User ID must be an integer.",
             },
         },
+    },
+    course_id: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: false,
+        validate: {
+            notNull: {
+                msg: "Course ID is required.",
+            },
+            isInt: {
+                msg: "Course ID must be an integer.",
+            },
+        },
+    },
+    enrollment_date: {
+        type: sequelize_1.DataTypes.DATE,
+        defaultValue: sequelize_1.DataTypes.NOW,
     },
 }, {
-    tableName: "users",
-    timestamps: true,
-    createdAt: "created_at",
-    updatedAt: "updated_at",
+    tableName: "user_courses",
+    timestamps: false,
 });
+UserCourse.belongsTo(User_1.default, {
+    foreignKey: "user_id",
+    onDelete: "CASCADE",
+});
+// UserCourse.belongsTo(Course, {
+//   foreignKey: "course_id",
+//   onDelete: "CASCADE",
+// });
 function syncModel() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield User.sync({ force: false });
-            console.log("User model synced with the database.");
+            yield UserCourse.sync({ force: false });
+            console.log("UserCourse model synced with the database.");
         }
         catch (error) {
-            console.error("Error syncing the User model:", error);
+            console.error("Error syncing the UserCourse model:", error);
         }
     });
 }
 syncModel();
-exports.default = User;
