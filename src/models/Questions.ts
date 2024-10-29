@@ -1,7 +1,9 @@
 import { DataTypes } from "sequelize";
 import postgresConnectionSequelize from "../config/postgres";
-const quiz = postgresConnectionSequelize.define(
-  "quizzes",
+import quiz from "./Quiz";
+
+const Questions = postgresConnectionSequelize.define(
+  "questions",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -9,16 +11,16 @@ const quiz = postgresConnectionSequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    course_id: {
+    quiz_id: {
       type: DataTypes.INTEGER,
     },
-    title: {
-      type: DataTypes.STRING(100),
+    question_text: {
+      type: DataTypes.TEXT,
       allowNull: false,
     },
-    max_attempts: {
-      type: DataTypes.INTEGER,
-      defaultValue: 3,
+    correct_answer: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
     },
   },
   {
@@ -26,11 +28,8 @@ const quiz = postgresConnectionSequelize.define(
     updatedAt: true,
   }
 );
-
-quiz.belongsTo(Course, {
-  foreignKey: "course_id",
+Questions.belongsTo(quiz, {
+  foreignKey: "quiz_id",
+  onUpdate: "NO ACTION",
   onDelete: "CASCADE",
 });
-
-quiz.sync();
-export default quiz;
