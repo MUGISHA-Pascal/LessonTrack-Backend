@@ -1,32 +1,31 @@
-import { DataTypes } from "sequelize";
-import User from "./User";
 import postgresConnectionSequelize from "../config/postgres";
+
+const { DataTypes } = require("sequelize");
+
 const UserCourse = postgresConnectionSequelize.define(
   "UserCourse",
   {
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      validate: {
-        notNull: {
-          msg: "User ID is required.",
-        },
-        isInt: {
-          msg: "User ID must be an integer.",
-        },
+      references: {
+        model: "users",
+        key: "id",
       },
+      onUpdate: "NO ACTION",
+      onDelete: "CASCADE",
+      primaryKey: true,
     },
     course_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      validate: {
-        notNull: {
-          msg: "Course ID is required.",
-        },
-        isInt: {
-          msg: "Course ID must be an integer.",
-        },
+      references: {
+        model: "courses",
+        key: "id",
       },
+      onUpdate: "NO ACTION",
+      onDelete: "CASCADE",
+      primaryKey: true,
     },
     enrollment_date: {
       type: DataTypes.DATE,
@@ -35,28 +34,9 @@ const UserCourse = postgresConnectionSequelize.define(
   },
   {
     tableName: "user_courses",
+    schema: "public",
     timestamps: false,
   }
 );
 
-UserCourse.belongsTo(User, {
-  foreignKey: "user_id",
-  onDelete: "CASCADE",
-});
-UserCourse.belongsTo(Course, {
-  foreignKey: "course_id",
-  onDelete: "CASCADE",
-});
-
-async function syncModel() {
-  try {
-    await UserCourse.sync({ force: false });
-    console.log("UserCourse model synced with the database.");
-  } catch (error) {
-    console.error("Error syncing the UserCourse model:", error);
-  }
-}
-
-syncModel();
-
-export default UserCourse;
+module.exports = UserCourse;

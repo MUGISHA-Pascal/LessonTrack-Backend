@@ -1,18 +1,24 @@
-import { DataTypes } from "sequelize";
 import postgresConnectionSequelize from "../config/postgres";
-import quiz from "./Quiz";
 
-const Questions = postgresConnectionSequelize.define(
-  "questions",
+const { DataTypes } = require("sequelize");
+
+const Question = postgresConnectionSequelize.define(
+  "Question",
   {
     id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
       primaryKey: true,
       autoIncrement: true,
     },
     quiz_id: {
       type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "quizzes",
+        key: "id",
+      },
+      onUpdate: "NO ACTION",
+      onDelete: "CASCADE",
     },
     question_text: {
       type: DataTypes.TEXT,
@@ -22,14 +28,20 @@ const Questions = postgresConnectionSequelize.define(
       type: DataTypes.STRING(255),
       allowNull: false,
     },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
   },
   {
-    createdAt: true,
-    updatedAt: true,
+    tableName: "questions",
+    schema: "public",
+    timestamps: false,
   }
 );
-Questions.belongsTo(quiz, {
-  foreignKey: "quiz_id",
-  onUpdate: "NO ACTION",
-  onDelete: "CASCADE",
-});
+
+export default Question;

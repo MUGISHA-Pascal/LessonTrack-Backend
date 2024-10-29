@@ -1,5 +1,6 @@
-import { DataTypes } from "sequelize";
 import postgresConnectionSequelize from "../config/postgres";
+
+const { DataTypes } = require("sequelize");
 
 const User = postgresConnectionSequelize.define(
   "User",
@@ -11,61 +12,44 @@ const User = postgresConnectionSequelize.define(
     },
     username: {
       type: DataTypes.STRING(50),
+      allowNull: false,
       unique: true,
-      validate: {
-        notNull: { msg: "username is not assignable to null" },
-      },
     },
     email: {
       type: DataTypes.STRING(100),
+      allowNull: false,
       unique: true,
-      validate: {
-        notNull: { msg: "username is not assignable to null" },
-        isEmail: {
-          msg: "email is not valid",
-        },
-      },
     },
     phone_number: {
-      type: DataTypes.NUMBER,
+      type: DataTypes.STRING(15),
+      allowNull: true,
       unique: true,
     },
     password_hash: {
       type: DataTypes.STRING(255),
-      validate: {
-        notNull: { msg: "password hash needed" },
-      },
+      allowNull: false,
     },
     role: {
       type: DataTypes.STRING(20),
+      allowNull: false,
       validate: {
-        isIn: {
-          args: [["lesson_seeker", "admin", "sub_admin"]],
-          msg: "out of role scope",
-        },
-        notNull: {
-          msg: "role entry needed",
-        },
+        isIn: [["lesson_seeker", "admin", "sub_admin"]],
       },
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
     },
   },
   {
     tableName: "users",
-    timestamps: true,
-    createdAt: "created_at",
-    updatedAt: "updated_at",
+    schema: "public",
+    timestamps: false,
   }
 );
-
-async function syncModel() {
-  try {
-    await User.sync({ force: false });
-    console.log("User model synced with the database.");
-  } catch (error) {
-    console.error("Error syncing the User model:", error);
-  }
-}
-
-syncModel();
 
 export default User;

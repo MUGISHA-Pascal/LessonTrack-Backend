@@ -47,10 +47,5 @@ const Lesson = postgresConnectionSequelize.define(
     timestamps: false,
   }
 );
-Lesson.belongsTo(Course, {
-  foreignKey: "couse_id",
-  onDelete: "CASCADE",
-  onUpdate: "NO ACTION",
-});
 
 export default Lesson;
