@@ -43,10 +43,10 @@ UserCourse.belongsTo(User, {
   foreignKey: "user_id",
   onDelete: "CASCADE",
 });
-// UserCourse.belongsTo(Course, {
-//   foreignKey: "course_id",
-//   onDelete: "CASCADE",
-// });
+UserCourse.belongsTo(Course, {
+  foreignKey: "course_id",
+  onDelete: "CASCADE",
+});
 
 async function syncModel() {
   try {
@@ -58,3 +58,5 @@ async function syncModel() {
 }
 
 syncModel();
+
+export default UserCourse;
