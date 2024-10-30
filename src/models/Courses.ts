@@ -1,8 +1,17 @@
+import { Model } from "sequelize";
 import postgresConnectionSequelize from "../config/postgres";
+import { courseInterface } from "../interfaces/courseinterface";
 
 const { DataTypes } = require("sequelize");
-
-const Course = postgresConnectionSequelize.define(
+class CourseInt extends Model<courseInterface> implements courseInterface {
+  public id!: string;
+  public title!: string;
+  public description!: Text;
+  public content_type!: "text" | "video" | "image";
+  public created_by!: number;
+  public is_active!: boolean;
+}
+const Course = postgresConnectionSequelize.define<CourseInt>(
   "Course",
   {
     id: {
@@ -35,20 +44,14 @@ const Course = postgresConnectionSequelize.define(
       onUpdate: "NO ACTION",
       onDelete: "SET NULL",
     },
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
     is_active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
   },
   {
+    createdAt: true,
+    updatedAt: true,
     tableName: "courses",
     schema: "public",
     timestamps: false,

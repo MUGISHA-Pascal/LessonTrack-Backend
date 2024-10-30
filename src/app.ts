@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import { postgresConnectionSequelize } from "./config/postgres";
 import AuthRoutes from "./routes/AuthRoutes";
 import bodyParser from "body-parser";
+import UserRoutes from "./routes/UserRoutes";
+import CourseRoutes from "./routes/CourserRoutes";
 dotenv.config();
 const app: Express = express();
 app.use(cors());
@@ -19,7 +21,8 @@ postgresConnectionSequelize
   });
 
 app.use("/auth", AuthRoutes);
-
+app.use("/user", UserRoutes);
+app.use("/course", CourseRoutes);
 const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`the server is running on port ${port}`);

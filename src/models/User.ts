@@ -12,8 +12,6 @@ class UserInt extends Model<userInterface> {
   public password_hash!: string;
   public role!: "lesson_seeker" | "admin" | "sub_admin";
   public profilePicture!: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
 }
 
 const User = postgresConnectionSequelize.define<UserInt>(
