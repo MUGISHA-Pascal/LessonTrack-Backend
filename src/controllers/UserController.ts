@@ -8,6 +8,7 @@ export const profileUploadController = async (req: Request, res: Response) => {
     if (user) {
       if (req.file) {
         user.profilePicture = req.file.path;
+        user.save();
         res.json({ message: "user image uploaded successfully", user });
       } else {
         res.status(400).json({ message: "no image file uploaded" });

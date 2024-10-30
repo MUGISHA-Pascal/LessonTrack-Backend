@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.courseAdding = void 0;
+exports.courseUpdate = exports.getCourses = exports.courseAdding = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const Courses_1 = __importDefault(require("../models/Courses"));
 const courseAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -39,3 +39,43 @@ const courseAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.courseAdding = courseAdding;
+const getCourses = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (req.body.title) {
+            const { title } = req.body;
+            const courseFound = yield Courses_1.default.findAll({ where: { title } });
+            if (!courseFound) {
+                res.json({ message: "course not found" });
+            }
+            res.status(200).json({ message: "course found", courses: courseFound });
+        }
+        else {
+            const courses = yield Courses_1.default.findAll();
+            res.status(200).json({ message: "all courses", courses });
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
+exports.getCourses = getCourses;
+const courseUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { userId } = req.params;
+        const { courseId, title, description, content_type, created_by, is_active, } = req.body;
+        const user = yield User_1.default.findOne({ where: { id: userId } });
+        if ((user === null || user === void 0 ? void 0 : user.role) === "admin") {
+            const updatedCourse = yield Courses_1.default.update({ title, description, content_type, created_by, is_active }, { where: { id: courseId } });
+            res
+                .status(200)
+                .json({ message: "course updated successfully", updatedCourse });
+        }
+        else {
+            res.json({ message: "you are not allowed updating courses" });
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
+exports.courseUpdate = courseUpdate;
