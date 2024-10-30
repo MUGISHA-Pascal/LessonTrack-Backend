@@ -11,6 +11,7 @@ class UserInt extends Model<userInterface> {
   public phone_number!: string;
   public password_hash!: string;
   public role!: "lesson_seeker" | "admin" | "sub_admin";
+  public profilePicture!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -48,6 +49,10 @@ const User = postgresConnectionSequelize.define<UserInt>(
       validate: {
         isIn: [["lesson_seeker", "admin", "sub_admin"]],
       },
+    },
+    profilePicture: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
   },
   {

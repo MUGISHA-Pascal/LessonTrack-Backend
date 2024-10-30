@@ -50,6 +50,10 @@ const User = postgres_1.default.define("User", {
             isIn: [["lesson_seeker", "admin", "sub_admin"]],
         },
     },
+    profilePicture: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
 }, {
     createdAt: true,
     updatedAt: true,

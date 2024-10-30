@@ -5,4 +5,5 @@ export interface userInterface {
   phone_number: string;
   password_hash: string;
   role: "lesson_seeker" | "admin" | "sub_admin";
+  profilePicture?: string;
 }
