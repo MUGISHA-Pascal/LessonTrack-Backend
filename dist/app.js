@@ -26,6 +26,7 @@ postgres_1.postgresConnectionSequelize
 app.use("/auth", AuthRoutes_1.default);
 app.use("/user", UserRoutes_1.default);
 app.use("/course", CourserRoutes_1.default);
+app.use("/comments", CourserRoutes_1.default);
 const port = process.env.PORT;
 app.listen(port, () => {
     console.log(`the server is running on port ${port}`);

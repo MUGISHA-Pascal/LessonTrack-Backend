@@ -1,8 +1,16 @@
+import { Model } from "sequelize";
 import postgresConnectionSequelize from "../config/postgres";
+import { commentInterface } from "../interfaces/commentinterface";
 
 const { DataTypes } = require("sequelize");
+class CommentInt extends Model<commentInterface> implements commentInterface {
+  public id!: number;
+  public user_id!: number;
+  public course_id!: number;
+  public comment_text!: Text;
+}
 
-const Comment = postgresConnectionSequelize.define(
+const Comment = postgresConnectionSequelize.define<CommentInt>(
   "Comment",
   {
     id: {
@@ -34,16 +42,10 @@ const Comment = postgresConnectionSequelize.define(
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
   },
   {
+    createdAt: true,
+    updatedAt: true,
     tableName: "comments",
     schema: "public",
     timestamps: false,
