@@ -1,6 +1,17 @@
+import { Model } from "sequelize";
 import postgresConnectionSequelize from "../config/postgres";
+import { questionInterface } from "../interfaces/questioninterface";
 
 const { DataTypes } = require("sequelize");
+class QuestionInt
+  extends Model<questionInterface>
+  implements questionInterface
+{
+  public id!: number;
+  public quiz_id!: number;
+  public question_text!: Text;
+  public correct_answer!: Text;
+}
 
 const Question = postgresConnectionSequelize.define(
   "Question",
@@ -25,19 +36,13 @@ const Question = postgresConnectionSequelize.define(
       allowNull: false,
     },
     correct_answer: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.TEXT,
       allowNull: false,
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
     },
   },
   {
+    createdAt: true,
+    updatedAt: true,
     tableName: "questions",
     schema: "public",
     timestamps: false,

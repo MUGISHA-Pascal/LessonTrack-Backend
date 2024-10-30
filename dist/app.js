@@ -12,6 +12,7 @@ const body_parser_1 = __importDefault(require("body-parser"));
 const UserRoutes_1 = __importDefault(require("./routes/UserRoutes"));
 const CourserRoutes_1 = __importDefault(require("./routes/CourserRoutes"));
 const FeedbackRoutes_1 = __importDefault(require("./routes/FeedbackRoutes"));
+const QuestionRoutes_1 = __importDefault(require("./routes/QuestionRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
@@ -29,6 +30,7 @@ app.use("/user", UserRoutes_1.default);
 app.use("/course", CourserRoutes_1.default);
 app.use("/comments", CourserRoutes_1.default);
 app.use("/feedback", FeedbackRoutes_1.default);
+app.use("/question", QuestionRoutes_1.default);
 const port = process.env.PORT;
 app.listen(port, () => {
     console.log(`the server is running on port ${port}`);
