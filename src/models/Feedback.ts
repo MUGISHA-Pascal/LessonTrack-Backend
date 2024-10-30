@@ -1,8 +1,19 @@
+import { Model } from "sequelize";
 import postgresConnectionSequelize from "../config/postgres";
+import { feedbackInterface } from "../interfaces/feedbackinterface";
 
 const { DataTypes } = require("sequelize");
+class FeedbackInt
+  extends Model<feedbackInterface>
+  implements feedbackInterface
+{
+  public id!: number;
+  public user_id!: number;
+  public course_id!: number;
+  public feedback_text!: Text;
+}
 
-const Feedback = postgresConnectionSequelize.define(
+const Feedback = postgresConnectionSequelize.define<FeedbackInt>(
   "Feedback",
   {
     id: {
@@ -34,12 +45,10 @@ const Feedback = postgresConnectionSequelize.define(
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
   },
   {
+    createdAt: true,
+    updatedAt: true,
     tableName: "feedback",
     schema: "public",
     timestamps: false,
