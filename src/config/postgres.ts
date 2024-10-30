@@ -11,6 +11,7 @@ export const postgresConnectionSequelize = new Sequelize(
     port: DatabasePort,
     host: "localhost",
     dialect: "postgres",
+    logging: false,
   }
 );
 

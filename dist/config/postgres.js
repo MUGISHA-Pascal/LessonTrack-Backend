@@ -10,5 +10,6 @@ exports.postgresConnectionSequelize = new sequelize_1.Sequelize(database, userna
     port: DatabasePort,
     host: "localhost",
     dialect: "postgres",
+    logging: false,
 });
 exports.default = exports.postgresConnectionSequelize;

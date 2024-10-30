@@ -12,69 +12,62 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const sequelize_1 = require("sequelize");
 const postgres_1 = __importDefault(require("../config/postgres"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const { DataTypes } = require("sequelize");
+const sequelize_1 = require("sequelize");
+class UserInt extends sequelize_1.Model {
+}
 const User = postgres_1.default.define("User", {
     id: {
-        type: sequelize_1.DataTypes.INTEGER,
+        type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
     },
     username: {
-        type: sequelize_1.DataTypes.STRING(50),
+        type: DataTypes.STRING(50),
+        allowNull: false,
         unique: true,
-        validate: {
-            notNull: { msg: "username is not assignable to null" },
-        },
     },
     email: {
-        type: sequelize_1.DataTypes.STRING(100),
+        type: DataTypes.STRING(100),
+        allowNull: false,
         unique: true,
-        validate: {
-            notNull: { msg: "username is not assignable to null" },
-            isEmail: {
-                msg: "email is not valid",
-            },
-        },
     },
     phone_number: {
-        type: sequelize_1.DataTypes.NUMBER,
+        type: DataTypes.STRING(15),
+        allowNull: true,
         unique: true,
     },
     password_hash: {
-        type: sequelize_1.DataTypes.STRING(255),
-        validate: {
-            notNull: { msg: "password hash needed" },
-        },
+        type: DataTypes.STRING(255),
+        allowNull: false,
     },
     role: {
-        type: sequelize_1.DataTypes.STRING(20),
+        type: DataTypes.STRING(20),
+        allowNull: false,
         validate: {
-            isIn: {
-                args: [["lesson_seeker", "admin", "sub_admin"]],
-                msg: "out of role scope",
-            },
-            notNull: {
-                msg: "role entry needed",
-            },
+            isIn: [["lesson_seeker", "admin", "sub_admin"]],
         },
     },
 }, {
+    createdAt: true,
+    updatedAt: true,
     tableName: "users",
-    timestamps: true,
-    createdAt: "created_at",
-    updatedAt: "updated_at",
+    schema: "public",
+    timestamps: false,
+    hooks: {
+        beforeSave: (user) => __awaiter(void 0, void 0, void 0, function* () {
+            const salt = yield bcrypt_1.default.genSalt(10);
+            user.password_hash = yield bcrypt_1.default.hash(user.password_hash, salt);
+        }),
+        beforeUpdate: (user) => __awaiter(void 0, void 0, void 0, function* () {
+            if (user.changed("password_hash")) {
+                const salt = yield bcrypt_1.default.genSalt(10);
+                user.password_hash = yield bcrypt_1.default.hash(user.password_hash, salt);
+            }
+        }),
+    },
 });
-function syncModel() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield User.sync({ force: false });
-            console.log("User model synced with the database.");
-        }
-        catch (error) {
-            console.error("Error syncing the User model:", error);
-        }
-    });
-}
-syncModel();
+User.sync();
 exports.default = User;

@@ -4,16 +4,18 @@ import { userInterface } from "../interfaces/userInterface";
 const { DataTypes } = require("sequelize");
 import { Model } from "sequelize";
 
-class UserInterface extends Model<UserInterface> {
+class UserInt extends Model<userInterface> {
   public id!: number;
   public username!: string;
   public email!: string;
   public phone_number!: string;
   public password_hash!: string;
   public role!: "lesson_seeker" | "admin" | "sub_admin";
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
 }
 
-const User = postgresConnectionSequelize.define(
+const User = postgresConnectionSequelize.define<UserInt>(
   "User",
   {
     id: {
@@ -47,25 +49,19 @@ const User = postgresConnectionSequelize.define(
         isIn: [["lesson_seeker", "admin", "sub_admin"]],
       },
     },
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
   },
   {
+    createdAt: true,
+    updatedAt: true,
     tableName: "users",
     schema: "public",
     timestamps: false,
     hooks: {
-      beforeSave: async (user: UserInterface) => {
+      beforeSave: async (user: UserInt) => {
         const salt = await bcrypt.genSalt(10);
         user.password_hash = await bcrypt.hash(user.password_hash, salt);
       },
-      beforeUpdate: async (user: UserInterface) => {
+      beforeUpdate: async (user: UserInt) => {
         if (user.changed("password_hash")) {
           const salt = await bcrypt.genSalt(10);
           user.password_hash = await bcrypt.hash(user.password_hash, salt);
@@ -74,5 +70,6 @@ const User = postgresConnectionSequelize.define(
     },
   }
 );
+User.sync();
 
 export default User;

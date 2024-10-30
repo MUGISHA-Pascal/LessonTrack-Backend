@@ -3,9 +3,11 @@ import express, { Express } from "express";
 import dotenv from "dotenv";
 import { postgresConnectionSequelize } from "./config/postgres";
 import AuthRoutes from "./routes/AuthRoutes";
+import bodyParser from "body-parser";
 dotenv.config();
 const app: Express = express();
 app.use(cors());
+app.use(bodyParser.json());
 
 postgresConnectionSequelize
   .authenticate()
