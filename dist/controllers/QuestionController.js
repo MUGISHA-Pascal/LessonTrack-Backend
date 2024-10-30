@@ -12,59 +12,58 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.feedbackDelete = exports.feedbackUpdate = exports.getFeedbacks = exports.feedbackAdding = void 0;
+exports.questionDelete = exports.questionUpdate = exports.getQuestions = exports.questionAdding = void 0;
 const User_1 = __importDefault(require("../models/User"));
-const Comments_1 = __importDefault(require("../models/Comments"));
-const Feedback_1 = __importDefault(require("../models/Feedback"));
-const feedbackAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const Questions_1 = __importDefault(require("../models/Questions"));
+const questionAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;
-        const { user_id, course_id, feedback_text } = req.body;
+        const { quiz_id, question_text, correct_answer } = req.body;
         const userEligible = yield User_1.default.findOne({ where: { id: userId } });
         if ((userEligible === null || userEligible === void 0 ? void 0 : userEligible.role) === "sub_admin" || "admin") {
-            const feedback = yield Feedback_1.default.create({
-                user_id,
-                course_id,
-                feedback_text,
+            const question = yield Questions_1.default.create({
+                quiz_id,
+                question_text,
+                correct_answer,
             });
             res
                 .status(200)
-                .json({ message: "feedback added successfully", feedback });
+                .json({ message: "question added successfully", question });
         }
         else {
-            res.json({ message: "you are not elligible to provide feedback" });
+            res.json({ message: "you are not elligible to add question" });
         }
     }
     catch (error) {
         console.log(error);
     }
 });
-exports.feedbackAdding = feedbackAdding;
-const getFeedbacks = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.questionAdding = questionAdding;
+const getQuestions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { courseId } = req.body;
-        const feedbacks = yield Feedback_1.default.findAll({
-            where: { course_id: courseId },
+        const { quiz_id } = req.body;
+        const questions = yield Questions_1.default.findAll({
+            where: { quiz_id },
         });
         res
             .status(200)
-            .json({ message: "feedbacks found successfully", feedbacks });
+            .json({ message: "Questions found successfully", questions });
     }
     catch (error) {
         console.log(error);
     }
 });
-exports.getFeedbacks = getFeedbacks;
-const feedbackUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getQuestions = getQuestions;
+const questionUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;
-        const { feedback_id, courseId, feedback_text } = req.body;
+        const { quiz_id, question_text, correct_answer, questionId } = req.body;
         const userEligible = yield User_1.default.findOne({ where: { id: userId } });
         if ((userEligible === null || userEligible === void 0 ? void 0 : userEligible.role) === "sub_admin" || "admin") {
-            const updatedFeedback = yield Feedback_1.default.update({ feedback_text }, { where: { id: feedback_id, course_id: courseId, user_id: userId } });
+            const updatedQuestion = yield Questions_1.default.update({ question_text, correct_answer }, { where: { id: questionId, quiz_id } });
             res
                 .status(200)
-                .json({ message: "feedback updated successfully", updatedFeedback });
+                .json({ message: "question updated successfully", updatedQuestion });
         }
         else {
             res.json({ message: "you are not elligible to update feedback" });
@@ -74,26 +73,26 @@ const feedbackUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function*
         console.log(error);
     }
 });
-exports.feedbackUpdate = feedbackUpdate;
-const feedbackDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.questionUpdate = questionUpdate;
+const questionDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { feedbackId } = req.params;
+        const { questionId } = req.params;
         const { userId } = req.body;
         const userEligible = yield User_1.default.findOne({ where: { id: userId } });
         if ((userEligible === null || userEligible === void 0 ? void 0 : userEligible.role) === "sub_admin" || "admin") {
-            const deletedComment = yield Comments_1.default.destroy({
-                where: { id: feedbackId },
+            const deletedQuestion = yield Questions_1.default.destroy({
+                where: { id: questionId },
             });
             res
                 .status(200)
-                .json({ message: "feedback deleted successfully", deletedComment });
+                .json({ message: "question deleted successfully", deletedQuestion });
         }
         else {
-            res.json({ message: "you are not elligible to delete feedback" });
+            res.json({ message: "you are not elligible to delete question" });
         }
     }
     catch (error) {
         console.log(error);
     }
 });
-exports.feedbackDelete = feedbackDelete;
+exports.questionDelete = questionDelete;

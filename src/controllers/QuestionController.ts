@@ -1,56 +1,55 @@
 import { Request, Response } from "express";
 import User from "../models/User";
-import Comment from "../models/Comments";
-import Feedback from "../models/Feedback";
-export const feedbackAdding = async (req: Request, res: Response) => {
+import Question from "../models/Questions";
+export const questionAdding = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { user_id, course_id, feedback_text } = req.body;
+    const { quiz_id, question_text, correct_answer } = req.body;
     const userEligible = await User.findOne({ where: { id: userId } });
     if (userEligible?.role === "sub_admin" || "admin") {
-      const feedback = await Feedback.create({
-        user_id,
-        course_id,
-        feedback_text,
+      const question = await Question.create({
+        quiz_id,
+        question_text,
+        correct_answer,
       });
       res
         .status(200)
-        .json({ message: "feedback added successfully", feedback });
+        .json({ message: "question added successfully", question });
     } else {
-      res.json({ message: "you are not elligible to provide feedback" });
+      res.json({ message: "you are not elligible to add question" });
     }
   } catch (error) {
     console.log(error);
   }
 };
 
-export const getFeedbacks = async (req: Request, res: Response) => {
+export const getQuestions = async (req: Request, res: Response) => {
   try {
-    const { courseId } = req.body;
-    const feedbacks = await Feedback.findAll({
-      where: { course_id: courseId },
+    const { quiz_id } = req.body;
+    const questions = await Question.findAll({
+      where: { quiz_id },
     });
     res
       .status(200)
-      .json({ message: "feedbacks found successfully", feedbacks });
+      .json({ message: "Questions found successfully", questions });
   } catch (error) {
     console.log(error);
   }
 };
 
-export const feedbackUpdate = async (req: Request, res: Response) => {
+export const questionUpdate = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { feedback_id, courseId, feedback_text } = req.body;
+    const { quiz_id, question_text, correct_answer, questionId } = req.body;
     const userEligible = await User.findOne({ where: { id: userId } });
     if (userEligible?.role === "sub_admin" || "admin") {
-      const updatedFeedback = await Feedback.update(
-        { feedback_text },
-        { where: { id: feedback_id, course_id: courseId, user_id: userId } }
+      const updatedQuestion = await Question.update(
+        { question_text, correct_answer },
+        { where: { id: questionId, quiz_id } }
       );
       res
         .status(200)
-        .json({ message: "feedback updated successfully", updatedFeedback });
+        .json({ message: "question updated successfully", updatedQuestion });
     } else {
       res.json({ message: "you are not elligible to update feedback" });
     }
@@ -59,20 +58,20 @@ export const feedbackUpdate = async (req: Request, res: Response) => {
   }
 };
 
-export const feedbackDelete = async (req: Request, res: Response) => {
+export const questionDelete = async (req: Request, res: Response) => {
   try {
-    const { feedbackId } = req.params;
+    const { questionId } = req.params;
     const { userId } = req.body;
     const userEligible = await User.findOne({ where: { id: userId } });
     if (userEligible?.role === "sub_admin" || "admin") {
-      const deletedComment = await Comment.destroy({
-        where: { id: feedbackId },
+      const deletedQuestion = await Question.destroy({
+        where: { id: questionId },
       });
       res
         .status(200)
-        .json({ message: "feedback deleted successfully", deletedComment });
+        .json({ message: "question deleted successfully", deletedQuestion });
     } else {
-      res.json({ message: "you are not elligible to delete feedback" });
+      res.json({ message: "you are not elligible to delete question" });
     }
   } catch (error) {
     console.log(error);

@@ -13,7 +13,7 @@ class QuestionInt
   public correct_answer!: Text;
 }
 
-const Question = postgresConnectionSequelize.define(
+const Question = postgresConnectionSequelize.define<QuestionInt>(
   "Question",
   {
     id: {
