@@ -68,3 +68,21 @@ export const courseUpdate = async (req: Request, res: Response) => {
     console.log(error);
   }
 };
+
+export const courseDelete = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { courseId } = req.body;
+    const user = await User.findOne({ where: { id: userId } });
+    if (user?.role === "admin") {
+      const deletedCourse = await Course.destroy({ where: { id: courseId } });
+      res
+        .status(200)
+        .json({ message: "course deleted successfully", deletedCourse });
+    } else {
+      res.json({ message: "you are not allowed deleting courses" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};

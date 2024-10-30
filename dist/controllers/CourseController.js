@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.courseUpdate = exports.getCourses = exports.courseAdding = void 0;
+exports.courseDelete = exports.courseUpdate = exports.getCourses = exports.courseAdding = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const Courses_1 = __importDefault(require("../models/Courses"));
 const courseAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -79,3 +79,23 @@ const courseUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.courseUpdate = courseUpdate;
+const courseDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { userId } = req.params;
+        const { courseId } = req.body;
+        const user = yield User_1.default.findOne({ where: { id: userId } });
+        if ((user === null || user === void 0 ? void 0 : user.role) === "admin") {
+            const deletedCourse = yield Courses_1.default.destroy({ where: { id: courseId } });
+            res
+                .status(200)
+                .json({ message: "course deleted successfully", deletedCourse });
+        }
+        else {
+            res.json({ message: "you are not allowed deleting courses" });
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
+exports.courseDelete = courseDelete;
