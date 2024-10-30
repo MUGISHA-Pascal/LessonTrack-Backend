@@ -1,8 +1,14 @@
 import { Router } from "express";
+import {
+  feedbackAdding,
+  feedbackDelete,
+  feedbackUpdate,
+  getFeedbacks,
+} from "../controllers/FeedbackController";
 
 const FeedbackRoutes = Router();
-FeedbackRoutes.post("/add_comment/:userId");
-FeedbackRoutes.get("/get_comments/:userId");
-FeedbackRoutes.put("/update_comment/:userId");
-FeedbackRoutes.delete("/delete_comment/:commentId");
+FeedbackRoutes.post("/add_feedback/:userId", feedbackAdding);
+FeedbackRoutes.get("/get_feedback", getFeedbacks);
+FeedbackRoutes.put("/update_feedback/:userId", feedbackUpdate);
+FeedbackRoutes.delete("/delete_feedback/:feedbackId", feedbackDelete);
 export default FeedbackRoutes;

@@ -4,10 +4,9 @@ import Comment from "../models/Comments";
 export const commentAdding = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { comment_id, user_id, course_id, comment_text } = req.body;
+    const { user_id, course_id, comment_text } = req.body;
 
     const comment = await Comment.create({
-      id: comment_id,
       user_id,
       course_id,
       comment_text,
