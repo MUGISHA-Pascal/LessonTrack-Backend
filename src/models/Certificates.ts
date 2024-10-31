@@ -1,8 +1,21 @@
+import { Model } from "sequelize";
 import postgresConnectionSequelize from "../config/postgres";
+import { certificateInterface } from "../interfaces/certificateinterface";
 
 const { DataTypes } = require("sequelize");
 
-const Certificate = postgresConnectionSequelize.define(
+class CertificateInt
+  extends Model<certificateInterface>
+  implements certificateInterface
+{
+  public id!: number;
+  public user_id!: number;
+  public course_id!: number;
+  public issued_date!: Date;
+  public certificate_url!: string;
+}
+
+const Certificate = postgresConnectionSequelize.define<CertificateInt>(
   "Certificate",
   {
     id: {

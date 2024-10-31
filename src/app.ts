@@ -8,6 +8,7 @@ import UserRoutes from "./routes/UserRoutes";
 import CourseRoutes from "./routes/CourserRoutes";
 import FeedbackRoutes from "./routes/FeedbackRoutes";
 import questionRoutes from "./routes/QuestionRoutes";
+import certificateRoutes from "./routes/CertificateRoute";
 dotenv.config();
 const app: Express = express();
 app.use(cors());
@@ -28,7 +29,7 @@ app.use("/course", CourseRoutes);
 app.use("/comments", CourseRoutes);
 app.use("/feedback", FeedbackRoutes);
 app.use("/question", questionRoutes);
-app.use("/certificate");
+app.use("/certificate", certificateRoutes);
 const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`the server is running on port ${port}`);
