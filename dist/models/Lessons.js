@@ -33,17 +33,11 @@ const Lesson = postgres_1.default.define("Lesson", {
         type: DataTypes.STRING(255),
         allowNull: true,
     },
-    created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-    },
-    updated_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-    },
 }, {
     tableName: "lessons",
     schema: "public",
     timestamps: false,
+    createdAt: true,
+    updatedAt: true,
 });
 exports.default = Lesson;

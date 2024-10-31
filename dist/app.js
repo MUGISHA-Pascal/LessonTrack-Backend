@@ -31,6 +31,7 @@ app.use("/course", CourserRoutes_1.default);
 app.use("/comments", CourserRoutes_1.default);
 app.use("/feedback", FeedbackRoutes_1.default);
 app.use("/question", QuestionRoutes_1.default);
+app.use("/certificate");
 const port = process.env.PORT;
 app.listen(port, () => {
     console.log(`the server is running on port ${port}`);
