@@ -1,8 +1,18 @@
+import { Model } from "sequelize";
 import postgresConnectionSequelize from "../config/postgres";
+import { LessonInterface } from "../interfaces/lessoninterface";
 
 const { DataTypes } = require("sequelize");
 
-const Lesson = postgresConnectionSequelize.define(
+class LessonInt extends Model<LessonInterface> implements LessonInterface {
+  public id!: number;
+  public course_id!: number;
+  public title!: string;
+  public content!: Text;
+  public media_url!: string;
+}
+
+const Lesson = postgresConnectionSequelize.define<LessonInt>(
   "Lesson",
   {
     id: {
