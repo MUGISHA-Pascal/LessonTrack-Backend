@@ -15,6 +15,7 @@ const FeedbackRoutes_1 = __importDefault(require("./routes/FeedbackRoutes"));
 const QuestionRoutes_1 = __importDefault(require("./routes/QuestionRoutes"));
 const CertificateRoute_1 = __importDefault(require("./routes/CertificateRoute"));
 const LessonRoutes_1 = __importDefault(require("./routes/LessonRoutes"));
+const QuizRoutes_1 = __importDefault(require("./routes/QuizRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
@@ -35,6 +36,7 @@ app.use("/feedback", FeedbackRoutes_1.default);
 app.use("/question", QuestionRoutes_1.default);
 app.use("/certificate", CertificateRoute_1.default);
 app.use("/lessons", LessonRoutes_1.default);
+app.use("/quiz", QuizRoutes_1.default);
 const port = process.env.PORT;
 app.listen(port, () => {
     console.log(`the server is running on port ${port}`);

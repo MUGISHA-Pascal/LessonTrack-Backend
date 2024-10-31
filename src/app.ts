@@ -10,6 +10,7 @@ import FeedbackRoutes from "./routes/FeedbackRoutes";
 import questionRoutes from "./routes/QuestionRoutes";
 import certificateRoutes from "./routes/CertificateRoute";
 import LessonRouter from "./routes/LessonRoutes";
+import QuizRoutes from "./routes/QuizRoutes";
 dotenv.config();
 const app: Express = express();
 app.use(cors());
@@ -32,6 +33,7 @@ app.use("/feedback", FeedbackRoutes);
 app.use("/question", questionRoutes);
 app.use("/certificate", certificateRoutes);
 app.use("/lessons", LessonRouter);
+app.use("/quiz", QuizRoutes);
 const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`the server is running on port ${port}`);

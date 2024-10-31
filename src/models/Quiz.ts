@@ -1,8 +1,16 @@
+import { Model } from "sequelize";
 import postgresConnectionSequelize from "../config/postgres";
+import { quizinterface } from "../interfaces/quizinterface";
 
 const { DataTypes } = require("sequelize");
 
-const Quiz = postgresConnectionSequelize.define(
+class QuizInt extends Model<quizinterface> implements quizinterface {
+  public id!: number;
+  public course_id!: number;
+  public title!: string;
+  public max_attempts!: number;
+}
+const Quiz = postgresConnectionSequelize.define<QuizInt>(
   "Quiz",
   {
     id: {
@@ -28,19 +36,13 @@ const Quiz = postgresConnectionSequelize.define(
       type: DataTypes.INTEGER,
       defaultValue: 3,
     },
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
   },
   {
     tableName: "quizzes",
     schema: "public",
     timestamps: false,
+    createdAt: true,
+    updatedAt: true,
   }
 );
 
