@@ -12,47 +12,67 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.lessonDelete = exports.lessonUpdate = exports.getLessons = exports.lessonAdding = void 0;
-const Comments_1 = __importDefault(require("../models/Comments"));
+exports.lessonDelete = exports.lessonUpdate = exports.getLesson = exports.lessonAdding = void 0;
+const User_1 = __importDefault(require("../models/User"));
+const Courses_1 = __importDefault(require("../models/Courses"));
 const Lessons_1 = __importDefault(require("../models/Lessons"));
 const lessonAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;
-        const { course_id, comment_text } = req.body;
-        const comment = yield Lessons_1.default.create({
-            user_id,
-            course_id,
-            comment_text,
-        });
-        res.status(200).json({ message: "comment added successfully", comment });
+        const { title, course_id, content, media_url } = req.body;
+        const user = yield User_1.default.findOne({ where: { id: userId } });
+        if ((user === null || user === void 0 ? void 0 : user.role) === "admin") {
+            const lesson = yield Lessons_1.default.create({
+                title,
+                course_id,
+                content,
+                media_url,
+            });
+            res.status(200).json({ message: "lesson created successfully", lesson });
+        }
+        else {
+            res.json({ message: "you are not allowed adding lessons" });
+        }
     }
     catch (error) {
         console.log(error);
     }
 });
 exports.lessonAdding = lessonAdding;
-const getLessons = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getLesson = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { userId } = req.params;
-        const { courseId } = req.body;
-        const comments = yield Comments_1.default.findAll({
-            where: { user_id: userId, course_id: courseId },
-        });
-        res.status(200).json({ message: "comments found successfully", comments });
+        if (req.body.title) {
+            const { title } = req.body;
+            const courseFound = yield Courses_1.default.findAll({ where: { title } });
+            if (!courseFound) {
+                res.json({ message: "course not found" });
+            }
+            res.status(200).json({ message: "course found", courses: courseFound });
+        }
+        else {
+            const courses = yield Courses_1.default.findAll();
+            res.status(200).json({ message: "all courses", courses });
+        }
     }
     catch (error) {
         console.log(error);
     }
 });
-exports.getLessons = getLessons;
+exports.getLesson = getLesson;
 const lessonUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;
-        const { comment_id, courseId, comment_text } = req.body;
-        const updatedComment = yield Comments_1.default.update({ comment_text }, { where: { id: comment_id, course_id: courseId, user_id: userId } });
-        res
-            .status(200)
-            .json({ message: "comment updated successfully", updatedComment });
+        const { lessonId, title, content, course_id, media_url } = req.body;
+        const user = yield User_1.default.findOne({ where: { id: userId } });
+        if ((user === null || user === void 0 ? void 0 : user.role) === "admin") {
+            const updatedLesson = yield Lessons_1.default.update({ title, content, media_url }, { where: { id: lessonId, course_id } });
+            res
+                .status(200)
+                .json({ message: "lesson updated successfully", updatedLesson });
+        }
+        else {
+            res.json({ message: "you are not allowed updating lessons" });
+        }
     }
     catch (error) {
         console.log(error);
@@ -61,11 +81,18 @@ const lessonUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.lessonUpdate = lessonUpdate;
 const lessonDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { commentId } = req.params;
-        const deletedComment = yield Comments_1.default.destroy({ where: { id: commentId } });
-        res
-            .status(200)
-            .json({ message: "comment deleted successfully", deletedComment });
+        const { userId } = req.params;
+        const { lessonId } = req.body;
+        const user = yield User_1.default.findOne({ where: { id: userId } });
+        if ((user === null || user === void 0 ? void 0 : user.role) === "admin") {
+            const deletedLesson = yield Lessons_1.default.destroy({ where: { id: lessonId } });
+            res
+                .status(200)
+                .json({ message: "lesson deleted successfully", deletedLesson });
+        }
+        else {
+            res.json({ message: "you are not allowed deleting lessons" });
+        }
     }
     catch (error) {
         console.log(error);
