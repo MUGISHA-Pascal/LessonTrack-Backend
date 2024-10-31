@@ -39,3 +39,20 @@ const profileUploadController = (req, res) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.profileUploadController = profileUploadController;
+const AdminUserDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { userId } = req.params;
+        const { deleteUserId } = req.body;
+        const user = yield User_1.default.findOne({ where: { id: userId } });
+        if ((user === null || user === void 0 ? void 0 : user.role) === "admin") {
+            const deletedUsers = yield User_1.default.destroy({ where: { id: deleteUserId } });
+            res.json({ message: "user deleted successfully", deletedUsers });
+        }
+        else {
+            res.json({ message: "you are not elligible to delete users" });
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
+});

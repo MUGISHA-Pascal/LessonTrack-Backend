@@ -21,3 +21,19 @@ export const profileUploadController = async (req: Request, res: Response) => {
     res.status(500).json({ message: "server error" });
   }
 };
+
+const AdminUserDelete = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { deleteUserId } = req.body;
+    const user = await User.findOne({ where: { id: userId } });
+    if (user?.role === "admin") {
+      const deletedUsers = await User.destroy({ where: { id: deleteUserId } });
+      res.json({ message: "user deleted successfully", deletedUsers });
+    } else {
+      res.json({ message: "you are not elligible to delete users" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};

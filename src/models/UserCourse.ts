@@ -1,8 +1,17 @@
+import { Model } from "sequelize";
 import postgresConnectionSequelize from "../config/postgres";
+import { UserCourseInterface } from "../interfaces/usercourseinterface";
 
 const { DataTypes } = require("sequelize");
-
-const UserCourse = postgresConnectionSequelize.define(
+class UserCourseInt
+  extends Model<UserCourseInterface>
+  implements UserCourseInterface
+{
+  public user_id!: number;
+  public course_id!: number;
+  public enrollment_date!: Date;
+}
+const UserCourse = postgresConnectionSequelize.define<UserCourseInt>(
   "UserCourse",
   {
     user_id: {
@@ -39,4 +48,4 @@ const UserCourse = postgresConnectionSequelize.define(
   }
 );
 
-module.exports = UserCourse;
+export default UserCourse;

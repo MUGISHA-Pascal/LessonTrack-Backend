@@ -8,4 +8,5 @@ UserRoutes.post(
   upload.single("ProfilePicture"),
   profileUploadController
 );
+UserRoutes.delete("/admin/userDelete/:userId");
 export default UserRoutes;
