@@ -24,6 +24,8 @@
     "@types/nodemon": "^1.19.6",
     "@types/pg": "^8.11.10",
     "@types/sequelize": "^4.28.20",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.7",
     "@types/validator": "^13.12.2",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
@@ -37,6 +39,8 @@
     "path": "^0.12.7",
     "pg": "^8.13.1",
     "sequelize": "^6.37.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "ts-node": "^10.9.2",
     "validator": "^13.12.0"
   }

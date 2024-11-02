@@ -17,9 +17,9 @@ const Comments_1 = __importDefault(require("../models/Comments"));
 const commentAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;
-        const { user_id, course_id, comment_text } = req.body;
+        const { course_id, comment_text } = req.body;
         const comment = yield Comments_1.default.create({
-            user_id,
+            user_id: Number(userId),
             course_id,
             comment_text,
         });
