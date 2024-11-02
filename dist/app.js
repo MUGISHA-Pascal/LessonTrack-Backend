@@ -16,6 +16,7 @@ const QuestionRoutes_1 = __importDefault(require("./routes/QuestionRoutes"));
 const CertificateRoute_1 = __importDefault(require("./routes/CertificateRoute"));
 const LessonRoutes_1 = __importDefault(require("./routes/LessonRoutes"));
 const QuizRoutes_1 = __importDefault(require("./routes/QuizRoutes"));
+const swagger_1 = __importDefault(require("./swagger"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
@@ -41,3 +42,4 @@ const port = process.env.PORT;
 app.listen(port, () => {
     console.log(`the server is running on port ${port}`);
 });
+(0, swagger_1.default)(app, port);

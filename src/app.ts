@@ -11,6 +11,7 @@ import questionRoutes from "./routes/QuestionRoutes";
 import certificateRoutes from "./routes/CertificateRoute";
 import LessonRouter from "./routes/LessonRoutes";
 import QuizRoutes from "./routes/QuizRoutes";
+import swaggerDocs from "./swagger";
 dotenv.config();
 const app: Express = express();
 app.use(cors());
@@ -38,3 +39,4 @@ const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`the server is running on port ${port}`);
 });
+swaggerDocs(app, port);
