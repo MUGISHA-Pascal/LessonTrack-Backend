@@ -17,7 +17,7 @@ const createToken = (id: number): string => {
 
 /**
  * @swagger
- * /login:
+ * /auth/login:
  *   post:
  *     summary: Log in a user
  *     tags: [Authentication]
@@ -100,7 +100,7 @@ export const login = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /signup:
+ * /auth/signup:
  *   post:
  *     summary: Register a new user
  *     tags: [Authentication]

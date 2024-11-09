@@ -22,7 +22,7 @@ const Certificates_1 = __importDefault(require("../models/Certificates"));
  */
 /**
  * @swagger
- * /certificates/{userId}/add:
+ * /certificates/add/{userId}:
  *   post:
  *     summary: Add a certificate for a user
  *     tags: [Certificates]
@@ -140,7 +140,7 @@ const getcertificates = (req, res) => __awaiter(void 0, void 0, void 0, function
 exports.getcertificates = getcertificates;
 /**
  * @swagger
- * /certificates/{certificateId}/update:
+ * /certificates/update/{certificateId}:
  *   put:
  *     summary: Update a certificate details
  *     tags: [Certificates]
@@ -206,7 +206,7 @@ const certificateUpdate = (req, res) => __awaiter(void 0, void 0, void 0, functi
 exports.certificateUpdate = certificateUpdate;
 /**
  * @swagger
- * /certificates/{certificateId}/delete:
+ * /certificates/delete/{certificateId}:
  *   delete:
  *     summary: Delete a certificate
  *     tags: [Certificates]

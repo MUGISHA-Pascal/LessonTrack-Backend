@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const certificateRoutes = (0, express_1.Router)();
-certificateRoutes.post("/add_certificate/:userId");
-certificateRoutes.get("/get_certificate");
-certificateRoutes.put("/update_certificate/:certificateId");
-certificateRoutes.delete("/delete_certificate/:certificateId");
+certificateRoutes.post("/add/:userId");
+certificateRoutes.get("/:userId");
+certificateRoutes.put("/update/:certificateId");
+certificateRoutes.delete("/delete/:certificateId");
 exports.default = certificateRoutes;

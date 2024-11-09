@@ -7,8 +7,8 @@ import {
 } from "../controllers/LessonController";
 
 const LessonRouter = Router();
-LessonRouter.post("/add_lesson/:userId", lessonAdding);
-LessonRouter.get("/get_lesson/:userId", getLesson);
-LessonRouter.put("/update_lesson/:userId", lessonUpdate);
-LessonRouter.delete("/delete_lesson/:lessonId", lessonDelete);
+LessonRouter.post("/add/:userId", lessonAdding);
+LessonRouter.get("/:userId", getLesson);
+LessonRouter.put("/update/:userId", lessonUpdate);
+LessonRouter.delete("/delete/:userId", lessonDelete);
 export default LessonRouter;

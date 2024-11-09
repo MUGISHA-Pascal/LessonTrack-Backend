@@ -7,8 +7,8 @@ import {
 } from "../controllers/CourseController";
 
 const CourseRoutes = Router();
-CourseRoutes.post("/add_course/:userId", courseAdding);
-CourseRoutes.get("/get_courses/", getCourses);
-CourseRoutes.put("/update_courses/:userId", courseUpdate);
-CourseRoutes.delete("/delete_courses/:userId", courseDelete);
+CourseRoutes.post("/add/:userId", courseAdding);
+CourseRoutes.get("/", getCourses);
+CourseRoutes.put("/update/:userId", courseUpdate);
+CourseRoutes.delete("/delete/:userId", courseDelete);
 export default CourseRoutes;

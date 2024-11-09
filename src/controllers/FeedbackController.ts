@@ -12,7 +12,7 @@ import Feedback from "../models/Feedback";
 
 /**
  * @swagger
- * /feedbacks/{userId}/add:
+ * /feedbacks/add/{userId}:
  *   post:
  *     summary: Add feedback for a course (admin or sub_admin only)
  *     tags: [Feedback]
@@ -80,7 +80,7 @@ export const feedbackAdding = async (req: Request, res: Response) => {
 };
 /**
  * @swagger
- * /feedbacks:
+ * /feedbacks/:
  *   get:
  *     summary: Retrieve feedbacks for a specific course
  *     tags: [Feedback]
@@ -130,7 +130,7 @@ export const getFeedbacks = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /feedbacks/{userId}/update:
+ * /feedbacks/update/{userId}:
  *   put:
  *     summary: Update an existing feedback (admin or sub_admin only)
  *     tags: [Feedback]
@@ -198,7 +198,7 @@ export const feedbackUpdate = async (req: Request, res: Response) => {
 };
 /**
  * @swagger
- * /feedbacks/{feedbackId}/delete:
+ * /feedbacks/delete/{feedbackId}:
  *   delete:
  *     summary: Delete a feedback (admin or sub_admin only)
  *     tags: [Feedback]

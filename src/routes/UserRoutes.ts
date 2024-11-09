@@ -4,9 +4,9 @@ import upload from "../middlewares/profile";
 
 const UserRoutes = Router();
 UserRoutes.post(
-  "/upload_image/:id",
+  "/upload_profile/:id",
   upload.single("ProfilePicture"),
   profileUploadController
 );
-UserRoutes.delete("/admin/userDelete/:userId");
+UserRoutes.delete("/admin/delete-user/:userId");
 export default UserRoutes;

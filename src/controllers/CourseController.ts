@@ -10,7 +10,7 @@ import Course from "../models/Courses";
 
 /**
  * @swagger
- * /courses/{userId}/add:
+ * /courses/add/{userId}:
  *   post:
  *     summary: Add a new course (admin only)
  *     tags: [Courses]
@@ -81,7 +81,7 @@ export const courseAdding = async (req: Request, res: Response) => {
 };
 /**
  * @swagger
- * /courses:
+ * /courses/:
  *   get:
  *     summary: Get a list of all courses or search by title
  *     tags: [Courses]
@@ -134,7 +134,7 @@ export const getCourses = async (req: Request, res: Response) => {
 };
 /**
  * @swagger
- * /courses/{userId}/update:
+ * /courses/update/{userId}:
  *   put:
  *     summary: Update course details (admin only)
  *     tags: [Courses]
@@ -218,7 +218,7 @@ export const courseUpdate = async (req: Request, res: Response) => {
 };
 /**
  * @swagger
- * /courses/{feedbackId}/delete:
+ * /courses/delete/{feedbackId}:
  *   delete:
  *     summary: Delete a course (admin only)
  *     tags: [Courses]

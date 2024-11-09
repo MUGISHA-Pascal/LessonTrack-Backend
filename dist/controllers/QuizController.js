@@ -23,7 +23,7 @@ const Quiz_1 = __importDefault(require("../models/Quiz"));
  */
 /**
  * @swagger
- * /quiz/{userId}/add:
+ * /quiz/add/{userId}:
  *   post:
  *     summary: Add a new quiz (admin or sub_admin only)
  *     tags: [Quiz]
@@ -92,7 +92,7 @@ const quizAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.quizAdding = quizAdding;
 /**
  * @swagger
- * /quiz:
+ * /quiz/:
  *   get:
  *     summary: Get quizzes by course ID
  *     tags: [Quiz]
@@ -139,7 +139,7 @@ const getQuiz = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.getQuiz = getQuiz;
 /**
  * @swagger
- * /quiz/{userId}/update:
+ * /quiz/update/{userId}:
  *   put:
  *     summary: Update an existing quiz (admin or sub_admin only)
  *     tags: [Quiz]
@@ -210,7 +210,7 @@ const quizUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.quizUpdate = quizUpdate;
 /**
  * @swagger
- * /quiz/{quizId}/delete:
+ * /quiz/delete/{quizId}:
  *   delete:
  *     summary: Delete a quiz (admin or sub_admin only)
  *     tags: [Quiz]

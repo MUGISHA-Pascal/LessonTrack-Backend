@@ -7,8 +7,8 @@ import {
 } from "../controllers/QuizController";
 
 const QuizRoutes = Router();
-QuizRoutes.post("/add_question/:userId", quizAdding);
-QuizRoutes.get("/get_questions", getQuiz);
-QuizRoutes.put("/update_question/:userId", quizUpdate);
-QuizRoutes.delete("/delete_question/:questionId", quizDelete);
+QuizRoutes.post("/add/:userId", quizAdding);
+QuizRoutes.get("/", getQuiz);
+QuizRoutes.put("/update/:userId", quizUpdate);
+QuizRoutes.delete("/delete/:quizId", quizDelete);
 export default QuizRoutes;

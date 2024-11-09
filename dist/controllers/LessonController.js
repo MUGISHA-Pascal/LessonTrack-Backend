@@ -24,7 +24,7 @@ const Lessons_1 = __importDefault(require("../models/Lessons"));
  */
 /**
  * @swagger
- * /lessons/{userId}/add:
+ * /lessons/add/{userId}:
  *   post:
  *     summary: Add a new lesson to a course (admin only)
  *     tags: [Lessons]
@@ -97,7 +97,7 @@ const lessonAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.lessonAdding = lessonAdding;
 /**
  * @swagger
- * /lessons:
+ * /lessons/:
  *   get:
  *     summary: Get lessons by course title or list all courses
  *     tags: [Lessons]
@@ -153,7 +153,7 @@ const getLesson = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.getLesson = getLesson;
 /**
  * @swagger
- * /lessons/{userId}/update:
+ * /lessons/update/{userId}:
  *   put:
  *     summary: Update an existing lesson (admin only)
  *     tags: [Lessons]
@@ -227,7 +227,7 @@ const lessonUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.lessonUpdate = lessonUpdate;
 /**
  * @swagger
- * /lessons/{userId}/delete:
+ * /lessons/delete/{userId}:
  *   delete:
  *     summary: Delete a lesson from a course (admin only)
  *     tags: [Lessons]

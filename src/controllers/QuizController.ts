@@ -10,7 +10,7 @@ import Quiz from "../models/Quiz";
 
 /**
  * @swagger
- * /quiz/{userId}/add:
+ * /quiz/add/{userId}:
  *   post:
  *     summary: Add a new quiz (admin or sub_admin only)
  *     tags: [Quiz]
@@ -77,7 +77,7 @@ export const quizAdding = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /quiz:
+ * /quiz/:
  *   get:
  *     summary: Get quizzes by course ID
  *     tags: [Quiz]
@@ -122,7 +122,7 @@ export const getQuiz = async (req: Request, res: Response) => {
 };
 /**
  * @swagger
- * /quiz/{userId}/update:
+ * /quiz/update/{userId}:
  *   put:
  *     summary: Update an existing quiz (admin or sub_admin only)
  *     tags: [Quiz]
@@ -193,7 +193,7 @@ export const quizUpdate = async (req: Request, res: Response) => {
 };
 /**
  * @swagger
- * /quiz/{quizId}/delete:
+ * /quiz/delete/{quizId}:
  *   delete:
  *     summary: Delete a quiz (admin or sub_admin only)
  *     tags: [Quiz]

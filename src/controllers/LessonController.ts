@@ -11,7 +11,7 @@ import Lesson from "../models/Lessons";
 
 /**
  * @swagger
- * /lessons/{userId}/add:
+ * /lessons/add/{userId}:
  *   post:
  *     summary: Add a new lesson to a course (admin only)
  *     tags: [Lessons]
@@ -81,7 +81,7 @@ export const lessonAdding = async (req: Request, res: Response) => {
 };
 /**
  * @swagger
- * /lessons:
+ * /lessons/:
  *   get:
  *     summary: Get lessons by course title or list all courses
  *     tags: [Lessons]
@@ -134,7 +134,7 @@ export const getLesson = async (req: Request, res: Response) => {
 };
 /**
  * @swagger
- * /lessons/{userId}/update:
+ * /lessons/update/{userId}:
  *   put:
  *     summary: Update an existing lesson (admin only)
  *     tags: [Lessons]
@@ -208,7 +208,7 @@ export const lessonUpdate = async (req: Request, res: Response) => {
 };
 /**
  * @swagger
- * /lessons/{userId}/delete:
+ * /lessons/delete/{userId}:
  *   delete:
  *     summary: Delete a lesson from a course (admin only)
  *     tags: [Lessons]

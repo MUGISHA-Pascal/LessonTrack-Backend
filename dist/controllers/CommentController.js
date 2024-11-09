@@ -22,7 +22,7 @@ const Comments_1 = __importDefault(require("../models/Comments"));
  */
 /**
  * @swagger
- * /comments/{userId}/add:
+ * /comments/add/{userId}:
  *   post:
  *     summary: Add a comment on a course
  *     tags: [Comments]
@@ -136,7 +136,7 @@ const getComments = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 exports.getComments = getComments;
 /**
  * @swagger
- * /comments/{userId}/update:
+ * /comments/update/{userId}:
  *   put:
  *     summary: Update a comment (user-specific)
  *     tags: [Comments]
@@ -197,7 +197,7 @@ const commentUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 exports.commentUpdate = commentUpdate;
 /**
  * @swagger
- * /comments/{commentId}/delete:
+ * /comments/delete/{commentId}:
  *   delete:
  *     summary: Delete a comment
  *     tags: [Comments]

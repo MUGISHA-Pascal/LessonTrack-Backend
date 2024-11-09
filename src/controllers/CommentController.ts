@@ -10,7 +10,7 @@ import Comment from "../models/Comments";
 
 /**
  * @swagger
- * /comments/{userId}/add:
+ * /comments/add/{userId}:
  *   post:
  *     summary: Add a comment on a course
  *     tags: [Comments]
@@ -122,7 +122,7 @@ export const getComments = async (req: Request, res: Response) => {
 };
 /**
  * @swagger
- * /comments/{userId}/update:
+ * /comments/update/{userId}:
  *   put:
  *     summary: Update a comment (user-specific)
  *     tags: [Comments]
@@ -185,7 +185,7 @@ export const commentUpdate = async (req: Request, res: Response) => {
 };
 /**
  * @swagger
- * /comments/{commentId}/delete:
+ * /comments/delete/{commentId}:
  *   delete:
  *     summary: Delete a comment
  *     tags: [Comments]

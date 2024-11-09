@@ -10,7 +10,7 @@ import User from "../models/User";
 
 /**
  * @swagger
- * /user/{id}/upload-profile:
+ * /user/upload-profile/{id}:
  *   post:
  *     summary: Upload a profile picture for a user
  *     tags: [User]
@@ -75,7 +75,7 @@ export const profileUploadController = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /admin/{userId}/delete-user:
+ * /user/admin/delete-user/{userId}:
  *   delete:
  *     summary: Delete a user by admin
  *     tags: [User]

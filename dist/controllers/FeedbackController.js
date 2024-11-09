@@ -24,7 +24,7 @@ const Feedback_1 = __importDefault(require("../models/Feedback"));
  */
 /**
  * @swagger
- * /feedbacks/{userId}/add:
+ * /feedbacks/add/{userId}:
  *   post:
  *     summary: Add feedback for a course (admin or sub_admin only)
  *     tags: [Feedback]
@@ -95,7 +95,7 @@ const feedbackAdding = (req, res) => __awaiter(void 0, void 0, void 0, function*
 exports.feedbackAdding = feedbackAdding;
 /**
  * @swagger
- * /feedbacks:
+ * /feedbacks/:
  *   get:
  *     summary: Retrieve feedbacks for a specific course
  *     tags: [Feedback]
@@ -146,7 +146,7 @@ const getFeedbacks = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.getFeedbacks = getFeedbacks;
 /**
  * @swagger
- * /feedbacks/{userId}/update:
+ * /feedbacks/update/{userId}:
  *   put:
  *     summary: Update an existing feedback (admin or sub_admin only)
  *     tags: [Feedback]
@@ -214,7 +214,7 @@ const feedbackUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function*
 exports.feedbackUpdate = feedbackUpdate;
 /**
  * @swagger
- * /feedbacks/{feedbackId}/delete:
+ * /feedbacks/delete/{feedbackId}:
  *   delete:
  *     summary: Delete a feedback (admin or sub_admin only)
  *     tags: [Feedback]

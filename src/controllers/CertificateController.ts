@@ -9,7 +9,7 @@ import Certificate from "../models/Certificates";
 
 /**
  * @swagger
- * /certificates/{userId}/add:
+ * /certificates/add/{userId}:
  *   post:
  *     summary: Add a certificate for a user
  *     tags: [Certificates]
@@ -125,7 +125,7 @@ export const getcertificates = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /certificates/{certificateId}/update:
+ * /certificates/update/{certificateId}:
  *   put:
  *     summary: Update a certificate details
  *     tags: [Certificates]
@@ -194,7 +194,7 @@ export const certificateUpdate = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /certificates/{certificateId}/delete:
+ * /certificates/delete/{certificateId}:
  *   delete:
  *     summary: Delete a certificate
  *     tags: [Certificates]

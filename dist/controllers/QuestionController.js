@@ -23,7 +23,7 @@ const Questions_1 = __importDefault(require("../models/Questions"));
  */
 /**
  * @swagger
- * /questions/{userId}/add:
+ * /questions/add/{userId}:
  *   post:
  *     summary: Add a new question to a quiz (admin or sub_admin only)
  *     tags: [Questions]
@@ -94,7 +94,7 @@ const questionAdding = (req, res) => __awaiter(void 0, void 0, void 0, function*
 exports.questionAdding = questionAdding;
 /**
  * @swagger
- * /questions:
+ * /questions/:
  *   get:
  *     summary: Get all questions for a specific quiz
  *     tags: [Questions]
@@ -143,7 +143,7 @@ const getQuestions = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.getQuestions = getQuestions;
 /**
  * @swagger
- * /questions/{userId}/update:
+ * /questions/update/{userId}:
  *   put:
  *     summary: Update an existing question (admin or sub_admin only)
  *     tags: [Questions]
@@ -214,7 +214,7 @@ const questionUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function*
 exports.questionUpdate = questionUpdate;
 /**
  * @swagger
- * /questions/{questionId}/delete:
+ * /questions/delete/{questionId}:
  *   delete:
  *     summary: Delete a question from a quiz (admin or sub_admin only)
  *     tags: [Questions]

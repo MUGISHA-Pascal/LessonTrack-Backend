@@ -23,7 +23,7 @@ const Courses_1 = __importDefault(require("../models/Courses"));
  */
 /**
  * @swagger
- * /courses/{userId}/add:
+ * /courses/add/{userId}:
  *   post:
  *     summary: Add a new course (admin only)
  *     tags: [Courses]
@@ -97,7 +97,7 @@ const courseAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.courseAdding = courseAdding;
 /**
  * @swagger
- * /courses:
+ * /courses/:
  *   get:
  *     summary: Get a list of all courses or search by title
  *     tags: [Courses]
@@ -153,7 +153,7 @@ const getCourses = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.getCourses = getCourses;
 /**
  * @swagger
- * /courses/{userId}/update:
+ * /courses/update/{userId}:
  *   put:
  *     summary: Update course details (admin only)
  *     tags: [Courses]
@@ -230,7 +230,7 @@ const courseUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.courseUpdate = courseUpdate;
 /**
  * @swagger
- * /courses/{feedbackId}/delete:
+ * /courses/delete/{feedbackId}:
  *   delete:
  *     summary: Delete a course (admin only)
  *     tags: [Courses]

@@ -22,7 +22,7 @@ const User_1 = __importDefault(require("../models/User"));
  */
 /**
  * @swagger
- * /user/{id}/upload-profile:
+ * /user/upload-profile/{id}:
  *   post:
  *     summary: Upload a profile picture for a user
  *     tags: [User]
@@ -90,7 +90,7 @@ const profileUploadController = (req, res) => __awaiter(void 0, void 0, void 0, 
 exports.profileUploadController = profileUploadController;
 /**
  * @swagger
- * /admin/{userId}/delete-user:
+ * /user/admin/delete-user/{userId}:
  *   delete:
  *     summary: Delete a user by admin
  *     tags: [User]

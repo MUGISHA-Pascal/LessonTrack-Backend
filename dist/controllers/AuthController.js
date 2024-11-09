@@ -27,7 +27,7 @@ const createToken = (id) => {
  */
 /**
  * @swagger
- * /login:
+ * /auth/login:
  *   post:
  *     summary: Log in a user
  *     tags: [Authentication]
@@ -113,7 +113,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.login = login;
 /**
  * @swagger
- * /signup:
+ * /auth/signup:
  *   post:
  *     summary: Register a new user
  *     tags: [Authentication]
