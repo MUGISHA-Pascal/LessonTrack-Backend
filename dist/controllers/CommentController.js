@@ -195,6 +195,38 @@ const commentUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.commentUpdate = commentUpdate;
+/**
+ * @swagger
+ * /comments/{commentId}/delete:
+ *   delete:
+ *     summary: Delete a comment
+ *     tags: [Comments]
+ *     parameters:
+ *       - in: path
+ *         name: commentId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID of the comment to delete
+ *     responses:
+ *       200:
+ *         description: Comment deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "comment deleted successfully"
+ *                 deletedComment:
+ *                   type: integer
+ *                   example: 5
+ *       404:
+ *         description: Comment not found
+ *       500:
+ *         description: Server error
+ */
 const commentDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { commentId } = req.params;
