@@ -15,6 +15,62 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.courseDelete = exports.courseUpdate = exports.getCourses = exports.courseAdding = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const Courses_1 = __importDefault(require("../models/Courses"));
+/**
+ * @swagger
+ * tags:
+ *   name: Courses
+ *   description: Course management for the platform
+ */
+/**
+ * @swagger
+ * /courses/{userId}/add:
+ *   post:
+ *     summary: Add a new course (admin only)
+ *     tags: [Courses]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID of the user adding the course
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 example: "Advanced JavaScript"
+ *               description:
+ *                 type: string
+ *                 example: "An in-depth course on modern JavaScript techniques."
+ *               content_type:
+ *                 type: string
+ *                 example: "video"
+ *               is_active:
+ *                 type: boolean
+ *                 example: true
+ *     responses:
+ *       200:
+ *         description: Course created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "course created successfully"
+ *                 course:
+ *                   $ref: '#/components/schemas/Course'
+ *       403:
+ *         description: User is not allowed to add courses
+ *       500:
+ *         description: Server error
+ */
 const courseAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;
@@ -39,6 +95,42 @@ const courseAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.courseAdding = courseAdding;
+/**
+ * @swagger
+ * /courses:
+ *   get:
+ *     summary: Get a list of all courses or search by title
+ *     tags: [Courses]
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 example: "JavaScript"
+ *     responses:
+ *       200:
+ *         description: Courses retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "all courses"
+ *                 courses:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Course'
+ *       404:
+ *         description: No courses found matching the search criteria
+ *       500:
+ *         description: Server error
+ */
 const getCourses = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (req.body.title) {
@@ -59,6 +151,63 @@ const getCourses = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.getCourses = getCourses;
+/**
+ * @swagger
+ * /courses/{userId}/update:
+ *   put:
+ *     summary: Update course details (admin only)
+ *     tags: [Courses]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID of the user updating the course
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               courseId:
+ *                 type: integer
+ *                 example: 1
+ *               title:
+ *                 type: string
+ *                 example: "Advanced JavaScript"
+ *               description:
+ *                 type: string
+ *                 example: "Updated in-depth course content on JavaScript."
+ *               content_type:
+ *                 type: string
+ *                 example: "video"
+ *               created_by:
+ *                 type: integer
+ *                 example: 1
+ *               is_active:
+ *                 type: boolean
+ *                 example: true
+ *     responses:
+ *       200:
+ *         description: Course updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "course updated successfully"
+ *                 updatedCourse:
+ *                   type: integer
+ *                   example: 1
+ *       403:
+ *         description: User is not allowed to update courses
+ *       500:
+ *         description: Server error
+ */
 const courseUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;
@@ -79,6 +228,48 @@ const courseUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.courseUpdate = courseUpdate;
+/**
+ * @swagger
+ * /courses/{feedbackId}/delete:
+ *   delete:
+ *     summary: Delete a course (admin only)
+ *     tags: [Courses]
+ *     parameters:
+ *       - in: path
+ *         name: feedbackId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID of the course to delete
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: Course deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "course deleted successfully"
+ *                 deletedCourse:
+ *                   type: integer
+ *                   example: 1
+ *       403:
+ *         description: User is not allowed to delete courses
+ *       500:
+ *         description: Server error
+ */
 const courseDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;
