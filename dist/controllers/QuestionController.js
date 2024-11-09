@@ -15,6 +15,59 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.questionDelete = exports.questionUpdate = exports.getQuestions = exports.questionAdding = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const Questions_1 = __importDefault(require("../models/Questions"));
+/**
+ * @swagger
+ * tags:
+ *   name: Questions
+ *   description: Question management for quizzes
+ */
+/**
+ * @swagger
+ * /questions/{userId}/add:
+ *   post:
+ *     summary: Add a new question to a quiz (admin or sub_admin only)
+ *     tags: [Questions]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID of the user adding the question
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               quiz_id:
+ *                 type: integer
+ *                 example: 1
+ *               question_text:
+ *                 type: string
+ *                 example: "What is the capital of France?"
+ *               correct_answer:
+ *                 type: string
+ *                 example: "Paris"
+ *     responses:
+ *       200:
+ *         description: Question added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "question added successfully"
+ *                 question:
+ *                   $ref: '#/components/schemas/Question'
+ *       403:
+ *         description: Not eligible to add question
+ *       500:
+ *         description: Server error
+ */
 const questionAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;
@@ -39,6 +92,40 @@ const questionAdding = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.questionAdding = questionAdding;
+/**
+ * @swagger
+ * /questions:
+ *   get:
+ *     summary: Get all questions for a specific quiz
+ *     tags: [Questions]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               quiz_id:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: Questions retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Questions found successfully"
+ *                 questions:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Question'
+ *       500:
+ *         description: Server error
+ */
 const getQuestions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { quiz_id } = req.body;
@@ -54,6 +141,57 @@ const getQuestions = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.getQuestions = getQuestions;
+/**
+ * @swagger
+ * /questions/{userId}/update:
+ *   put:
+ *     summary: Update an existing question (admin or sub_admin only)
+ *     tags: [Questions]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID of the user updating the question
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               quiz_id:
+ *                 type: integer
+ *                 example: 1
+ *               question_text:
+ *                 type: string
+ *                 example: "Updated question text"
+ *               correct_answer:
+ *                 type: string
+ *                 example: "Updated answer"
+ *               questionId:
+ *                 type: integer
+ *                 example: 2
+ *     responses:
+ *       200:
+ *         description: Question updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "question updated successfully"
+ *                 updatedQuestion:
+ *                   type: integer
+ *                   example: 1
+ *       403:
+ *         description: Not eligible to update question
+ *       500:
+ *         description: Server error
+ */
 const questionUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;
@@ -74,6 +212,48 @@ const questionUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.questionUpdate = questionUpdate;
+/**
+ * @swagger
+ * /questions/{questionId}/delete:
+ *   delete:
+ *     summary: Delete a question from a quiz (admin or sub_admin only)
+ *     tags: [Questions]
+ *     parameters:
+ *       - in: path
+ *         name: questionId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID of the question to delete
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: Question deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "question deleted successfully"
+ *                 deletedQuestion:
+ *                   type: integer
+ *                   example: 1
+ *       403:
+ *         description: Not eligible to delete question
+ *       500:
+ *         description: Server error
+ */
 const questionDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { questionId } = req.params;

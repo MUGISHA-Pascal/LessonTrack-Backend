@@ -2,6 +2,63 @@ import { Request, Response } from "express";
 import User from "../models/User";
 import Course from "../models/Courses";
 import Lesson from "../models/Lessons";
+/**
+ * @swagger
+ * tags:
+ *   name: Lessons
+ *   description: Lesson management within courses
+ */
+
+/**
+ * @swagger
+ * /lessons/{userId}/add:
+ *   post:
+ *     summary: Add a new lesson to a course (admin only)
+ *     tags: [Lessons]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID of the user adding the lesson
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 example: "Introduction to Node.js"
+ *               course_id:
+ *                 type: integer
+ *                 example: 1
+ *               content:
+ *                 type: string
+ *                 example: "This is the first lesson of the Node.js course."
+ *               media_url:
+ *                 type: string
+ *                 example: "http://example.com/media/lesson1.mp4"
+ *     responses:
+ *       200:
+ *         description: Lesson created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "lesson created successfully"
+ *                 lesson:
+ *                   $ref: '#/components/schemas/Lesson'
+ *       403:
+ *         description: Not allowed to add lessons
+ *       500:
+ *         description: Server error
+ */
 export const lessonAdding = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
@@ -22,7 +79,42 @@ export const lessonAdding = async (req: Request, res: Response) => {
     console.log(error);
   }
 };
-
+/**
+ * @swagger
+ * /lessons:
+ *   get:
+ *     summary: Get lessons by course title or list all courses
+ *     tags: [Lessons]
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 example: "Node.js Basics"
+ *     responses:
+ *       200:
+ *         description: Course(s) retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "course found"
+ *                 courses:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Course'
+ *       404:
+ *         description: Course not found
+ *       500:
+ *         description: Server error
+ */
 export const getLesson = async (req: Request, res: Response) => {
   try {
     if (req.body.title) {
@@ -40,7 +132,60 @@ export const getLesson = async (req: Request, res: Response) => {
     console.log(error);
   }
 };
-
+/**
+ * @swagger
+ * /lessons/{userId}/update:
+ *   put:
+ *     summary: Update an existing lesson (admin only)
+ *     tags: [Lessons]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID of the user updating the lesson
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               lessonId:
+ *                 type: integer
+ *                 example: 1
+ *               title:
+ *                 type: string
+ *                 example: "Advanced Node.js"
+ *               content:
+ *                 type: string
+ *                 example: "Updated content for the lesson."
+ *               course_id:
+ *                 type: integer
+ *                 example: 1
+ *               media_url:
+ *                 type: string
+ *                 example: "http://example.com/media/lesson1_updated.mp4"
+ *     responses:
+ *       200:
+ *         description: Lesson updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "lesson updated successfully"
+ *                 updatedLesson:
+ *                   type: integer
+ *                   example: 1
+ *       403:
+ *         description: Not allowed to update lessons
+ *       500:
+ *         description: Server error
+ */
 export const lessonUpdate = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
@@ -61,7 +206,48 @@ export const lessonUpdate = async (req: Request, res: Response) => {
     console.log(error);
   }
 };
-
+/**
+ * @swagger
+ * /lessons/{userId}/delete:
+ *   delete:
+ *     summary: Delete a lesson from a course (admin only)
+ *     tags: [Lessons]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID of the user deleting the lesson
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               lessonId:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: Lesson deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "lesson deleted successfully"
+ *                 deletedLesson:
+ *                   type: integer
+ *                   example: 1
+ *       403:
+ *         description: Not allowed to delete lessons
+ *       500:
+ *         description: Server error
+ */
 export const lessonDelete = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
