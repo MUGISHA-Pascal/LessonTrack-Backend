@@ -11,11 +11,11 @@ const options = {
         info: {
             title: "LessonTracker API",
             description: "API endpoints for lesson tracking services documented on swagger",
-            contact: {
-                name: "MUGISHA Pascal",
-                email: "mugishapascal2008@gmail.com",
-                url: "https://github.com/MUGISHA-Pascal/LessonTrack-API",
-            },
+            // contact: {
+            //   name: "MUGISHA Pascal",
+            //   email: "mugishapascal2008@gmail.com",
+            //   url: "https://github.com/MUGISHA-Pascal/LessonTrack-API",
+            // },
             version: "1.0.0",
         },
         servers: [
