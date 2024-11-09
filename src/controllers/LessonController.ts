@@ -265,3 +265,37 @@ export const lessonDelete = async (req: Request, res: Response) => {
     console.log(error);
   }
 };
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Lesson:
+ *       type: object
+ *       required:
+ *         - title
+ *         - course_id
+ *         - content
+ *         - media_url
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: Unique identifier for the lesson
+ *           example: 1
+ *         title:
+ *           type: string
+ *           description: Title of the lesson
+ *           example: "Introduction to Node.js"
+ *         course_id:
+ *           type: integer
+ *           description: The ID of the course to which the lesson belongs
+ *           example: 1
+ *         content:
+ *           type: string
+ *           description: The content or description of the lesson
+ *           example: "This is the first lesson of the Node.js course."
+ *         media_url:
+ *           type: string
+ *           description: URL to the media file (e.g., video, audio) for the lesson
+ *           example: "http://example.com/media/lesson1.mp4"
+ */

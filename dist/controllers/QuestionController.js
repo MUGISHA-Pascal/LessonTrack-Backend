@@ -276,3 +276,41 @@ const questionDelete = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.questionDelete = questionDelete;
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Question:
+ *       type: object
+ *       required:
+ *         - quiz_id
+ *         - question_text
+ *         - correct_answer
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: Unique identifier for the question
+ *           example: 1
+ *         quiz_id:
+ *           type: integer
+ *           description: ID of the quiz the question belongs to
+ *           example: 1
+ *         question_text:
+ *           type: string
+ *           description: The text of the question
+ *           example: "What is the capital of France?"
+ *         correct_answer:
+ *           type: string
+ *           description: The correct answer for the question
+ *           example: "Paris"
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: Timestamp when the question was created
+ *           example: "2024-11-09T12:00:00Z"
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: Timestamp when the question was last updated
+ *           example: "2024-11-09T12:00:00Z"
+ */

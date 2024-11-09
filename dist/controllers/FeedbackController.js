@@ -276,3 +276,37 @@ const feedbackDelete = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.feedbackDelete = feedbackDelete;
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Feedback:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: Unique identifier for the feedback
+ *           example: 1
+ *         user_id:
+ *           type: integer
+ *           description: ID of the user who provided the feedback
+ *           example: 1
+ *         course_id:
+ *           type: integer
+ *           description: ID of the course the feedback is related to
+ *           example: 1
+ *         feedback_text:
+ *           type: string
+ *           description: The content of the feedback
+ *           example: "Great course! Learned a lot."
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *           description: Feedback creation timestamp
+ *           example: "2024-11-09T12:34:56Z"
+ *         updated_at:
+ *           type: string
+ *           format: date-time
+ *           description: Feedback last updated timestamp
+ *           example: "2024-11-09T14:34:56Z"
+ */

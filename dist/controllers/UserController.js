@@ -152,3 +152,35 @@ const AdminUserDelete = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.AdminUserDelete = AdminUserDelete;
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 1
+ *         name:
+ *           type: string
+ *           example: "John Doe"
+ *         email:
+ *           type: string
+ *           format: email
+ *           example: "johndoe@example.com"
+ *         role:
+ *           type: string
+ *           example: "user"
+ *         profilePicture:
+ *           type: string
+ *           example: "https://example.com/profile-pictures/johndoe.jpg"
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           example: "2024-01-01T12:00:00Z"
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           example: "2024-01-02T12:00:00Z"
+ */

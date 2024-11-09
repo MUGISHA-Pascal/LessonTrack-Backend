@@ -252,3 +252,31 @@ export const quizDelete = async (req: Request, res: Response) => {
     console.log(error);
   }
 };
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Quiz:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 1
+ *         course_id:
+ *           type: integer
+ *           example: 1
+ *         title:
+ *           type: string
+ *           example: "Quiz Title"
+ *         max_attempts:
+ *           type: integer
+ *           example: 3
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           example: "2024-11-09T00:00:00Z"
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           example: "2024-11-09T00:00:00Z"
+ */

@@ -290,3 +290,54 @@ const courseDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.courseDelete = courseDelete;
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Course:
+ *       type: object
+ *       required:
+ *         - title
+ *         - description
+ *         - content_type
+ *         - is_active
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: The unique ID of the course
+ *           example: 1
+ *         title:
+ *           type: string
+ *           description: The title of the course
+ *           example: "Advanced JavaScript"
+ *         description:
+ *           type: string
+ *           description: A detailed description of the course
+ *           example: "An in-depth course on modern JavaScript techniques."
+ *         content_type:
+ *           type: string
+ *           description: The type of course content (e.g., video, text, etc.)
+ *           example: "video"
+ *         created_by:
+ *           type: integer
+ *           description: The ID of the user who created the course
+ *           example: 1
+ *         is_active:
+ *           type: boolean
+ *           description: The status of the course (whether it's active or not)
+ *           example: true
+ *     User:
+ *       type: object
+ *       required:
+ *         - id
+ *         - role
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: The unique ID of the user
+ *           example: 1
+ *         role:
+ *           type: string
+ *           description: The role of the user (e.g., "admin", "student")
+ *           example: "admin"
+ */
