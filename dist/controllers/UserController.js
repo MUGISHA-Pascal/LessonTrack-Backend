@@ -12,13 +12,62 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.profileUploadController = void 0;
+exports.AdminUserDelete = exports.profileUploadController = void 0;
 const User_1 = __importDefault(require("../models/User"));
+/**
+ * @swagger
+ * tags:
+ *   name: User
+ *   description: User management and profile
+ */
+/**
+ * @swagger
+ * /user/{id}/upload-profile:
+ *   post:
+ *     summary: Upload a profile picture for a user
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID of the user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Image file to upload
+ *     responses:
+ *       200:
+ *         description: Profile picture uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "user image uploaded successfully"
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: No image file uploaded
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 const profileUploadController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        const userId = id;
-        const user = yield User_1.default.findOne({ where: { id: userId } });
+        const user = yield User_1.default.findOne({ where: { id } });
         if (user) {
             if (req.file) {
                 user.profilePicture = req.file.path;
@@ -39,6 +88,51 @@ const profileUploadController = (req, res) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.profileUploadController = profileUploadController;
+/**
+ * @swagger
+ * /admin/{userId}/delete-user:
+ *   delete:
+ *     summary: Delete a user by admin
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID of the admin user performing the delete
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               deleteUserId:
+ *                 type: integer
+ *                 description: ID of the user to be deleted
+ *                 example: 2
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "user deleted successfully"
+ *                 deletedUsers:
+ *                   type: integer
+ *                   example: 1
+ *       403:
+ *         description: Not eligible to delete users
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 const AdminUserDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;
@@ -49,10 +143,12 @@ const AdminUserDelete = (req, res) => __awaiter(void 0, void 0, void 0, function
             res.json({ message: "user deleted successfully", deletedUsers });
         }
         else {
-            res.json({ message: "you are not elligible to delete users" });
+            res.status(403).json({ message: "you are not eligible to delete users" });
         }
     }
     catch (error) {
         console.log(error);
+        res.status(500).json({ message: "server error" });
     }
 });
+exports.AdminUserDelete = AdminUserDelete;

@@ -24,12 +24,12 @@ const options = {
                 description: "Local server",
             },
             {
-                url: "<your live url here>",
+                url: "https://lessontrack-api.onrender.com/",
                 description: "Live server",
             },
         ],
     },
-    apis: ["./router/*.ts"],
+    apis: ["./src/controllers/*.ts"],
 };
 const swaggerSpec = (0, swagger_jsdoc_1.default)(options);
 function swaggerDocs(app, port) {
