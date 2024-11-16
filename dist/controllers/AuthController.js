@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.signup = exports.login = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const maxAge = 24 * 60 * 60;
 const createToken = (id) => {
     return jsonwebtoken_1.default.sign({ id }, process.env.JWT_KEY, { expiresIn: "1d" });
@@ -80,30 +81,27 @@ const createToken = (id) => {
  *                   example: "user not found(email)"
  */
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email, password_hash } = req.body;
+    let { email, password_hash } = req.body;
     try {
         const user = yield User_1.default.findOne({ where: { email } });
         if (user) {
-            const auth = yield User_1.default.findOne({ where: { password_hash } });
-            if (auth) {
-                const token = createToken(auth.id);
+            const ismatch = yield bcrypt_1.default.compare(password_hash, user.password_hash);
+            if (ismatch) {
+                const token = createToken(user.id);
                 res.cookie("jwt", token, { maxAge: maxAge * 1000 });
                 res.status(200).json({
                     message: "user found",
                     user: {
-                        id: auth.id,
-                        username: auth.username,
-                        email: auth.email,
-                        role: auth.role,
+                        id: user.id,
+                        username: user.username,
+                        email: user.email,
+                        role: user.role,
                     },
                 });
             }
-            else {
-                res.status(401).json({ message: "user not found(password)" });
-            }
         }
         else {
-            res.status(401).json({ message: "user not found(email)" });
+            res.status(401).json({ message: "user not found(password)" });
         }
     }
     catch (error) {

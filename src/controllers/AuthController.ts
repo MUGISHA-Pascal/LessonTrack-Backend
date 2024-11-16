@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import User from "../models/User";
 import jwt from "jsonwebtoken";
-
+import bcrypt from "bcrypt";
 const maxAge = 24 * 60 * 60;
 
 const createToken = (id: number): string => {
@@ -70,28 +70,26 @@ const createToken = (id: number): string => {
  *                   example: "user not found(email)"
  */
 export const login = async (req: Request, res: Response) => {
-  const { email, password_hash } = req.body;
+  let { email, password_hash } = req.body;
   try {
     const user = await User.findOne({ where: { email } });
     if (user) {
-      const auth = await User.findOne({ where: { password_hash } });
-      if (auth) {
-        const token = createToken(auth.id);
+      const ismatch = await bcrypt.compare(password_hash, user.password_hash);
+      if (ismatch) {
+        const token = createToken(user.id);
         res.cookie("jwt", token, { maxAge: maxAge * 1000 });
         res.status(200).json({
           message: "user found",
           user: {
-            id: auth.id,
-            username: auth.username,
-            email: auth.email,
-            role: auth.role,
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            role: user.role,
           },
         });
-      } else {
-        res.status(401).json({ message: "user not found(password)" });
       }
     } else {
-      res.status(401).json({ message: "user not found(email)" });
+      res.status(401).json({ message: "user not found(password)" });
     }
   } catch (error) {
     console.log(error);
