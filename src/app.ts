@@ -28,7 +28,7 @@ postgresConnectionSequelize
 
 app.use("/auth", AuthRoutes);
 app.use("/user", UserRoutes);
-app.use("/course", CourseRoutes);
+app.use("/courses", CourseRoutes);
 app.use("/comments", CourseRoutes);
 app.use("/feedbacks", FeedbackRoutes);
 app.use("/questions", questionRoutes);
