@@ -6,9 +6,9 @@ import {
   getComments,
 } from "../controllers/CommentController";
 
-const CourseRoutes = Router();
-CourseRoutes.post("/add/:userId", commentAdding);
-CourseRoutes.get("/:userId", getComments);
-CourseRoutes.put("/update/:userId", commentUpdate);
-CourseRoutes.delete("/delete/:commentId", commentDelete);
-export default CourseRoutes;
+const CommentRoutes = Router();
+CommentRoutes.post("/add/:userId", commentAdding);
+CommentRoutes.get("/:userId", getComments);
+CommentRoutes.put("/update/:userId", commentUpdate);
+CommentRoutes.delete("/delete/:commentId", commentDelete);
+export default CommentRoutes;

@@ -12,6 +12,7 @@ import certificateRoutes from "./routes/CertificateRoute";
 import LessonRouter from "./routes/LessonRoutes";
 import QuizRoutes from "./routes/QuizRoutes";
 import swaggerDocs from "./swagger";
+import CommentRoutes from "./routes/CommentRoutes";
 dotenv.config();
 const app: Express = express();
 app.use(cors());
@@ -29,7 +30,7 @@ postgresConnectionSequelize
 app.use("/auth", AuthRoutes);
 app.use("/user", UserRoutes);
 app.use("/courses", CourseRoutes);
-app.use("/comments", CourseRoutes);
+app.use("/comments", CommentRoutes);
 app.use("/feedbacks", FeedbackRoutes);
 app.use("/questions", questionRoutes);
 app.use("/certificates", certificateRoutes);

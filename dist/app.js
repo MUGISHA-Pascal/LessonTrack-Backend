@@ -31,7 +31,7 @@ postgres_1.postgresConnectionSequelize
 });
 app.use("/auth", AuthRoutes_1.default);
 app.use("/user", UserRoutes_1.default);
-app.use("/course", CourserRoutes_1.default);
+app.use("/courses", CourserRoutes_1.default);
 app.use("/comments", CourserRoutes_1.default);
 app.use("/feedbacks", FeedbackRoutes_1.default);
 app.use("/questions", QuestionRoutes_1.default);
