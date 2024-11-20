@@ -16,7 +16,7 @@ const QuestionRoutes_1 = __importDefault(require("./routes/QuestionRoutes"));
 const CertificateRoute_1 = __importDefault(require("./routes/CertificateRoute"));
 const LessonRoutes_1 = __importDefault(require("./routes/LessonRoutes"));
 const QuizRoutes_1 = __importDefault(require("./routes/QuizRoutes"));
-const swagger_1 = __importDefault(require("./swagger"));
+const CommentRoutes_1 = __importDefault(require("./routes/CommentRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
@@ -32,14 +32,10 @@ postgres_1.postgresConnectionSequelize
 app.use("/auth", AuthRoutes_1.default);
 app.use("/user", UserRoutes_1.default);
 app.use("/courses", CourserRoutes_1.default);
-app.use("/comments", CourserRoutes_1.default);
+app.use("/comments", CommentRoutes_1.default);
 app.use("/feedbacks", FeedbackRoutes_1.default);
 app.use("/questions", QuestionRoutes_1.default);
 app.use("/certificates", CertificateRoute_1.default);
 app.use("/lessons", LessonRoutes_1.default);
 app.use("/quiz", QuizRoutes_1.default);
-const port = process.env.PORT;
-app.listen(port, () => {
-    console.log(`the server is running on port ${port}`);
-});
-(0, swagger_1.default)(app, port);
+exports.default = app;

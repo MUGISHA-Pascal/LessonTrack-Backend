@@ -11,7 +11,6 @@ import questionRoutes from "./routes/QuestionRoutes";
 import certificateRoutes from "./routes/CertificateRoute";
 import LessonRouter from "./routes/LessonRoutes";
 import QuizRoutes from "./routes/QuizRoutes";
-import swaggerDocs from "./swagger";
 import CommentRoutes from "./routes/CommentRoutes";
 dotenv.config();
 const app: Express = express();
@@ -36,8 +35,4 @@ app.use("/questions", questionRoutes);
 app.use("/certificates", certificateRoutes);
 app.use("/lessons", LessonRouter);
 app.use("/quiz", QuizRoutes);
-const port = process.env.PORT;
-app.listen(port, () => {
-  console.log(`the server is running on port ${port}`);
-});
-swaggerDocs(app, port);
+export default app;
