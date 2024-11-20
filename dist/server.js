@@ -14,3 +14,4 @@ server.listen(port, () => {
     console.log("server running on port " + port);
 });
 (0, swagger_1.default)(app_1.default, port);
+exports.default = io;

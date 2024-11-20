@@ -10,3 +10,5 @@ server.listen(port, () => {
   console.log("server running on port " + port);
 });
 swaggerDocs(app, port);
+
+export default io;
