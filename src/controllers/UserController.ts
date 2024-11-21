@@ -166,3 +166,47 @@ export const AdminUserDelete = async (req: Request, res: Response) => {
  *           format: date-time
  *           example: "2024-01-02T12:00:00Z"
  */
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     File:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: Unique identifier for the file.
+ *         filename:
+ *           type: string
+ *           description: Name of the uploaded file.
+ *         mimetype:
+ *           type: string
+ *           description: MIME type of the file (e.g., image/jpeg, application/pdf).
+ *         size:
+ *           type: integer
+ *           description: Size of the file in bytes.
+ *         storagePath:
+ *           type: string
+ *           description: Path where the file is stored on the server.
+ *         sender:
+ *           type: string
+ *           description: Email or identifier of the sender.
+ *         receiver:
+ *           type: string
+ *           description: Email or identifier of the receiver.
+ *       required:
+ *         - filename
+ *         - mimetype
+ *         - size
+ *         - storagePath
+ *         - sender
+ *         - receiver
+ *       example:
+ *         id: 1
+ *         filename: example.jpg
+ *         mimetype: image/jpeg
+ *         size: 2048
+ *         storagePath: /uploads/example.jpg
+ *         sender: sender@example.com
+ *         receiver: receiver@example.com
+ */

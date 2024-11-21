@@ -17,6 +17,59 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_1 = __importDefault(require("../models/User"));
 const Message_1 = __importDefault(require("../models/Message"));
 const userSockets = new Map();
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     SendMessage:
+ *       type: object
+ *       properties:
+ *         receiver:
+ *           type: string
+ *           description: Email of the receiver.
+ *         message:
+ *           type: string
+ *           description: The message to be sent.
+ *       required:
+ *         - receiver
+ *         - message
+ *     MessageReply:
+ *       type: object
+ *       properties:
+ *         receiver:
+ *           type: string
+ *           description: Email of the receiver.
+ *         message:
+ *           type: string
+ *           description: The message reply content.
+ *         repliedMessageId:
+ *           type: string
+ *           description: The ID of the message being replied to.
+ *         messageReply:
+ *           type: string
+ *           description: The reply itself.
+ *       required:
+ *         - receiver
+ *         - message
+ *         - repliedMessageId
+ *         - messageReply
+ *     DeleteMessage:
+ *       type: object
+ *       properties:
+ *         receiver:
+ *           type: string
+ *           description: Email of the receiver.
+ *         messageId:
+ *           type: string
+ *           description: The ID of the message to be deleted.
+ *       required:
+ *         - receiver
+ *         - messageId
+ */
+/**
+ * Middleware for authenticating WebSocket connections.
+ * @param {Server} io - The Socket.IO server instance.
+ */
 const handleChat = (io) => __awaiter(void 0, void 0, void 0, function* () {
     io.use((socket, next) => {
         const cookies = socket.handshake.headers;
@@ -36,6 +89,27 @@ const handleChat = (io) => __awaiter(void 0, void 0, void 0, function* () {
 });
 server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, function* () {
     userSockets.set(socket.user, socket.id);
+    /**
+     * @swagger
+     * /send_message:
+     *   post:
+     *     summary: Send a direct message to another user.
+     *     tags:
+     *       - Chat
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/SendMessage'
+     *     responses:
+     *       200:
+     *         description: Message successfully sent.
+     *       404:
+     *         description: Receiver not found.
+     *       500:
+     *         description: Server error.
+     */
     socket.on("send_message", (_a) => __awaiter(void 0, [_a], void 0, function* ({ receiver, message }) {
         try {
             const receiverUser = yield User_1.default.findOne({ where: { email: receiver } });
@@ -61,6 +135,25 @@ server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, 
             console.log("Error sending the message ", error);
         }
     }));
+    /**
+     * @swagger
+     * /message_reply:
+     *   post:
+     *     summary: Reply to a specific message.
+     *     tags:
+     *       - Chat
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/MessageReply'
+     *     responses:
+     *       200:
+     *         description: Reply successfully sent.
+     *       500:
+     *         description: Server error.
+     */
     socket.on("message_reply", (_a) => __awaiter(void 0, [_a], void 0, function* ({ receiver, message, repliedMessageId, messageReply }) {
         try {
             const sender = socket.user;
@@ -82,6 +175,25 @@ server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, 
             console.log("error with dealing with replied message ", error);
         }
     }));
+    /**
+     * @swagger
+     * /deleting_message:
+     *   post:
+     *     summary: Delete a specific message.
+     *     tags:
+     *       - Chat
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/DeleteMessage'
+     *     responses:
+     *       200:
+     *         description: Message successfully deleted.
+     *       500:
+     *         description: Server error.
+     */
     socket.on("deleting_message", (_a) => __awaiter(void 0, [_a], void 0, function* ({ receiver, messageId }) {
         try {
             const messageDeleted = yield Message_1.default.destroy({
@@ -98,3 +210,48 @@ server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, 
         }
     }));
 }));
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Message:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: Unique identifier for the message.
+ *         sender:
+ *           type: string
+ *           description: Email or identifier of the sender.
+ *         message:
+ *           type: string
+ *           description: Content of the message.
+ *         receiver:
+ *           type: string
+ *           description: Email or identifier of the receiver.
+ *         seen:
+ *           type: boolean
+ *           description: Whether the message has been read by the receiver.
+ *         edited:
+ *           type: boolean
+ *           description: Whether the message has been edited.
+ *         repliedTo:
+ *           type: array
+ *           items:
+ *             type: integer
+ *           description: Array of IDs of the messages this message is replying to.
+ *       required:
+ *         - sender
+ *         - message
+ *         - receiver
+ *         - seen
+ *         - edited
+ *       example:
+ *         id: 1
+ *         sender: sender@example.com
+ *         message: "Hello, how are you?"
+ *         receiver: receiver@example.com
+ *         seen: true
+ *         edited: false
+ *         repliedTo: [5, 10]
+ */
