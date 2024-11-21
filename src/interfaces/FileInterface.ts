@@ -4,6 +4,6 @@ export interface fileInterface {
   mimetype: string;
   size: string;
   storagePath: string;
-  sender: string;
-  receiver: string;
+  sender?: string;
+  receiver?: string;
 }

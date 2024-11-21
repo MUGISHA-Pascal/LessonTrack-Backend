@@ -55,4 +55,41 @@ io.on("connection", async (socket: SocketInterface) => {
       console.log("Error sending the message ", error);
     }
   });
+  socket.on(
+    "message_reply",
+    async ({ receiver, message, repliedMessageId, messageReply }) => {
+      try {
+        const sender = socket.user;
+        const messageReplySave = await Message.create({
+          sender: sender ? sender : "unknown",
+          receiver,
+          message,
+          repliedTo: repliedMessageId,
+        });
+        const senderSocketId = userSockets.get(socket.user);
+        const receiverSocketId = userSockets.get(receiver);
+        io.to(senderSocketId).emit("message_reply", { message, messageReply });
+        io.to(receiverSocketId).emit("message_reply_receive", {
+          message,
+          messageReply,
+        });
+      } catch (error) {
+        console.log("error with dealing with replied message ", error);
+      }
+    }
+  );
+  socket.on("deleting_message", async ({ receiver, messageId }) => {
+    try {
+      const messageDeleted = await Message.destroy({
+        where: { id: messageId },
+      });
+      console.log(messageDeleted);
+      const senderSocketId = userSockets.get(socket.user);
+      const receiverSocketId = userSockets.get(receiver);
+      io.to(senderSocketId).emit("message_delete", { receiver });
+      io.to(receiverSocketId).emit("message_delete", { sender: socket.user });
+    } catch (error) {
+      console.log("error while dealing with deleting of the message ", error);
+    }
+  });
 });

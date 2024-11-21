@@ -72,7 +72,7 @@ export const profileUploadController = async (req: Request, res: Response) => {
     res.status(500).json({ message: "server error" });
   }
 };
-
+// using multer-s3 and aws to handle the upload folder
 /**
  * @swagger
  * /user/admin/delete-user/{userId}:

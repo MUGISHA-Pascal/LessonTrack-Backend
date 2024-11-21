@@ -61,4 +61,40 @@ server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, 
             console.log("Error sending the message ", error);
         }
     }));
+    socket.on("message_reply", (_a) => __awaiter(void 0, [_a], void 0, function* ({ receiver, message, repliedMessageId, messageReply }) {
+        try {
+            const sender = socket.user;
+            const messageReplySave = yield Message_1.default.create({
+                sender: sender ? sender : "unknown",
+                receiver,
+                message,
+                repliedTo: repliedMessageId,
+            });
+            const senderSocketId = userSockets.get(socket.user);
+            const receiverSocketId = userSockets.get(receiver);
+            server_1.default.to(senderSocketId).emit("message_reply", { message, messageReply });
+            server_1.default.to(receiverSocketId).emit("message_reply_receive", {
+                message,
+                messageReply,
+            });
+        }
+        catch (error) {
+            console.log("error with dealing with replied message ", error);
+        }
+    }));
+    socket.on("deleting_message", (_a) => __awaiter(void 0, [_a], void 0, function* ({ receiver, messageId }) {
+        try {
+            const messageDeleted = yield Message_1.default.destroy({
+                where: { id: messageId },
+            });
+            console.log(messageDeleted);
+            const senderSocketId = userSockets.get(socket.user);
+            const receiverSocketId = userSockets.get(receiver);
+            server_1.default.to(senderSocketId).emit("message_delete", { receiver });
+            server_1.default.to(receiverSocketId).emit("message_delete", { sender: socket.user });
+        }
+        catch (error) {
+            console.log("error while dealing with deleting of the message ", error);
+        }
+    }));
 }));

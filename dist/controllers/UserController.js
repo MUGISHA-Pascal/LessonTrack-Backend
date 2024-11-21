@@ -88,6 +88,7 @@ const profileUploadController = (req, res) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.profileUploadController = profileUploadController;
+// using multer-s3 and aws to handle the upload folder
 /**
  * @swagger
  * /user/admin/delete-user/{userId}:

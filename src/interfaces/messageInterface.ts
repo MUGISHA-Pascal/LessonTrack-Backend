@@ -5,4 +5,5 @@ export interface messageInterface {
   receiver: string;
   seen?: boolean;
   edited?: boolean;
+  repliedTo?: number[];
 }

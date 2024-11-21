@@ -8,6 +8,7 @@ class MessageInt extends Model<messageInterface> implements messageInterface {
   public receiver!: string;
   public seen!: boolean;
   public edited!: boolean;
+  public repliedTo!: number[];
 }
 const Message = postgresConnectionSequelize.define<MessageInt>(
   "Message",
@@ -33,6 +34,10 @@ const Message = postgresConnectionSequelize.define<MessageInt>(
     edited: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
+    },
+    repliedTo: {
+      type: DataTypes.ARRAY(DataTypes.INTEGER),
+      allowNull: true,
     },
   },
   {

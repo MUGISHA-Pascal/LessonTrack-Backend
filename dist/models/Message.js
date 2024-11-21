@@ -30,6 +30,10 @@ const Message = postgres_1.default.define("Message", {
         type: sequelize_1.DataTypes.BOOLEAN,
         allowNull: false,
     },
+    repliedTo: {
+        type: sequelize_1.DataTypes.ARRAY(sequelize_1.DataTypes.INTEGER),
+        allowNull: true,
+    },
 }, {
     timestamps: true,
     createdAt: true,
