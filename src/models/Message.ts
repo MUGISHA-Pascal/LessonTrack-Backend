@@ -1,22 +1,3 @@
-// const messageSchema = mongoose.Schema({
-//     sender: { type: String, required: true },
-//     message: { type: String, required: true, },
-//     receiver: { type: String, required: true },
-//     seen: { type: Boolean, default: false },
-//     edited: { type: Boolean, default: false },
-//     reactions: [{
-//         reaction: String,
-//         reactor: String,
-//     }],
-//     replyingTo: {
-//         type: mongoose.Schema.Types.ObjectId,
-//         ref: 'Message',
-//         default: null
-//     },
-//     type: { type: String, required: true },
-//     time: { type: String, required: true },
-//     timestamp: { type: Date, default: Date.now }
-// });
 import { DataTypes, Model } from "sequelize";
 import postgresConnectionSequelize from "../config/postgres";
 import { messageInterface } from "../interfaces/messageInterface";

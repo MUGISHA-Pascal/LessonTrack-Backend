@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import { userInterface } from "../interfaces/userInterface";
 import User from "../models/User";
 import { where } from "sequelize";
+import Message from "../models/Message";
+import { kMaxLength } from "buffer";
 
 interface SocketInterface extends Socket {
   user?: string;
@@ -34,9 +36,23 @@ io.on("connection", async (socket: SocketInterface) => {
     try {
       const receiverUser = await User.findOne({ where: { email: receiver } });
       if (!receiverUser) throw new Error("user not found");
-      // const messageSaved = await
+      const messageSaved = await Message.create({
+        sender: socket.user ? socket.user : "unknown",
+        receiver,
+        message,
+      });
+      const senderSocketId = userSockets.get(socket.user);
+      const receiverSocketId = userSockets.get(receiver);
+      io.to(receiverSocketId).emit("receive_message", {
+        message: messageSaved,
+        messageType: "dm",
+      });
+      io.to(senderSocketId).emit("message_sent", {
+        message: messageSaved,
+        messageType: "sent_message",
+      });
     } catch (error) {
-      console.log(error);
+      console.log("Error sending the message ", error);
     }
   });
 });

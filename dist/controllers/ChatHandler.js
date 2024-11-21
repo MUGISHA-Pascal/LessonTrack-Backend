@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const server_1 = __importDefault(require("../server"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_1 = __importDefault(require("../models/User"));
+const Message_1 = __importDefault(require("../models/Message"));
 const userSockets = new Map();
 const handleChat = (io) => __awaiter(void 0, void 0, void 0, function* () {
     io.use((socket, next) => {
@@ -40,10 +41,24 @@ server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, 
             const receiverUser = yield User_1.default.findOne({ where: { email: receiver } });
             if (!receiverUser)
                 throw new Error("user not found");
-            // const messageSaved = await
+            const messageSaved = yield Message_1.default.create({
+                sender: socket.user ? socket.user : "unknown",
+                receiver,
+                message,
+            });
+            const senderSocketId = userSockets.get(socket.user);
+            const receiverSocketId = userSockets.get(receiver);
+            server_1.default.to(receiverSocketId).emit("receive_message", {
+                message: messageSaved,
+                messageType: "dm",
+            });
+            server_1.default.to(senderSocketId).emit("message_sent", {
+                message: messageSaved,
+                messageType: "sent_message",
+            });
         }
         catch (error) {
-            console.log(error);
+            console.log("Error sending the message ", error);
         }
     }));
 }));
