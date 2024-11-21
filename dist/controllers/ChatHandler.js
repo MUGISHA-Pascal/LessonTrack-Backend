@@ -12,7 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const server_1 = __importDefault(require("../server"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const User_1 = __importDefault(require("../models/User"));
+const userSockets = new Map();
 const handleChat = (io) => __awaiter(void 0, void 0, void 0, function* () {
     io.use((socket, next) => {
         const cookies = socket.handshake.headers;
@@ -30,3 +33,17 @@ const handleChat = (io) => __awaiter(void 0, void 0, void 0, function* () {
         });
     });
 });
+server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, function* () {
+    userSockets.set(socket.user, socket.id);
+    socket.on("send_message", (_a) => __awaiter(void 0, [_a], void 0, function* ({ receiver, message }) {
+        try {
+            const receiverUser = yield User_1.default.findOne({ where: { email: receiver } });
+            if (!receiverUser)
+                throw new Error("user not found");
+            // const messageSaved = await
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }));
+}));

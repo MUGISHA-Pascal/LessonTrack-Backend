@@ -2,10 +2,13 @@ import { ExtendedError, Server, Socket } from "socket.io";
 import io from "../server";
 import jwt from "jsonwebtoken";
 import { userInterface } from "../interfaces/userInterface";
+import User from "../models/User";
+import { where } from "sequelize";
 
 interface SocketInterface extends Socket {
   user?: string;
 }
+const userSockets = new Map();
 const handleChat = async (io: Server) => {
   io.use((socket: SocketInterface, next: (err?: ExtendedError) => void) => {
     const cookies = socket.handshake.headers;
@@ -24,3 +27,16 @@ const handleChat = async (io: Server) => {
     );
   });
 };
+
+io.on("connection", async (socket: SocketInterface) => {
+  userSockets.set(socket.user, socket.id);
+  socket.on("send_message", async ({ receiver, message }) => {
+    try {
+      const receiverUser = await User.findOne({ where: { email: receiver } });
+      if (!receiverUser) throw new Error("user not found");
+      // const messageSaved = await
+    } catch (error) {
+      console.log(error);
+    }
+  });
+});

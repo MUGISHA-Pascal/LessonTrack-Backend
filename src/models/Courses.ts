@@ -1,8 +1,7 @@
-import { Model } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 import postgresConnectionSequelize from "../config/postgres";
 import { courseInterface } from "../interfaces/courseinterface";
 
-const { DataTypes } = require("sequelize");
 class CourseInt extends Model<courseInterface> implements courseInterface {
   public id!: string;
   public title!: string;
