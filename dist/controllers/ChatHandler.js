@@ -209,6 +209,35 @@ server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, 
             console.log("error while dealing with deleting of the message ", error);
         }
     }));
+    socket.on("message_edit", (_a) => __awaiter(void 0, [_a], void 0, function* ({ id, message, receiver }) {
+        try {
+            const receiverUser = yield User_1.default.findOne({ where: { email: receiver } });
+            if (!receiverUser)
+                throw new Error("receiver not found");
+            const updatedMessage = yield Message_1.default.update({ message }, { where: { id, receiver, sender: socket.user } });
+            const senderSocketId = userSockets.get(socket.user);
+            const receiverSocketId = userSockets.get(receiver);
+            server_1.default.to(senderSocketId).emit("message_update", { id, message });
+            server_1.default.to(receiverSocketId).emit("message_update", { id, message });
+        }
+        catch (error) {
+            console.log("the error dealing with editing messages ", error);
+        }
+    }));
+    socket.on("typing", (receiver) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const receiverUser = yield User_1.default.findOne({ where: { email: receiver } });
+            if (!receiverUser)
+                throw new Error("receiver not found");
+            const senderSocketId = userSockets.get(socket.user);
+            const receiverSocketId = userSockets.get(receiver);
+            server_1.default.to(senderSocketId).emit("typing", { receiver });
+            server_1.default.to(receiverSocketId).emit("message_update", { sender: socket.user });
+        }
+        catch (error) {
+            console.log("error dealing with typing of message ", error);
+        }
+    }));
 }));
 /**
  * @swagger

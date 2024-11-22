@@ -204,6 +204,34 @@ io.on("connection", async (socket: SocketInterface) => {
       console.log("error while dealing with deleting of the message ", error);
     }
   });
+  socket.on("message_edit", async ({ id, message, receiver }) => {
+    try {
+      const receiverUser = await User.findOne({ where: { email: receiver } });
+      if (!receiverUser) throw new Error("receiver not found");
+      const updatedMessage = await Message.update(
+        { message },
+        { where: { id, receiver, sender: socket.user } }
+      );
+      const senderSocketId = userSockets.get(socket.user);
+      const receiverSocketId = userSockets.get(receiver);
+      io.to(senderSocketId).emit("message_update", { id, message });
+      io.to(receiverSocketId).emit("message_update", { id, message });
+    } catch (error) {
+      console.log("the error dealing with editing messages ", error);
+    }
+  });
+  socket.on("typing", async (receiver) => {
+    try {
+      const receiverUser = await User.findOne({ where: { email: receiver } });
+      if (!receiverUser) throw new Error("receiver not found");
+      const senderSocketId = userSockets.get(socket.user);
+      const receiverSocketId = userSockets.get(receiver);
+      io.to(senderSocketId).emit("typing", { receiver });
+      io.to(receiverSocketId).emit("message_update", { sender: socket.user });
+    } catch (error) {
+      console.log("error dealing with typing of message ", error);
+    }
+  });
 });
 /**
  * @swagger
