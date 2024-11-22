@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import { userInterface } from "../interfaces/userInterface";
 import User from "../models/User";
 import Message from "../models/Message";
+import Comment from "../models/Comments";
+import { commentUpdate } from "./CommentController";
 
 interface SocketInterface extends Socket {
   user?: string;
@@ -220,7 +222,7 @@ io.on("connection", async (socket: SocketInterface) => {
       console.log("the error dealing with editing messages ", error);
     }
   });
-  socket.on("typing", async (receiver) => {
+  socket.on("typing", async ({ receiver }) => {
     try {
       const receiverUser = await User.findOne({ where: { email: receiver } });
       if (!receiverUser) throw new Error("receiver not found");
@@ -232,7 +234,61 @@ io.on("connection", async (socket: SocketInterface) => {
       console.log("error dealing with typing of message ", error);
     }
   });
+  socket.on("commenting", async ({ comment, courseId }) => {
+    try {
+      const user = await User.findOne({ where: { email: socket.user } });
+      await Comment.create({
+        user_id: user?.id ? user.id : 1,
+        comment_text: comment,
+        course_id: courseId,
+      });
+      const comments = await Comment.findAll({
+        limit: 50,
+        order: [["createdAt", "DESC"]],
+      });
+      io.emit("commentUpdate", { comments });
+    } catch (error) {
+      console.log(error);
+    }
+  });
+  socket.on("deleting_comment", async ({ commentId }) => {
+    try {
+      const CommentDelete = await Comment.destroy({ where: { id: commentId } });
+      if (!CommentDelete) throw new Error("comment not deleted");
+      const comments = await Comment.findAll({
+        limit: 50,
+        order: [["createdAt", "DESC"]],
+      });
+      io.emit("commentUpdate", { comments });
+    } catch (error) {
+      console.log(error);
+    }
+  });
+  socket.on("comment_update", async ({ commentUpdate, courseId }) => {
+    try {
+      const commentUpdated = await Comment.update(
+        { comment_text: commentUpdate },
+        { where: { course_id: courseId } }
+      );
+      if (!commentUpdated) throw new Error("comment not updated");
+      const comments = await Comment.findAll({
+        limit: 50,
+        order: [["createdAt", "DESC"]],
+      });
+      io.emit("commentUpdate", { comments });
+    } catch (error) {
+      console.log("error while dealing with updating ", error);
+    }
+  });
+  socket.on("commentUpdate", async () => {
+    const comments = await Comment.findAll({
+      limit: 50,
+      order: [["createdAt", "DESC"]],
+    });
+    io.emit("commentUpdate", { comments });
+  });
 });
+
 /**
  * @swagger
  * components:

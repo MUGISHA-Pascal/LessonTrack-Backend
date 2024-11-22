@@ -16,6 +16,7 @@ const server_1 = __importDefault(require("../server"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_1 = __importDefault(require("../models/User"));
 const Message_1 = __importDefault(require("../models/Message"));
+const Comments_1 = __importDefault(require("../models/Comments"));
 const userSockets = new Map();
 /**
  * @swagger
@@ -224,7 +225,7 @@ server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, 
             console.log("the error dealing with editing messages ", error);
         }
     }));
-    socket.on("typing", (receiver) => __awaiter(void 0, void 0, void 0, function* () {
+    socket.on("typing", (_a) => __awaiter(void 0, [_a], void 0, function* ({ receiver }) {
         try {
             const receiverUser = yield User_1.default.findOne({ where: { email: receiver } });
             if (!receiverUser)
@@ -237,6 +238,61 @@ server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, 
         catch (error) {
             console.log("error dealing with typing of message ", error);
         }
+    }));
+    socket.on("commenting", (_a) => __awaiter(void 0, [_a], void 0, function* ({ comment, courseId }) {
+        try {
+            const user = yield User_1.default.findOne({ where: { email: socket.user } });
+            yield Comments_1.default.create({
+                user_id: (user === null || user === void 0 ? void 0 : user.id) ? user.id : 1,
+                comment_text: comment,
+                course_id: courseId,
+            });
+            const comments = yield Comments_1.default.findAll({
+                limit: 50,
+                order: [["createdAt", "DESC"]],
+            });
+            server_1.default.emit("commentUpdate", { comments });
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }));
+    socket.on("deleting_comment", (_a) => __awaiter(void 0, [_a], void 0, function* ({ commentId }) {
+        try {
+            const CommentDelete = yield Comments_1.default.destroy({ where: { id: commentId } });
+            if (!CommentDelete)
+                throw new Error("comment not deleted");
+            const comments = yield Comments_1.default.findAll({
+                limit: 50,
+                order: [["createdAt", "DESC"]],
+            });
+            server_1.default.emit("commentUpdate", { comments });
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }));
+    socket.on("comment_update", (_a) => __awaiter(void 0, [_a], void 0, function* ({ commentUpdate, courseId }) {
+        try {
+            const commentUpdated = yield Comments_1.default.update({ comment_text: commentUpdate }, { where: { course_id: courseId } });
+            if (!commentUpdated)
+                throw new Error("comment not updated");
+            const comments = yield Comments_1.default.findAll({
+                limit: 50,
+                order: [["createdAt", "DESC"]],
+            });
+            server_1.default.emit("commentUpdate", { comments });
+        }
+        catch (error) {
+            console.log("error while dealing with updating ", error);
+        }
+    }));
+    socket.on("commentUpdate", () => __awaiter(void 0, void 0, void 0, function* () {
+        const comments = yield Comments_1.default.findAll({
+            limit: 50,
+            order: [["createdAt", "DESC"]],
+        });
+        server_1.default.emit("commentUpdate", { comments });
     }));
 }));
 /**
