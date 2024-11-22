@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 const storage = multer_1.default.diskStorage({
-    destination: "../uploads",
+    destination: "../uploads/images",
     filename: (req, file, cb) => {
         cb(null, `${Date.now()}-${file.originalname}`);
     },

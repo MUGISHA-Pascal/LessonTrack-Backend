@@ -1,12 +1,12 @@
 import PDFDocument from "pdfkit";
-import fs from "fs";
+import * as fs from "fs";
 
 const doc = new PDFDocument({
   layout: "landscape",
   size: "A4",
 });
 
-doc.pipe(fs.createWriteStream("output.pdf"));
+doc.pipe(fs.createWriteStream("src/uploads/certificate/output.pdf"));
 
 doc.rect(0, 0, doc.page.width, doc.page.height).fill("#fff");
 
@@ -31,7 +31,7 @@ function jumpLine(doc: any, lines: number) {
 }
 
 doc
-  .font("fonts/NotoSansJP-Light.otf")
+  .font("static/NotoSansJP-Light.ttf")
   .fontSize(10)
   .fill("#021c27")
   .text("Super Course for Awesomes", {
@@ -51,7 +51,7 @@ doc
   .stroke();
 
 doc
-  .font("fonts/NotoSansJP-Bold.otf")
+  .font("static/NotoSansJP-Bold.ttf")
   .fontSize(10)
   .fill("#021c27")
   .text("John Doe", startLine1, signatureHeight + 10, {
@@ -63,7 +63,7 @@ doc
   });
 
 doc
-  .font("fonts/NotoSansJP-Light.otf")
+  .font("static/NotoSansJP-Light.ttf")
   .fontSize(10)
   .fill("#021c27")
   .text("Associate Professor", startLine1, signatureHeight + 25, {

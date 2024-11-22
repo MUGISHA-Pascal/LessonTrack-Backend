@@ -1,15 +1,38 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const pdfkit_1 = __importDefault(require("pdfkit"));
-const fs_1 = __importDefault(require("fs"));
+const fs = __importStar(require("fs"));
 const doc = new pdfkit_1.default({
     layout: "landscape",
     size: "A4",
 });
-doc.pipe(fs_1.default.createWriteStream("output.pdf"));
+doc.pipe(fs.createWriteStream("src/uploads/certificate/output.pdf"));
 doc.rect(0, 0, doc.page.width, doc.page.height).fill("#fff");
 const distanceMargin = 18;
 doc
@@ -24,7 +47,7 @@ function jumpLine(doc, lines) {
     }
 }
 doc
-    .font("fonts/NotoSansJP-Light.otf")
+    .font("static/NotoSansJP-Light.ttf")
     .fontSize(10)
     .fill("#021c27")
     .text("Super Course for Awesomes", {
@@ -40,7 +63,7 @@ doc
     .lineTo(endLine1, signatureHeight)
     .stroke();
 doc
-    .font("fonts/NotoSansJP-Bold.otf")
+    .font("static/NotoSansJP-Bold.ttf")
     .fontSize(10)
     .fill("#021c27")
     .text("John Doe", startLine1, signatureHeight + 10, {
@@ -51,7 +74,7 @@ doc
     align: "center",
 });
 doc
-    .font("fonts/NotoSansJP-Light.otf")
+    .font("static/NotoSansJP-Light.ttf")
     .fontSize(10)
     .fill("#021c27")
     .text("Associate Professor", startLine1, signatureHeight + 25, {
