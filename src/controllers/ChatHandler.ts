@@ -11,61 +11,8 @@ interface SocketInterface extends Socket {
   user?: string;
 }
 const userSockets = new Map();
-/**
- * @swagger
- * components:
- *   schemas:
- *     SendMessage:
- *       type: object
- *       properties:
- *         receiver:
- *           type: string
- *           description: Email of the receiver.
- *         message:
- *           type: string
- *           description: The message to be sent.
- *       required:
- *         - receiver
- *         - message
- *     MessageReply:
- *       type: object
- *       properties:
- *         receiver:
- *           type: string
- *           description: Email of the receiver.
- *         message:
- *           type: string
- *           description: The message reply content.
- *         repliedMessageId:
- *           type: string
- *           description: The ID of the message being replied to.
- *         messageReply:
- *           type: string
- *           description: The reply itself.
- *       required:
- *         - receiver
- *         - message
- *         - repliedMessageId
- *         - messageReply
- *     DeleteMessage:
- *       type: object
- *       properties:
- *         receiver:
- *           type: string
- *           description: Email of the receiver.
- *         messageId:
- *           type: string
- *           description: The ID of the message to be deleted.
- *       required:
- *         - receiver
- *         - messageId
- */
 
-/**
- * Middleware for authenticating WebSocket connections.
- * @param {Server} io - The Socket.IO server instance.
- */
-const handleChat = async (io: Server) => {
+async (io: Server) => {
   io.use((socket: SocketInterface, next: (err?: ExtendedError) => void) => {
     const cookies = socket.handshake.headers;
     if (!cookies) return next(new Error("Invalid token"));
@@ -74,10 +21,13 @@ const handleChat = async (io: Server) => {
     jwt.verify(
       accessToken,
       process.env.JWT_KEY as string,
-      (err, decoded: any) => {
-        let user = decoded as userInterface;
+      async (err, decoded: any) => {
+        let user = await User.findOne({ where: { email: decoded.email } });
+        if (!user) return next(new Error("User not found"));
+
+        let userAvailable = decoded as userInterface;
         if (err) return next(new Error("Invalid token"));
-        socket.user = user.email;
+        socket.user = userAvailable.email;
         next();
       }
     );
@@ -86,32 +36,13 @@ const handleChat = async (io: Server) => {
 
 io.on("connection", async (socket: SocketInterface) => {
   userSockets.set(socket.user, socket.id);
-  /**
-   * @swagger
-   * /send_message:
-   *   post:
-   *     summary: Send a direct message to another user.
-   *     tags:
-   *       - Chat
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/SendMessage'
-   *     responses:
-   *       200:
-   *         description: Message successfully sent.
-   *       404:
-   *         description: Receiver not found.
-   *       500:
-   *         description: Server error.
-   */
 
   socket.on("send_message", async ({ receiver, message }) => {
     try {
-      const receiverUser = await User.findOne({ where: { email: receiver } });
-      if (!receiverUser) throw new Error("user not found");
+      const IfReceiverExist = await User.findOne({
+        where: { email: receiver },
+      });
+      if (!IfReceiverExist) throw new Error("receiver doesnot exist");
       const messageSaved = await Message.create({
         sender: socket.user ? socket.user : "unknown",
         receiver,
@@ -128,32 +59,18 @@ io.on("connection", async (socket: SocketInterface) => {
         messageType: "sent_message",
       });
     } catch (error) {
-      console.log("Error sending the message ", error);
+      socket.emit("error", { message: `Error sending the message ${error}` });
     }
   });
-  /**
-   * @swagger
-   * /message_reply:
-   *   post:
-   *     summary: Reply to a specific message.
-   *     tags:
-   *       - Chat
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/MessageReply'
-   *     responses:
-   *       200:
-   *         description: Reply successfully sent.
-   *       500:
-   *         description: Server error.
-   */
+
   socket.on(
     "message_reply",
     async ({ receiver, message, repliedMessageId, messageReply }) => {
       try {
+        const IfReceiverExist = await User.findOne({
+          where: { email: receiver },
+        });
+        if (!IfReceiverExist) throw new Error("receiver doesnot exist");
         const sender = socket.user;
         const messageReplySave = await Message.create({
           sender: sender ? sender : "unknown",
@@ -161,6 +78,8 @@ io.on("connection", async (socket: SocketInterface) => {
           message,
           repliedTo: repliedMessageId,
         });
+        if (!messageReplySave)
+          throw new Error("error while saving the reply message");
         const senderSocketId = userSockets.get(socket.user);
         const receiverSocketId = userSockets.get(receiver);
         io.to(senderSocketId).emit("message_reply", { message, messageReply });
@@ -169,31 +88,21 @@ io.on("connection", async (socket: SocketInterface) => {
           messageReply,
         });
       } catch (error) {
-        console.log("error with dealing with replied message ", error);
+        socket.emit("error", {
+          message: `error with dealing with replied message ${error}`,
+        });
       }
     }
   );
-  /**
-   * @swagger
-   * /deleting_message:
-   *   post:
-   *     summary: Delete a specific message.
-   *     tags:
-   *       - Chat
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/DeleteMessage'
-   *     responses:
-   *       200:
-   *         description: Message successfully deleted.
-   *       500:
-   *         description: Server error.
-   */
+
   socket.on("deleting_message", async ({ receiver, messageId }) => {
     try {
+      const IfReceiverExist = await User.findOne({
+        where: { email: receiver },
+      });
+      if (!IfReceiverExist) throw new Error("receiver doesnot exist");
+      const IfExist = await Message.findAll({ where: { id: messageId } });
+      if (!IfExist) throw new Error("message not found");
       const messageDeleted = await Message.destroy({
         where: { id: messageId },
       });
@@ -203,7 +112,9 @@ io.on("connection", async (socket: SocketInterface) => {
       io.to(senderSocketId).emit("message_delete", { receiver });
       io.to(receiverSocketId).emit("message_delete", { sender: socket.user });
     } catch (error) {
-      console.log("error while dealing with deleting of the message ", error);
+      socket.emit("error", {
+        message: `error while dealing with deleting of the message ${error}`,
+      });
     }
   });
   socket.on("message_edit", async ({ id, message, receiver }) => {
@@ -214,12 +125,15 @@ io.on("connection", async (socket: SocketInterface) => {
         { message },
         { where: { id, receiver, sender: socket.user } }
       );
+      if (!updatedMessage) throw new Error("message not updated");
       const senderSocketId = userSockets.get(socket.user);
       const receiverSocketId = userSockets.get(receiver);
       io.to(senderSocketId).emit("message_update", { id, message });
       io.to(receiverSocketId).emit("message_update", { id, message });
     } catch (error) {
-      console.log("the error dealing with editing messages ", error);
+      socket.emit("error", {
+        message: `the error dealing with editing messages ${error}`,
+      });
     }
   });
   socket.on("typing", async ({ receiver }) => {
@@ -231,14 +145,17 @@ io.on("connection", async (socket: SocketInterface) => {
       io.to(senderSocketId).emit("typing", { receiver });
       io.to(receiverSocketId).emit("message_update", { sender: socket.user });
     } catch (error) {
-      console.log("error dealing with typing of message ", error);
+      socket.emit("error", {
+        message: `error dealing with typing of message ${error}`,
+      });
     }
   });
   socket.on("commenting", async ({ comment, courseId }) => {
     try {
       const user = await User.findOne({ where: { email: socket.user } });
+      if (!user) throw new Error("error while finding the user");
       await Comment.create({
-        user_id: user?.id ? user.id : 1,
+        user_id: user?.id,
         comment_text: comment,
         course_id: courseId,
       });
@@ -248,7 +165,7 @@ io.on("connection", async (socket: SocketInterface) => {
       });
       io.emit("commentUpdate", { comments });
     } catch (error) {
-      console.log(error);
+      socket.emit("error", { message: error });
     }
   });
   socket.on("deleting_comment", async ({ commentId }) => {
@@ -261,7 +178,7 @@ io.on("connection", async (socket: SocketInterface) => {
       });
       io.emit("commentUpdate", { comments });
     } catch (error) {
-      console.log(error);
+      socket.emit("error", { message: error });
     }
   });
   socket.on("comment_update", async ({ commentUpdate, courseId }) => {
@@ -277,15 +194,21 @@ io.on("connection", async (socket: SocketInterface) => {
       });
       io.emit("commentUpdate", { comments });
     } catch (error) {
-      console.log("error while dealing with updating ", error);
+      socket.emit("error", {
+        message: `error while dealing with updating ${error}`,
+      });
     }
   });
   socket.on("commentUpdate", async () => {
-    const comments = await Comment.findAll({
-      limit: 50,
-      order: [["createdAt", "DESC"]],
-    });
-    io.emit("commentUpdate", { comments });
+    try {
+      const comments = await Comment.findAll({
+        limit: 50,
+        order: [["createdAt", "DESC"]],
+      });
+      io.emit("commentUpdate", { comments });
+    } catch (error) {
+      socket.emit("error", { message: error });
+    }
   });
 });
 
