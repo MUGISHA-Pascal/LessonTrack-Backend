@@ -32,7 +32,7 @@ const doc = new pdfkit_1.default({
     layout: "landscape",
     size: "A4",
 });
-doc.pipe(fs.createWriteStream("src/uploads/certificate/certificate.pdf"));
+doc.pipe(fs.createWriteStream("uploads/certificate/certificate.pdf"));
 doc.rect(0, 0, doc.page.width, doc.page.height).fill("#fff");
 const distanceMargin = 18;
 doc
