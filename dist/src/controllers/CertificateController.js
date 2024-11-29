@@ -12,8 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.certificateDelete = exports.certificateUpdate = exports.getcertificates = exports.certificateAdding = void 0;
+exports.CertificateFileRetrival = exports.certificateDelete = exports.certificateUpdate = exports.getcertificates = exports.certificateAdding = void 0;
 const Certificates_1 = __importDefault(require("../models/Certificates"));
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 /**
  * @swagger
  * tags:
@@ -284,3 +286,14 @@ exports.certificateDelete = certificateDelete;
  *           format: date-time
  *           example: "2024-10-02T12:00:00Z"
  */
+const CertificateFileRetrival = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { fileName } = req.params;
+    const filePath = path_1.default.join(__dirname, "../../uploads/certificate", fileName);
+    fs_1.default.access(filePath, fs_1.default.constants.F_OK, (err) => {
+        if (err) {
+            res.status(404).json({ error: "file not found" });
+        }
+        res.sendFile(filePath);
+    });
+});
+exports.CertificateFileRetrival = CertificateFileRetrival;

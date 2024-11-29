@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import Certificate from "../models/Certificates";
+import fs from "fs";
+import path from "path";
 /**
  * @swagger
  * tags:
@@ -270,3 +272,13 @@ export const certificateDelete = async (req: Request, res: Response) => {
  *           format: date-time
  *           example: "2024-10-02T12:00:00Z"
  */
+export const CertificateFileRetrival = async (req: Request, res: Response) => {
+  const { fileName } = req.params;
+  const filePath = path.join(__dirname, "../../uploads/certificate", fileName);
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      res.status(404).json({ error: "file not found" });
+    }
+    res.sendFile(filePath);
+  });
+};

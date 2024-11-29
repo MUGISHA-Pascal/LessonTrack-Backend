@@ -6,7 +6,7 @@ const doc = new PDFDocument({
   size: "A4",
 });
 
-doc.pipe(fs.createWriteStream("src/uploads/certificate/output.pdf"));
+doc.pipe(fs.createWriteStream("src/uploads/certificate/certificate.pdf"));
 
 doc.rect(0, 0, doc.page.width, doc.page.height).fill("#fff");
 
