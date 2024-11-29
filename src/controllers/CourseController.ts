@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import User from "../models/User";
 import Course from "../models/Courses";
+import fs from "fs";
+import path from "path";
 /**
  * @swagger
  * tags:
@@ -351,4 +353,14 @@ export const CourseFileAdding = async (req: Request, res: Response) => {
   } catch (error) {
     res.json({ message: error });
   }
+};
+export const fileRetrival = async (req: Request, res: Response) => {
+  const { fileName } = req.params;
+  const filePath = path.join(__dirname, "../../uploads/courses", fileName);
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      res.status(404).json({ error: "file not found" });
+    }
+    res.sendFile(filePath);
+  });
 };

@@ -12,9 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CourseFileAdding = exports.courseDelete = exports.courseUpdate = exports.getCourses = exports.courseAdding = void 0;
+exports.fileRetrival = exports.CourseFileAdding = exports.courseDelete = exports.courseUpdate = exports.getCourses = exports.courseAdding = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const Courses_1 = __importDefault(require("../models/Courses"));
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 /**
  * @swagger
  * tags:
@@ -371,3 +373,14 @@ const CourseFileAdding = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.CourseFileAdding = CourseFileAdding;
+const fileRetrival = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { fileName } = req.params;
+    const filePath = path_1.default.join(__dirname, "../../uploads/courses", fileName);
+    fs_1.default.access(filePath, fs_1.default.constants.F_OK, (err) => {
+        if (err) {
+            res.status(404).json({ error: "file not found" });
+        }
+        res.sendFile(filePath);
+    });
+});
+exports.fileRetrival = fileRetrival;
