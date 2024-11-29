@@ -42,6 +42,10 @@ const Course = postgres_1.default.define("Course", {
         type: sequelize_1.DataTypes.BOOLEAN,
         defaultValue: true,
     },
+    file: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: true,
+    },
 }, {
     createdAt: true,
     updatedAt: true,

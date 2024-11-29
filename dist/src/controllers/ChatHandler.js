@@ -18,60 +18,7 @@ const User_1 = __importDefault(require("../models/User"));
 const Message_1 = __importDefault(require("../models/Message"));
 const Comments_1 = __importDefault(require("../models/Comments"));
 const userSockets = new Map();
-/**
- * @swagger
- * components:
- *   schemas:
- *     SendMessage:
- *       type: object
- *       properties:
- *         receiver:
- *           type: string
- *           description: Email of the receiver.
- *         message:
- *           type: string
- *           description: The message to be sent.
- *       required:
- *         - receiver
- *         - message
- *     MessageReply:
- *       type: object
- *       properties:
- *         receiver:
- *           type: string
- *           description: Email of the receiver.
- *         message:
- *           type: string
- *           description: The message reply content.
- *         repliedMessageId:
- *           type: string
- *           description: The ID of the message being replied to.
- *         messageReply:
- *           type: string
- *           description: The reply itself.
- *       required:
- *         - receiver
- *         - message
- *         - repliedMessageId
- *         - messageReply
- *     DeleteMessage:
- *       type: object
- *       properties:
- *         receiver:
- *           type: string
- *           description: Email of the receiver.
- *         messageId:
- *           type: string
- *           description: The ID of the message to be deleted.
- *       required:
- *         - receiver
- *         - messageId
- */
-/**
- * Middleware for authenticating WebSocket connections.
- * @param {Server} io - The Socket.IO server instance.
- */
-const handleChat = (io) => __awaiter(void 0, void 0, void 0, function* () {
+(io) => __awaiter(void 0, void 0, void 0, function* () {
     io.use((socket, next) => {
         const cookies = socket.handshake.headers;
         if (!cookies)
@@ -79,43 +26,27 @@ const handleChat = (io) => __awaiter(void 0, void 0, void 0, function* () {
         const accessToken = cookies["x-access-token"];
         if (!accessToken)
             return next(new Error("Invalid token"));
-        jsonwebtoken_1.default.verify(accessToken, process.env.JWT_KEY, (err, decoded) => {
-            let user = decoded;
+        jsonwebtoken_1.default.verify(accessToken, process.env.JWT_KEY, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
+            let user = yield User_1.default.findOne({ where: { email: decoded.email } });
+            if (!user)
+                return next(new Error("User not found"));
+            let userAvailable = decoded;
             if (err)
                 return next(new Error("Invalid token"));
-            socket.user = user.email;
+            socket.user = userAvailable.email;
             next();
-        });
+        }));
     });
 });
 server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, function* () {
     userSockets.set(socket.user, socket.id);
-    /**
-     * @swagger
-     * /send_message:
-     *   post:
-     *     summary: Send a direct message to another user.
-     *     tags:
-     *       - Chat
-     *     requestBody:
-     *       required: true
-     *       content:
-     *         application/json:
-     *           schema:
-     *             $ref: '#/components/schemas/SendMessage'
-     *     responses:
-     *       200:
-     *         description: Message successfully sent.
-     *       404:
-     *         description: Receiver not found.
-     *       500:
-     *         description: Server error.
-     */
     socket.on("send_message", (_a) => __awaiter(void 0, [_a], void 0, function* ({ receiver, message }) {
         try {
-            const receiverUser = yield User_1.default.findOne({ where: { email: receiver } });
-            if (!receiverUser)
-                throw new Error("user not found");
+            const IfReceiverExist = yield User_1.default.findOne({
+                where: { email: receiver },
+            });
+            if (!IfReceiverExist)
+                throw new Error("receiver doesnot exist");
             const messageSaved = yield Message_1.default.create({
                 sender: socket.user ? socket.user : "unknown",
                 receiver,
@@ -133,30 +64,16 @@ server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, 
             });
         }
         catch (error) {
-            console.log("Error sending the message ", error);
+            socket.emit("error", { message: `Error sending the message ${error}` });
         }
     }));
-    /**
-     * @swagger
-     * /message_reply:
-     *   post:
-     *     summary: Reply to a specific message.
-     *     tags:
-     *       - Chat
-     *     requestBody:
-     *       required: true
-     *       content:
-     *         application/json:
-     *           schema:
-     *             $ref: '#/components/schemas/MessageReply'
-     *     responses:
-     *       200:
-     *         description: Reply successfully sent.
-     *       500:
-     *         description: Server error.
-     */
     socket.on("message_reply", (_a) => __awaiter(void 0, [_a], void 0, function* ({ receiver, message, repliedMessageId, messageReply }) {
         try {
+            const IfReceiverExist = yield User_1.default.findOne({
+                where: { email: receiver },
+            });
+            if (!IfReceiverExist)
+                throw new Error("receiver doesnot exist");
             const sender = socket.user;
             const messageReplySave = yield Message_1.default.create({
                 sender: sender ? sender : "unknown",
@@ -164,6 +81,8 @@ server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, 
                 message,
                 repliedTo: repliedMessageId,
             });
+            if (!messageReplySave)
+                throw new Error("error while saving the reply message");
             const senderSocketId = userSockets.get(socket.user);
             const receiverSocketId = userSockets.get(receiver);
             server_1.default.to(senderSocketId).emit("message_reply", { message, messageReply });
@@ -173,30 +92,21 @@ server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, 
             });
         }
         catch (error) {
-            console.log("error with dealing with replied message ", error);
+            socket.emit("error", {
+                message: `error with dealing with replied message ${error}`,
+            });
         }
     }));
-    /**
-     * @swagger
-     * /deleting_message:
-     *   post:
-     *     summary: Delete a specific message.
-     *     tags:
-     *       - Chat
-     *     requestBody:
-     *       required: true
-     *       content:
-     *         application/json:
-     *           schema:
-     *             $ref: '#/components/schemas/DeleteMessage'
-     *     responses:
-     *       200:
-     *         description: Message successfully deleted.
-     *       500:
-     *         description: Server error.
-     */
     socket.on("deleting_message", (_a) => __awaiter(void 0, [_a], void 0, function* ({ receiver, messageId }) {
         try {
+            const IfReceiverExist = yield User_1.default.findOne({
+                where: { email: receiver },
+            });
+            if (!IfReceiverExist)
+                throw new Error("receiver doesnot exist");
+            const IfExist = yield Message_1.default.findAll({ where: { id: messageId } });
+            if (!IfExist)
+                throw new Error("message not found");
             const messageDeleted = yield Message_1.default.destroy({
                 where: { id: messageId },
             });
@@ -207,7 +117,9 @@ server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, 
             server_1.default.to(receiverSocketId).emit("message_delete", { sender: socket.user });
         }
         catch (error) {
-            console.log("error while dealing with deleting of the message ", error);
+            socket.emit("error", {
+                message: `error while dealing with deleting of the message ${error}`,
+            });
         }
     }));
     socket.on("message_edit", (_a) => __awaiter(void 0, [_a], void 0, function* ({ id, message, receiver }) {
@@ -216,13 +128,17 @@ server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, 
             if (!receiverUser)
                 throw new Error("receiver not found");
             const updatedMessage = yield Message_1.default.update({ message }, { where: { id, receiver, sender: socket.user } });
+            if (!updatedMessage)
+                throw new Error("message not updated");
             const senderSocketId = userSockets.get(socket.user);
             const receiverSocketId = userSockets.get(receiver);
             server_1.default.to(senderSocketId).emit("message_update", { id, message });
             server_1.default.to(receiverSocketId).emit("message_update", { id, message });
         }
         catch (error) {
-            console.log("the error dealing with editing messages ", error);
+            socket.emit("error", {
+                message: `the error dealing with editing messages ${error}`,
+            });
         }
     }));
     socket.on("typing", (_a) => __awaiter(void 0, [_a], void 0, function* ({ receiver }) {
@@ -236,14 +152,18 @@ server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, 
             server_1.default.to(receiverSocketId).emit("message_update", { sender: socket.user });
         }
         catch (error) {
-            console.log("error dealing with typing of message ", error);
+            socket.emit("error", {
+                message: `error dealing with typing of message ${error}`,
+            });
         }
     }));
     socket.on("commenting", (_a) => __awaiter(void 0, [_a], void 0, function* ({ comment, courseId }) {
         try {
             const user = yield User_1.default.findOne({ where: { email: socket.user } });
+            if (!user)
+                throw new Error("error while finding the user");
             yield Comments_1.default.create({
-                user_id: (user === null || user === void 0 ? void 0 : user.id) ? user.id : 1,
+                user_id: user === null || user === void 0 ? void 0 : user.id,
                 comment_text: comment,
                 course_id: courseId,
             });
@@ -254,7 +174,7 @@ server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, 
             server_1.default.emit("commentUpdate", { comments });
         }
         catch (error) {
-            console.log(error);
+            socket.emit("error", { message: error });
         }
     }));
     socket.on("deleting_comment", (_a) => __awaiter(void 0, [_a], void 0, function* ({ commentId }) {
@@ -269,7 +189,7 @@ server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, 
             server_1.default.emit("commentUpdate", { comments });
         }
         catch (error) {
-            console.log(error);
+            socket.emit("error", { message: error });
         }
     }));
     socket.on("comment_update", (_a) => __awaiter(void 0, [_a], void 0, function* ({ commentUpdate, courseId }) {
@@ -284,16 +204,26 @@ server_1.default.on("connection", (socket) => __awaiter(void 0, void 0, void 0, 
             server_1.default.emit("commentUpdate", { comments });
         }
         catch (error) {
-            console.log("error while dealing with updating ", error);
+            socket.emit("error", {
+                message: `error while dealing with updating ${error}`,
+            });
         }
     }));
     socket.on("commentUpdate", () => __awaiter(void 0, void 0, void 0, function* () {
-        const comments = yield Comments_1.default.findAll({
-            limit: 50,
-            order: [["createdAt", "DESC"]],
-        });
-        server_1.default.emit("commentUpdate", { comments });
+        try {
+            const comments = yield Comments_1.default.findAll({
+                limit: 50,
+                order: [["createdAt", "DESC"]],
+            });
+            server_1.default.emit("commentUpdate", { comments });
+        }
+        catch (error) {
+            socket.emit("error", { message: error });
+        }
     }));
+    socket.on("disconnect", () => {
+        userSockets.delete(socket.user);
+    });
 }));
 /**
  * @swagger

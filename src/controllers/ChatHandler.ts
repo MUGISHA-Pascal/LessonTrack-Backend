@@ -210,6 +210,9 @@ io.on("connection", async (socket: SocketInterface) => {
       socket.emit("error", { message: error });
     }
   });
+  socket.on("disconnect", () => {
+    userSockets.delete(socket.user);
+  });
 });
 
 /**
