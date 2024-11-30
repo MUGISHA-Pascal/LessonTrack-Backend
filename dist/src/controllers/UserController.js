@@ -12,8 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AdminUserDelete = exports.profileUploadController = void 0;
+exports.imageRetrival = exports.AdminUserDelete = exports.profileUploadController = void 0;
 const User_1 = __importDefault(require("../models/User"));
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 /**
  * @swagger
  * tags:
@@ -229,3 +231,14 @@ exports.AdminUserDelete = AdminUserDelete;
  *         sender: sender@example.com
  *         receiver: receiver@example.com
  */
+const imageRetrival = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { ImageName } = req.params;
+    const filePath = path_1.default.join(__dirname, "../../uploads", ImageName);
+    fs_1.default.access(filePath, fs_1.default.constants.F_OK, (err) => {
+        if (err) {
+            res.status(404).json({ error: "Image not found" });
+        }
+        res.sendFile(filePath);
+    });
+});
+exports.imageRetrival = imageRetrival;

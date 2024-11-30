@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import User from "../models/User";
-
+import fs from "fs";
+import path from "path";
 /**
  * @swagger
  * tags:
@@ -210,3 +211,13 @@ export const AdminUserDelete = async (req: Request, res: Response) => {
  *         sender: sender@example.com
  *         receiver: receiver@example.com
  */
+export const imageRetrival = async (req: Request, res: Response) => {
+  const { ImageName } = req.params;
+  const filePath = path.join(__dirname, "../../uploads", ImageName);
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      res.status(404).json({ error: "Image not found" });
+    }
+    res.sendFile(filePath);
+  });
+};
