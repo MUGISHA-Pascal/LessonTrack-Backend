@@ -12,10 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CertificateFileRetrival = exports.certificateDelete = exports.certificateUpdate = exports.getcertificates = exports.certificateAdding = void 0;
+exports.CertificateGeneration = exports.CertificateFileRetrival = exports.certificateDelete = exports.certificateUpdate = exports.getcertificates = exports.certificateAdding = void 0;
 const Certificates_1 = __importDefault(require("../models/Certificates"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const CertificateGenerate_1 = require("../middlewares/CertificateGenerate");
+const User_1 = __importDefault(require("../models/User"));
 /**
  * @swagger
  * tags:
@@ -297,3 +299,27 @@ const CertificateFileRetrival = (req, res) => __awaiter(void 0, void 0, void 0, 
     });
 });
 exports.CertificateFileRetrival = CertificateFileRetrival;
+const CertificateGeneration = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { username, userId } = req.body;
+        (0, CertificateGenerate_1.createCertificateWithImage)(username);
+        const userIssued = yield User_1.default.findOne({ where: { id: userId } });
+        if (userIssued) {
+            const certificate = yield Certificates_1.default.update({ certificate_url: `${username}_certificate.pdf` }, { where: { id: userId } });
+            if (certificate) {
+                res.status(201).json({ message: "certificate created" });
+            }
+            else {
+                res.status(500).json({ message: "certificate not created" });
+            }
+        }
+        else {
+            res.status(404).json({ message: "user not found" });
+        }
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: error });
+    }
+});
+exports.CertificateGeneration = CertificateGeneration;

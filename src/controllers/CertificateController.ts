@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import Certificate from "../models/Certificates";
 import fs from "fs";
 import path from "path";
+import { createCertificateWithImage } from "../middlewares/CertificateGenerate";
+import User from "../models/User";
 /**
  * @swagger
  * tags:
@@ -281,4 +283,28 @@ export const CertificateFileRetrival = async (req: Request, res: Response) => {
     }
     res.sendFile(filePath);
   });
+};
+
+export const CertificateGeneration = async (req: Request, res: Response) => {
+  try {
+    const { username, userId } = req.body;
+    createCertificateWithImage(username);
+    const userIssued = await User.findOne({ where: { id: userId } });
+    if (userIssued) {
+      const certificate = await Certificate.update(
+        { certificate_url: `${username}_certificate.pdf` },
+        { where: { id: userId } }
+      );
+      if (certificate) {
+        res.status(201).json({ message: "certificate created" });
+      } else {
+        res.status(500).json({ message: "certificate not created" });
+      }
+    } else {
+      res.status(404).json({ message: "user not found" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error });
+  }
 };

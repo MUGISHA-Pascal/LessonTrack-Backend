@@ -39,7 +39,7 @@ const Certificate = postgres_1.default.define("Certificate", {
         defaultValue: DataTypes.NOW,
     },
     certificate_url: {
-        type: DataTypes.STRING(255),
+        type: DataTypes.STRING,
         allowNull: false,
     },
 }, {

@@ -48,7 +48,7 @@ const Certificate = postgresConnectionSequelize.define<CertificateInt>(
       defaultValue: DataTypes.NOW,
     },
     certificate_url: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.STRING,
       allowNull: false,
     },
   },
