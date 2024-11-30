@@ -8,4 +8,6 @@ certificateRoutes.get("/:userId", CertificateController_1.getcertificates);
 certificateRoutes.put("/update/:certificateId", CertificateController_1.certificateUpdate);
 certificateRoutes.delete("/delete/:certificateId", CertificateController_1.certificateDelete);
 certificateRoutes.get("/get_certificate/:fileName", CertificateController_1.CertificateFileRetrival);
+certificateRoutes.post("/generate", CertificateController_1.CertificateGeneration);
+certificateRoutes.get("/certificate/:certificateUrl", CertificateController_1.certificateRetrival);
 exports.default = certificateRoutes;

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CertificateGeneration = exports.CertificateFileRetrival = exports.certificateDelete = exports.certificateUpdate = exports.getcertificates = exports.certificateAdding = void 0;
+exports.certificateRetrival = exports.CertificateGeneration = exports.CertificateFileRetrival = exports.certificateDelete = exports.certificateUpdate = exports.getcertificates = exports.certificateAdding = void 0;
 const Certificates_1 = __importDefault(require("../models/Certificates"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -301,13 +301,22 @@ const CertificateFileRetrival = (req, res) => __awaiter(void 0, void 0, void 0, 
 exports.CertificateFileRetrival = CertificateFileRetrival;
 const CertificateGeneration = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        function containsSpace(str) {
+            const spaceRegex = /\s/;
+            return spaceRegex.test(str);
+        }
         const { username, userId } = req.body;
+        if (containsSpace(username))
+            throw new Error("username must not contain space");
         (0, CertificateGenerate_1.createCertificateWithImage)(username);
         const userIssued = yield User_1.default.findOne({ where: { id: userId } });
         if (userIssued) {
             const certificate = yield Certificates_1.default.update({ certificate_url: `${username}_certificate.pdf` }, { where: { id: userId } });
             if (certificate) {
-                res.status(201).json({ message: "certificate created" });
+                res.status(201).json({
+                    message: "certificate created",
+                    certificateUrl: `${username}_certificate.pdf`,
+                });
             }
             else {
                 res.status(500).json({ message: "certificate not created" });
@@ -323,3 +332,14 @@ const CertificateGeneration = (req, res) => __awaiter(void 0, void 0, void 0, fu
     }
 });
 exports.CertificateGeneration = CertificateGeneration;
+const certificateRetrival = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { certificateUrl } = req.params;
+    const filePath = path_1.default.join(__dirname, "../../uploads/certificate", certificateUrl);
+    fs_1.default.access(filePath, fs_1.default.constants.F_OK, (err) => {
+        if (err) {
+            res.status(404).json({ error: "certificate not found" });
+        }
+        res.sendFile(filePath);
+    });
+});
+exports.certificateRetrival = certificateRetrival;

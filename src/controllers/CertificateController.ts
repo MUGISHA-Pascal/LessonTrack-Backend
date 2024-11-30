@@ -287,7 +287,13 @@ export const CertificateFileRetrival = async (req: Request, res: Response) => {
 
 export const CertificateGeneration = async (req: Request, res: Response) => {
   try {
+    function containsSpace(str: string) {
+      const spaceRegex = /\s/;
+      return spaceRegex.test(str);
+    }
     const { username, userId } = req.body;
+    if (containsSpace(username))
+      throw new Error("username must not contain space");
     createCertificateWithImage(username);
     const userIssued = await User.findOne({ where: { id: userId } });
     if (userIssued) {
@@ -296,7 +302,10 @@ export const CertificateGeneration = async (req: Request, res: Response) => {
         { where: { id: userId } }
       );
       if (certificate) {
-        res.status(201).json({ message: "certificate created" });
+        res.status(201).json({
+          message: "certificate created",
+          certificateUrl: `${username}_certificate.pdf`,
+        });
       } else {
         res.status(500).json({ message: "certificate not created" });
       }
@@ -307,4 +316,19 @@ export const CertificateGeneration = async (req: Request, res: Response) => {
     console.log(error);
     res.status(500).json({ message: error });
   }
+};
+
+export const certificateRetrival = async (req: Request, res: Response) => {
+  const { certificateUrl } = req.params;
+  const filePath = path.join(
+    __dirname,
+    "../../uploads/certificate",
+    certificateUrl
+  );
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      res.status(404).json({ error: "certificate not found" });
+    }
+    res.sendFile(filePath);
+  });
 };
