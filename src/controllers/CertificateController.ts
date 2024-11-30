@@ -291,10 +291,15 @@ export const CertificateGeneration = async (req: Request, res: Response) => {
       const spaceRegex = /\s/;
       return spaceRegex.test(str);
     }
-    const { username, userId } = req.body;
+    let { username, userId } = req.body;
     if (containsSpace(username))
       throw new Error("username must not contain space");
+    function removeSpaces(inputString: string) {
+      return inputString.replace(/\s+/g, "");
+    }
+
     createCertificateWithImage(username);
+    username = removeSpaces(username);
     const userIssued = await User.findOne({ where: { id: userId } });
     if (userIssued) {
       const certificate = await Certificate.update(

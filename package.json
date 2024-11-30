@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/server.ts",
+    "dev": "nodemon src/middlewares/CertificateGenerate.ts",
     "build": "tsc -w",
-    "start": "nodemon dist/server.js",
+    "start": "nodemon dist/middlewares/CertificateGenerate.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

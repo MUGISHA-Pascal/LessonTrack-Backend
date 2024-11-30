@@ -7,9 +7,12 @@ export function createCertificateWithImage(name: string): void {
     .toBuffer()
     .then((buffer: Buffer) => {
       const doc = new PDFDocument();
-
+      function removeSpaces(inputString: string) {
+        return inputString.replace(/\s+/g, "");
+      }
+      let savename = removeSpaces(name);
       doc.pipe(
-        fs.createWriteStream(`uploads/certificate/${name}_certificate.pdf`)
+        fs.createWriteStream(`uploads/certificate/${savename}_certificate.pdf`)
       );
 
       doc.image(buffer, 0, 0, { width: 600, height: 400 });

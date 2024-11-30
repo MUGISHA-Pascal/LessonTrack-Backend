@@ -12,10 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.lessonDelete = exports.lessonUpdate = exports.getLesson = exports.lessonAdding = void 0;
+exports.fileRetrival = exports.CourseFileAdding = exports.lessonDelete = exports.lessonUpdate = exports.getLesson = exports.lessonAdding = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const Courses_1 = __importDefault(require("../models/Courses"));
 const Lessons_1 = __importDefault(require("../models/Lessons"));
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 /**
  * @swagger
  * tags:
@@ -320,3 +322,44 @@ exports.lessonDelete = lessonDelete;
  *           description: URL to the media file (e.g., video, audio) for the lesson
  *           example: "http://example.com/media/lesson1.mp4"
  */
+const CourseFileAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const { userId, courseTitle, courseDescription, contentType } = req.body;
+        const user = yield User_1.default.findOne({ where: { id: userId } });
+        if ((user === null || user === void 0 ? void 0 : user.role) === "admin") {
+            if (!req.file) {
+                res.status(400).json({ message: "No file uploaded" });
+            }
+            yield Courses_1.default.create({
+                title: courseTitle,
+                description: courseDescription,
+                content_type: contentType,
+                created_by: userId,
+                file: (_a = req.file) === null || _a === void 0 ? void 0 : _a.filename,
+            });
+            res.status(200).json({
+                message: "course uploaded successfully",
+                file: req.file,
+            });
+        }
+        else {
+            res.json({ message: "you are not allowed adding courses" });
+        }
+    }
+    catch (error) {
+        res.json({ message: error });
+    }
+});
+exports.CourseFileAdding = CourseFileAdding;
+const fileRetrival = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { fileName } = req.params;
+    const filePath = path_1.default.join(__dirname, "../../uploads/courses", fileName);
+    fs_1.default.access(filePath, fs_1.default.constants.F_OK, (err) => {
+        if (err) {
+            res.status(404).json({ error: "file not found" });
+        }
+        res.sendFile(filePath);
+    });
+});
+exports.fileRetrival = fileRetrival;

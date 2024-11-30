@@ -3,5 +3,5 @@ export interface LessonInterface {
   course_id: number;
   title: string;
   content: Text;
-  media_url: string;
+  media_url?: string;
 }

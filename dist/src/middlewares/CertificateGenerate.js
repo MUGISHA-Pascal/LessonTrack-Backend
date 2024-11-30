@@ -12,7 +12,11 @@ function createCertificateWithImage(name) {
         .toBuffer()
         .then((buffer) => {
         const doc = new pdfkit_1.default();
-        doc.pipe(fs_1.default.createWriteStream(`uploads/certificate/${name}_certificate.pdf`));
+        function removeSpaces(inputString) {
+            return inputString.replace(/\s+/g, "");
+        }
+        let savename = removeSpaces(name);
+        doc.pipe(fs_1.default.createWriteStream(`uploads/certificate/${savename}_certificate.pdf`));
         doc.image(buffer, 0, 0, { width: 600, height: 400 });
         doc.fontSize(17).fillColor("black").text(`${name}`, 250, 195);
         doc.end();

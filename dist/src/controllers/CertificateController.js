@@ -305,10 +305,14 @@ const CertificateGeneration = (req, res) => __awaiter(void 0, void 0, void 0, fu
             const spaceRegex = /\s/;
             return spaceRegex.test(str);
         }
-        const { username, userId } = req.body;
+        let { username, userId } = req.body;
         if (containsSpace(username))
             throw new Error("username must not contain space");
+        function removeSpaces(inputString) {
+            return inputString.replace(/\s+/g, "");
+        }
         (0, CertificateGenerate_1.createCertificateWithImage)(username);
+        username = removeSpaces(username);
         const userIssued = yield User_1.default.findOne({ where: { id: userId } });
         if (userIssued) {
             const certificate = yield Certificates_1.default.update({ certificate_url: `${username}_certificate.pdf` }, { where: { id: userId } });

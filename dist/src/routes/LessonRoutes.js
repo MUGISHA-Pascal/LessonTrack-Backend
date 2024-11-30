@@ -7,4 +7,5 @@ LessonRouter.post("/add/:userId", LessonController_1.lessonAdding);
 LessonRouter.get("/:userId", LessonController_1.getLesson);
 LessonRouter.put("/update/:userId", LessonController_1.lessonUpdate);
 LessonRouter.delete("/delete/:userId", LessonController_1.lessonDelete);
+LessonRouter.post("/add_file");
 exports.default = LessonRouter;
