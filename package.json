@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/server.ts",
+    "dev": "nodemon src/middlewares/CertificateGenerate.ts",
     "build": "tsc -w",
-    "start": "nodemon dist/server.js",
+    "start": "nodemon dist/middlewares/CertificateGenerate.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -26,6 +26,7 @@
     "@types/pdfkit": "^0.13.5",
     "@types/pg": "^8.11.10",
     "@types/sequelize": "^4.28.20",
+    "@types/sharp": "^0.32.0",
     "@types/socket.io": "^3.0.2",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.7",
@@ -46,6 +47,7 @@
     "pdfkit": "^0.15.1",
     "pg": "^8.13.1",
     "sequelize": "^6.37.5",
+    "sharp": "^0.33.5",
     "socket.io": "^4.8.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",

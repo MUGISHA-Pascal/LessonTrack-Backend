@@ -8,7 +8,7 @@ const socket_io_1 = require("socket.io");
 const app_1 = __importDefault(require("./app"));
 const swagger_1 = __importDefault(require("./swagger"));
 const server = http_1.default.createServer(app_1.default);
-const io = new socket_io_1.Server(server);
+const io = new socket_io_1.Server(server, { cors: { origin: "*" } });
 const port = process.env.PORT;
 server.listen(port, () => {
     console.log("server running on port " + port);
