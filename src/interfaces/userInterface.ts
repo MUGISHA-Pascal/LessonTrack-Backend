@@ -8,4 +8,5 @@ export interface userInterface {
   profilePicture?: string;
   nickName?: string;
   gender?: string;
+  pin?: number;
 }

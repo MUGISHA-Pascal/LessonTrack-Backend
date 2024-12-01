@@ -62,6 +62,10 @@ const User = postgresConnectionSequelize.define<UserInt>(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    pin: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
   {
     createdAt: true,

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  AddPin,
   AdminUserDelete,
   fillProfile,
   imageRetrival,
@@ -16,4 +17,5 @@ UserRoutes.post(
 UserRoutes.delete("/admin/delete-user/:userId", AdminUserDelete);
 UserRoutes.get("/image/:ImageName", imageRetrival);
 UserRoutes.put("/fill_profile", fillProfile);
+UserRoutes.put("/add_pin", AddPin);
 export default UserRoutes;

@@ -236,3 +236,15 @@ export const fillProfile = async (req: Request, res: Response) => {
     res.status(500).json({ message: error });
   }
 };
+
+export const AddPin = async (req: Request, res: Response) => {
+  try {
+    const { pin, id } = req.body;
+    const userUpdated = await User.update({ pin }, { where: { id } });
+    console.log(userUpdated);
+    res.status(201).json({ user: userUpdated });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error });
+  }
+};
