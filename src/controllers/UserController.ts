@@ -224,9 +224,9 @@ export const imageRetrival = async (req: Request, res: Response) => {
 
 export const fillProfile = async (req: Request, res: Response) => {
   try {
-    const { fullname, nickname, email, phone_number, id } = req.body;
+    const { fullname, nickname, email, gender, phone_number, id } = req.body;
     const userUpdated = await User.update(
-      { username: fullname, nickName: nickname, phone_number, email },
+      { username: fullname, nickName: nickname, gender, phone_number, email },
       { where: { id } }
     );
     console.log(userUpdated);
