@@ -221,3 +221,18 @@ export const imageRetrival = async (req: Request, res: Response) => {
     res.sendFile(filePath);
   });
 };
+
+export const fillProfile = async (req: Request, res: Response) => {
+  try {
+    const { fullname, nickname, email, phone_number, id } = req.body;
+    const userUpdated = await User.update(
+      { username: fullname, nickName: nickname, phone_number, email },
+      { where: { id } }
+    );
+    console.log(userUpdated);
+    res.status(201).json({ user: userUpdated });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error });
+  }
+};

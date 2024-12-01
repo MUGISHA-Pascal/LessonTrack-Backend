@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   AdminUserDelete,
+  fillProfile,
   imageRetrival,
   profileUploadController,
 } from "../controllers/UserController";
@@ -14,4 +15,5 @@ UserRoutes.post(
 );
 UserRoutes.delete("/admin/delete-user/:userId", AdminUserDelete);
 UserRoutes.get("/image/:ImageName", imageRetrival);
+UserRoutes.put("/fill_profile", fillProfile);
 export default UserRoutes;
