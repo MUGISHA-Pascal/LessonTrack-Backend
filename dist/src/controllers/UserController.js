@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.imageRetrival = exports.AdminUserDelete = exports.profileUploadController = void 0;
+exports.AddPin = exports.fillProfile = exports.imageRetrival = exports.AdminUserDelete = exports.profileUploadController = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -242,3 +242,29 @@ const imageRetrival = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     });
 });
 exports.imageRetrival = imageRetrival;
+const fillProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { fullname, nickname, email, gender, phone_number, id } = req.body;
+        const userUpdated = yield User_1.default.update({ username: fullname, nickName: nickname, gender, phone_number, email }, { where: { id } });
+        console.log(userUpdated);
+        res.status(201).json({ user: userUpdated });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: error });
+    }
+});
+exports.fillProfile = fillProfile;
+const AddPin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { pin, id } = req.body;
+        const userUpdated = yield User_1.default.update({ pin }, { where: { id } });
+        console.log(userUpdated);
+        res.status(201).json({ user: userUpdated });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: error });
+    }
+});
+exports.AddPin = AddPin;

@@ -54,6 +54,18 @@ const User = postgres_1.default.define("User", {
         type: DataTypes.STRING,
         allowNull: true,
     },
+    nickName: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    gender: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    pin: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
 }, {
     createdAt: true,
     updatedAt: true,

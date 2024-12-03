@@ -25,7 +25,6 @@ postgresConnectionSequelize
   .catch((error) => {
     console.log(error);
   });
-//pascal
 app.use("/auth", AuthRoutes);
 app.use("/user", UserRoutes);
 app.use("/courses", CourseRoutes);

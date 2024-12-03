@@ -9,7 +9,7 @@ import {
 import upload from "../middlewares/profile";
 
 const UserRoutes = Router();
-UserRoutes.post(
+UserRoutes.put(
   "/upload_profile/:id",
   upload.single("ProfilePicture"),
   profileUploadController
