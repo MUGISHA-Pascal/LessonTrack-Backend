@@ -3,6 +3,7 @@ import {
   AddPin,
   AdminUserDelete,
   fillProfile,
+  GetUserById,
   imageRetrival,
   profileUploadController,
 } from "../controllers/UserController";
@@ -18,4 +19,5 @@ UserRoutes.delete("/admin/delete-user/:userId", AdminUserDelete);
 UserRoutes.get("/image/:ImageName", imageRetrival);
 UserRoutes.put("/fill_profile", fillProfile);
 UserRoutes.put("/add_pin", AddPin);
+UserRoutes.get("/get_user/:id", GetUserById);
 export default UserRoutes;

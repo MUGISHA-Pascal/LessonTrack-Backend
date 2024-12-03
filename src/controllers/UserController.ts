@@ -248,3 +248,17 @@ export const AddPin = async (req: Request, res: Response) => {
     res.status(500).json({ message: error });
   }
 };
+
+export const GetUserById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findByPk(id);
+    if (user) {
+      res.status(201).json({ user });
+    } else {
+      res.status(404).json({ message: "user not found" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};

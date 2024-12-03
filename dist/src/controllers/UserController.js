@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AddPin = exports.fillProfile = exports.imageRetrival = exports.AdminUserDelete = exports.profileUploadController = void 0;
+exports.GetUserById = exports.AddPin = exports.fillProfile = exports.imageRetrival = exports.AdminUserDelete = exports.profileUploadController = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -268,3 +268,19 @@ const AddPin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.AddPin = AddPin;
+const GetUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const user = yield User_1.default.findByPk(id);
+        if (user) {
+            res.status(201).json({ user });
+        }
+        else {
+            res.status(404).json({ message: "user not found" });
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
+exports.GetUserById = GetUserById;
