@@ -377,3 +377,36 @@ export const GetCourseByCategory = async (req: Request, res: Response) => {
     res.status(500).json({ message: error });
   }
 };
+export const courseprofileUploadController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { id } = req.params;
+    const course = await Course.findOne({ where: { id } });
+    if (course) {
+      if (req.file) {
+        course.profile_image = req.file.path;
+        course.save();
+        res.json({ message: "course image uploaded successfully", course });
+      } else {
+        res.status(400).json({ message: "no course file uploaded" });
+      }
+    } else {
+      res.status(404).json({ message: "course not found" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "server error" });
+  }
+};
+export const courseimageRetrival = async (req: Request, res: Response) => {
+  const { ImageName } = req.params;
+  const filePath = path.join(__dirname, "../../uploads", ImageName);
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      res.status(404).json({ error: "Image not found" });
+    }
+    res.sendFile(filePath);
+  });
+};

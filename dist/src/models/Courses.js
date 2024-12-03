@@ -28,6 +28,7 @@ const Course = postgres_1.default.define("Course", {
             isIn: [["text", "video", "image"]],
         },
     },
+    profile_image: { type: sequelize_1.DataTypes.STRING, allowNull: true },
     created_by: {
         type: sequelize_1.DataTypes.INTEGER,
         allowNull: true,

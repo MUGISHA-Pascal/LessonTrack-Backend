@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetCourseByCategory = exports.fileRetrival = exports.CourseFileAdding = exports.courseDelete = exports.courseUpdate = exports.getCourses = exports.courseAdding = void 0;
+exports.courseimageRetrival = exports.courseprofileUploadController = exports.GetCourseByCategory = exports.fileRetrival = exports.CourseFileAdding = exports.courseDelete = exports.courseUpdate = exports.getCourses = exports.courseAdding = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const Courses_1 = __importDefault(require("../models/Courses"));
 const fs_1 = __importDefault(require("fs"));
@@ -398,3 +398,38 @@ const GetCourseByCategory = (req, res) => __awaiter(void 0, void 0, void 0, func
     }
 });
 exports.GetCourseByCategory = GetCourseByCategory;
+const courseprofileUploadController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const course = yield Courses_1.default.findOne({ where: { id } });
+        if (course) {
+            if (req.file) {
+                course.profile_image = req.file.path;
+                course.save();
+                res.json({ message: "course image uploaded successfully", course });
+            }
+            else {
+                res.status(400).json({ message: "no course file uploaded" });
+            }
+        }
+        else {
+            res.status(404).json({ message: "course not found" });
+        }
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "server error" });
+    }
+});
+exports.courseprofileUploadController = courseprofileUploadController;
+const courseimageRetrival = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { ImageName } = req.params;
+    const filePath = path_1.default.join(__dirname, "../../uploads", ImageName);
+    fs_1.default.access(filePath, fs_1.default.constants.F_OK, (err) => {
+        if (err) {
+            res.status(404).json({ error: "Image not found" });
+        }
+        res.sendFile(filePath);
+    });
+});
+exports.courseimageRetrival = courseimageRetrival;
