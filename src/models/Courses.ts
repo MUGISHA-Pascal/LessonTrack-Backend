@@ -8,6 +8,7 @@ class CourseInt extends Model<courseInterface> implements courseInterface {
   public description!: Text;
   public content_type!: "text" | "video" | "image";
   public created_by!: number;
+  public category!: string;
   public is_active!: boolean;
   public file!: string;
 }
@@ -47,6 +48,10 @@ const Course = postgresConnectionSequelize.define<CourseInt>(
     is_active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
+    },
+    category: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     file: {
       type: DataTypes.STRING,

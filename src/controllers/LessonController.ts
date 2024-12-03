@@ -301,32 +301,7 @@ export const lessonDelete = async (req: Request, res: Response) => {
  *           description: URL to the media file (e.g., video, audio) for the lesson
  *           example: "http://example.com/media/lesson1.mp4"
  */
-export const CourseFileAdding = async (req: Request, res: Response) => {
-  try {
-    const { userId, courseTitle, courseDescription, contentType } = req.body;
-    const user = await User.findOne({ where: { id: userId } });
-    if (user?.role === "admin") {
-      if (!req.file) {
-        res.status(400).json({ message: "No file uploaded" });
-      }
-      await Course.create({
-        title: courseTitle,
-        description: courseDescription,
-        content_type: contentType,
-        created_by: userId,
-        file: req.file?.filename,
-      });
-      res.status(200).json({
-        message: "course uploaded successfully",
-        file: req.file,
-      });
-    } else {
-      res.json({ message: "you are not allowed adding courses" });
-    }
-  } catch (error) {
-    res.json({ message: error });
-  }
-};
+
 export const fileRetrival = async (req: Request, res: Response) => {
   const { fileName } = req.params;
   const filePath = path.join(__dirname, "../../uploads/courses", fileName);

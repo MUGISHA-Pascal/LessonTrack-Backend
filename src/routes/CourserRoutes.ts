@@ -5,6 +5,7 @@ import {
   CourseFileAdding,
   courseUpdate,
   fileRetrival,
+  GetCourseByCategory,
   getCourses,
 } from "../controllers/CourseController";
 import CourseUpload from "../middlewares/CourseUpload";
@@ -16,4 +17,5 @@ CourseRoutes.put("/update/:userId", courseUpdate);
 CourseRoutes.delete("/delete/:userId", courseDelete);
 CourseRoutes.get("/file/:fileName", fileRetrival);
 CourseRoutes.post("/add_file", CourseUpload.single("file"), CourseFileAdding);
+CourseRoutes.get("/get_courses/:category", GetCourseByCategory);
 export default CourseRoutes;

@@ -11,5 +11,4 @@ LessonRouter.post("/add/:userId", lessonAdding);
 LessonRouter.get("/:userId", getLesson);
 LessonRouter.put("/update/:userId", lessonUpdate);
 LessonRouter.delete("/delete/:userId", lessonDelete);
-LessonRouter.post("/add_file");
 export default LessonRouter;

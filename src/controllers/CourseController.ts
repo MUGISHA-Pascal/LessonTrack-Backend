@@ -63,13 +63,14 @@ import path from "path";
 export const courseAdding = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { title, description, content_type, is_active } = req.body;
+    const { title, description, content_type, category, is_active } = req.body;
     const user = await User.findOne({ where: { id: userId } });
     if (user?.role === "admin") {
       const course = await Course.create({
         title,
         description,
         content_type,
+        category,
         created_by: Number(userId),
         is_active,
       });
@@ -330,7 +331,8 @@ export const courseDelete = async (req: Request, res: Response) => {
  */
 export const CourseFileAdding = async (req: Request, res: Response) => {
   try {
-    const { userId, courseTitle, courseDescription, contentType } = req.body;
+    const { userId, courseTitle, category, courseDescription, contentType } =
+      req.body;
     const user = await User.findOne({ where: { id: userId } });
     if (user?.role === "admin") {
       if (!req.file) {
@@ -340,6 +342,7 @@ export const CourseFileAdding = async (req: Request, res: Response) => {
         title: courseTitle,
         description: courseDescription,
         content_type: contentType,
+        category,
         created_by: userId,
         file: req.file?.filename,
       });
@@ -363,4 +366,14 @@ export const fileRetrival = async (req: Request, res: Response) => {
     }
     res.sendFile(filePath);
   });
+};
+export const GetCourseByCategory = async (req: Request, res: Response) => {
+  try {
+    const { category } = req.params;
+    const courses = await Course.findAll({ where: { category } });
+    res.status(201).json({ courses });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error });
+  }
 };

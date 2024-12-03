@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fileRetrival = exports.CourseFileAdding = exports.courseDelete = exports.courseUpdate = exports.getCourses = exports.courseAdding = void 0;
+exports.GetCourseByCategory = exports.fileRetrival = exports.CourseFileAdding = exports.courseDelete = exports.courseUpdate = exports.getCourses = exports.courseAdding = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const Courses_1 = __importDefault(require("../models/Courses"));
 const fs_1 = __importDefault(require("fs"));
@@ -76,13 +76,14 @@ const path_1 = __importDefault(require("path"));
 const courseAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;
-        const { title, description, content_type, is_active } = req.body;
+        const { title, description, content_type, category, is_active } = req.body;
         const user = yield User_1.default.findOne({ where: { id: userId } });
         if ((user === null || user === void 0 ? void 0 : user.role) === "admin") {
             const course = yield Courses_1.default.create({
                 title,
                 description,
                 content_type,
+                category,
                 created_by: Number(userId),
                 is_active,
             });
@@ -346,7 +347,7 @@ exports.courseDelete = courseDelete;
 const CourseFileAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const { userId, courseTitle, courseDescription, contentType } = req.body;
+        const { userId, courseTitle, category, courseDescription, contentType } = req.body;
         const user = yield User_1.default.findOne({ where: { id: userId } });
         if ((user === null || user === void 0 ? void 0 : user.role) === "admin") {
             if (!req.file) {
@@ -356,6 +357,7 @@ const CourseFileAdding = (req, res) => __awaiter(void 0, void 0, void 0, functio
                 title: courseTitle,
                 description: courseDescription,
                 content_type: contentType,
+                category,
                 created_by: userId,
                 file: (_a = req.file) === null || _a === void 0 ? void 0 : _a.filename,
             });
@@ -384,3 +386,15 @@ const fileRetrival = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     });
 });
 exports.fileRetrival = fileRetrival;
+const GetCourseByCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { category } = req.params;
+        const courses = yield Courses_1.default.findAll({ where: { category } });
+        res.status(201).json({ courses });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: error });
+    }
+});
+exports.GetCourseByCategory = GetCourseByCategory;
