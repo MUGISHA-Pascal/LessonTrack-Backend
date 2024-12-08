@@ -409,3 +409,178 @@ export const courseimageRetrival = async (req: Request, res: Response) => {
     res.sendFile(filePath);
   });
 };
+/**
+ * @openapi
+ * /courses/upload:
+ *   post:
+ *     summary: Upload a new course
+ *     description: Admins can upload a new course, including title, description, content type, and category, along with a course file.
+ *     tags:
+ *       - Course
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: The ID of the user uploading the course.
+ *               courseTitle:
+ *                 type: string
+ *                 description: The title of the course.
+ *               category:
+ *                 type: string
+ *                 description: The category of the course.
+ *               courseDescription:
+ *                 type: string
+ *                 description: The description of the course.
+ *               contentType:
+ *                 type: string
+ *                 description: The content type (e.g., video, pdf).
+ *     responses:
+ *       200:
+ *         description: Course uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "course uploaded successfully"
+ *                 file:
+ *                   type: object
+ *                   properties:
+ *                     filename:
+ *                       type: string
+ *       400:
+ *         description: No file uploaded or invalid data
+ *       403:
+ *         description: Unauthorized user
+ */
+
+/**
+ * @openapi
+ * /courses/file/{fileName}:
+ *   get:
+ *     summary: Retrieve a specific course file
+ *     description: Allows users to retrieve a course file by providing the file name.
+ *     tags:
+ *       - Course
+ *     parameters:
+ *       - in: path
+ *         name: fileName
+ *         required: true
+ *         description: The name of the course file to retrieve.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The course file was found and is being returned.
+ *       404:
+ *         description: File not found
+ */
+
+/**
+ * @openapi
+ * /courses/category/{category}:
+ *   get:
+ *     summary: Get courses by category
+ *     description: Retrieves a list of courses filtered by category.
+ *     tags:
+ *       - Course
+ *     parameters:
+ *       - in: path
+ *         name: category
+ *         required: true
+ *         description: The category of the courses to retrieve.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of courses in the specified category.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 courses:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       title:
+ *                         type: string
+ *                         example: "Course Title"
+ *                       description:
+ *                         type: string
+ *                         example: "Course Description"
+ *                       content_type:
+ *                         type: string
+ *                         example: "video"
+ *                       category:
+ *                         type: string
+ *                         example: "Programming"
+ *       404:
+ *         description: No courses found in the specified category
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @openapi
+ * /courses/{id}/profile-upload:
+ *   post:
+ *     summary: Upload a profile image for a course
+ *     description: Allows admins to upload a profile image for an existing course by course ID.
+ *     tags:
+ *       - Course
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The ID of the course to upload a profile image for.
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Course profile image uploaded successfully.
+ *       400:
+ *         description: No image file uploaded
+ *       404:
+ *         description: Course not found
+ */
+
+/**
+ * @openapi
+ * /courses/image/{ImageName}:
+ *   get:
+ *     summary: Retrieve a course image
+ *     description: Allows users to retrieve a course profile image by providing the image name.
+ *     tags:
+ *       - Course
+ *     parameters:
+ *       - in: path
+ *         name: ImageName
+ *         required: true
+ *         description: The name of the course image to retrieve.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The course image was found and is being returned.
+ *       404:
+ *         description: Image not found
+ */

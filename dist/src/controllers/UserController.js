@@ -284,3 +284,135 @@ const GetUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.GetUserById = GetUserById;
+/**
+ * @openapi
+ * /users/image/{ImageName}:
+ *   get:
+ *     summary: Retrieve a user's image
+ *     description: Allows users to retrieve an image by providing the image name.
+ *     tags:
+ *       - User
+ *     parameters:
+ *       - in: path
+ *         name: ImageName
+ *         required: true
+ *         description: The name of the image to retrieve.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The image was found and is being returned.
+ *       404:
+ *         description: Image not found
+ */
+/**
+ * @openapi
+ * /users/profile:
+ *   put:
+ *     summary: Update user profile
+ *     description: Allows users to update their profile information such as fullname, nickname, email, gender, and phone number.
+ *     tags:
+ *       - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               fullname:
+ *                 type: string
+ *                 description: The full name of the user.
+ *               nickname:
+ *                 type: string
+ *                 description: The nickname of the user.
+ *               email:
+ *                 type: string
+ *                 description: The email address of the user.
+ *               gender:
+ *                 type: string
+ *                 description: The gender of the user.
+ *               phone_number:
+ *                 type: string
+ *                 description: The phone number of the user.
+ *               id:
+ *                 type: string
+ *                 description: The ID of the user whose profile is being updated.
+ *     responses:
+ *       201:
+ *         description: User profile updated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: object
+ *                   description: The updated user profile.
+ *       500:
+ *         description: Internal server error
+ */
+/**
+ * @openapi
+ * /users/pin:
+ *   put:
+ *     summary: Add or update user pin
+ *     description: Allows users to add or update their pin for security purposes.
+ *     tags:
+ *       - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               pin:
+ *                 type: string
+ *                 description: The pin to be set for the user.
+ *               id:
+ *                 type: string
+ *                 description: The ID of the user whose pin is being updated.
+ *     responses:
+ *       201:
+ *         description: Pin updated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: object
+ *                   description: The user with the updated pin.
+ *       500:
+ *         description: Internal server error
+ */
+/**
+ * @openapi
+ * /users/{id}:
+ *   get:
+ *     summary: Get user by ID
+ *     description: Retrieves the user details by the given user ID.
+ *     tags:
+ *       - User
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The ID of the user to retrieve.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       201:
+ *         description: The user was found and returned.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: object
+ *                   description: The user details.
+ *       404:
+ *         description: User not found
+ */

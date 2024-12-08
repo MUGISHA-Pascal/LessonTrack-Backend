@@ -15,35 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.handlingCharts = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const Message_1 = __importDefault(require("../models/Message"));
-// const userSockets = new Map();
 const handlingCharts = (io) => {
-    // io.use((socket: SocketInterface, next: (err?: ExtendedError) => void) => {
-    //   const cookies = socket.request.headers.cookie;
-    //   console.log(cookies)
-    //   if (!cookies) {
-    //     console.log("Fialed to get the cookies")
-    //     return next(new Error("Invalid token"))
-    //   };
-    //   const accessToken: string = cookies["jwt"];
-    //   if (!accessToken){
-    //     console.log("Fialed to get the cookies")
-    //     return next(new Error("Invalid token"))
-    //   };
-    //   jwt.verify(
-    //     accessToken,
-    //     process.env.JWT_KEY as string,
-    //     async (err, decoded: any) => {
-    //       let user = await User.findOne({ where: { email: decoded.email } });
-    //       if (!user) return next(new Error("User not found"));
-    //       let userAvailable = decoded as userInterface;
-    //       if (err) return next(new Error("Invalid token"));
-    //       socket.user = userAvailable.email;
-    //       next();
-    //     }
-    //   );
-    // });
     io.on("connection", (socket) => __awaiter(void 0, void 0, void 0, function* () {
-        // userSockets.set(socket.user, socket.id);
         socket.on("send_message", (_a) => __awaiter(void 0, [_a], void 0, function* ({ sender, receiver, message }) {
             console.log(sender, receiver, message);
             try {
@@ -77,7 +50,6 @@ const handlingCharts = (io) => {
                         sender: receiver,
                     },
                 });
-                // const senderSocketId = userSockets.get(socket.user);
                 io.to(socket.id).emit("message_update", {
                     receiver,
                     messagesSender,
@@ -102,10 +74,6 @@ const handlingCharts = (io) => {
                     where: { id: messageId },
                 });
                 console.log(messageDeleted);
-                // const senderSocketId = userSockets.get(socket.user);
-                // const receiverSocketId = userSockets.get(receiver);
-                // io.to(senderSocketId).emit("message_delete", { receiver });
-                // io.to(receiverSocketId).emit("message_delete", { sender: socket.user });
             }
             catch (error) {
                 socket.emit("error", {
@@ -121,10 +89,6 @@ const handlingCharts = (io) => {
                 const updatedMessage = yield Message_1.default.update({ message }, { where: { id, receiver, sender: socket.user } });
                 if (!updatedMessage)
                     throw new Error("message not updated");
-                // const senderSocketId = userSockets.get(socket.user);
-                // const receiverSocketId = userSockets.get(receiver);
-                // io.to(senderSocketId).emit("message_update", { id, message });
-                // io.to(receiverSocketId).emit("message_update", { id, message });
             }
             catch (error) {
                 socket.emit("error", {
@@ -135,84 +99,6 @@ const handlingCharts = (io) => {
     }));
 };
 exports.handlingCharts = handlingCharts;
-//   socket.on("typing", async ({ receiver }) => {
-//     try {
-//       const receiverUser = await User.findOne({ where: { email: receiver } });
-//       if (!receiverUser) throw new Error("receiver not found");
-//       const senderSocketId = userSockets.get(socket.user);
-//       const receiverSocketId = userSockets.get(receiver);
-//       io.to(senderSocketId).emit("typing", { receiver });
-//       io.to(receiverSocketId).emit("message_update", { sender: socket.user });
-//     } catch (error) {
-//       socket.emit("error", {
-//         message: `error dealing with typing of message ${error}`,
-//       });
-//     }
-//   });
-//   socket.on("commenting", async ({ comment, courseId }) => {
-//     try {
-//       const user = await User.findOne({ where: { email: socket.user } });
-//       if (!user) throw new Error("error while finding the user");
-//       await Comment.create({
-//         user_id: user?.id,
-//         comment_text: comment,
-//         course_id: courseId,
-//       });
-//       const comments = await Comment.findAll({
-//         limit: 50,
-//         order: [["createdAt", "DESC"]],
-//       });
-//       io.emit("commentUpdate", { comments });
-//     } catch (error) {
-//       socket.emit("error", { message: error });
-//     }
-//   });
-//   socket.on("deleting_comment", async ({ commentId }) => {
-//     try {
-//       const CommentDelete = await Comment.destroy({ where: { id: commentId } });
-//       if (!CommentDelete) throw new Error("comment not deleted");
-//       const comments = await Comment.findAll({
-//         limit: 50,
-//         order: [["createdAt", "DESC"]],
-//       });
-//       io.emit("commentUpdate", { comments });
-//     } catch (error) {
-//       socket.emit("error", { message: error });
-//     }
-//   });
-//   socket.on("comment_update", async ({ commentUpdate, courseId }) => {
-//     try {
-//       const commentUpdated = await Comment.update(
-//         { comment_text: commentUpdate },
-//         { where: { course_id: courseId } }
-//       );
-//       if (!commentUpdated) throw new Error("comment not updated");
-//       const comments = await Comment.findAll({
-//         limit: 50,
-//         order: [["createdAt", "DESC"]],
-//       });
-//       io.emit("commentUpdate", { comments });
-//     } catch (error) {
-//       socket.emit("error", {
-//         message: `error while dealing with updating ${error}`,
-//       });
-//     }
-//   });
-//   socket.on("commentUpdate", async () => {
-//     try {
-//       const comments = await Comment.findAll({
-//         limit: 50,
-//         order: [["createdAt", "DESC"]],
-//       });
-//       io.emit("commentUpdate", { comments });
-//     } catch (error) {
-//       socket.emit("error", { message: error });
-//     }
-//   });
-//   socket.on("disconnect", () => {
-//     userSockets.delete(socket.user);
-//   });
-// });
 /**
  * @swagger
  * components:
