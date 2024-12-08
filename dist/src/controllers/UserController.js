@@ -307,7 +307,7 @@ exports.GetUserById = GetUserById;
  */
 /**
  * @openapi
- * /users/profile:
+ * /users/fill_profile:
  *   put:
  *     summary: Update user profile
  *     description: Allows users to update their profile information such as fullname, nickname, email, gender, and phone number.
@@ -354,7 +354,7 @@ exports.GetUserById = GetUserById;
  */
 /**
  * @openapi
- * /users/pin:
+ * /users/add_pin:
  *   put:
  *     summary: Add or update user pin
  *     description: Allows users to add or update their pin for security purposes.
@@ -389,7 +389,7 @@ exports.GetUserById = GetUserById;
  */
 /**
  * @openapi
- * /users/{id}:
+ * /users/get_user/{id}:
  *   get:
  *     summary: Get user by ID
  *     description: Retrieves the user details by the given user ID.

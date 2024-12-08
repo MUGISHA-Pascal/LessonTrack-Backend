@@ -411,7 +411,7 @@ export const courseimageRetrival = async (req: Request, res: Response) => {
 };
 /**
  * @openapi
- * /courses/upload:
+ * /courses/add_file:
  *   post:
  *     summary: Upload a new course
  *     description: Admins can upload a new course, including title, description, content type, and category, along with a course file.
@@ -485,7 +485,7 @@ export const courseimageRetrival = async (req: Request, res: Response) => {
 
 /**
  * @openapi
- * /courses/category/{category}:
+ * /courses/get_courses/{category}:
  *   get:
  *     summary: Get courses by category
  *     description: Retrieves a list of courses filtered by category.
@@ -531,8 +531,8 @@ export const courseimageRetrival = async (req: Request, res: Response) => {
 
 /**
  * @openapi
- * /courses/{id}/profile-upload:
- *   post:
+ * /courses/upload_profile/{id}:
+ *   put:
  *     summary: Upload a profile image for a course
  *     description: Allows admins to upload a profile image for an existing course by course ID.
  *     tags:

@@ -277,7 +277,7 @@ export const certificateDelete = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /certificates/{fileName}:
+ * /certificates/get_certificate/{fileName}:
  *   get:
  *     summary: Retrieve a certificate file
  *     description: Allows the user to retrieve a certificate by its file name.
@@ -425,7 +425,7 @@ export const CertificateGeneration = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /certificates/{certificateUrl}:
+ * /certificates/certificate/{certificateUrl}:
  *   get:
  *     summary: Retrieve a certificate by URL
  *     description: Retrieve a certificate using the provided certificate URL.

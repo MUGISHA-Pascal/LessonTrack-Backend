@@ -290,7 +290,7 @@ exports.certificateDelete = certificateDelete;
  */
 /**
  * @swagger
- * /certificates/{fileName}:
+ * /certificates/get_certificate/{fileName}:
  *   get:
  *     summary: Retrieve a certificate file
  *     description: Allows the user to retrieve a certificate by its file name.
@@ -435,7 +435,7 @@ const CertificateGeneration = (req, res) => __awaiter(void 0, void 0, void 0, fu
 exports.CertificateGeneration = CertificateGeneration;
 /**
  * @swagger
- * /certificates/{certificateUrl}:
+ * /certificates/certificate/{certificateUrl}:
  *   get:
  *     summary: Retrieve a certificate by URL
  *     description: Retrieve a certificate using the provided certificate URL.
