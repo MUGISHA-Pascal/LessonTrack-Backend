@@ -76,7 +76,7 @@ const path_1 = __importDefault(require("path"));
 const courseAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;
-        const { title, description, content_type, category, is_active } = req.body;
+        const { title, description, content_type, category } = req.body;
         const user = yield User_1.default.findOne({ where: { id: userId } });
         if ((user === null || user === void 0 ? void 0 : user.role) === "admin") {
             const course = yield Courses_1.default.create({
@@ -85,7 +85,6 @@ const courseAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                 content_type,
                 category,
                 created_by: Number(userId),
-                is_active,
             });
             res.status(200).json({ message: "course created successfully", course });
         }

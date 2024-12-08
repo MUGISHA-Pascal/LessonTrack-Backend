@@ -274,6 +274,39 @@ export const certificateDelete = async (req: Request, res: Response) => {
  *           format: date-time
  *           example: "2024-10-02T12:00:00Z"
  */
+
+/**
+ * @swagger
+ * /certificates/{fileName}:
+ *   get:
+ *     summary: Retrieve a certificate file
+ *     description: Allows the user to retrieve a certificate by its file name.
+ *     parameters:
+ *       - name: fileName
+ *         in: path
+ *         required: true
+ *         description: The name of the certificate file to retrieve.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Certificate file retrieved successfully.
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       404:
+ *         description: File not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "file not found"
+ */
 export const CertificateFileRetrival = async (req: Request, res: Response) => {
   const { fileName } = req.params;
   const filePath = path.join(__dirname, "../../uploads/certificate", fileName);
@@ -285,6 +318,70 @@ export const CertificateFileRetrival = async (req: Request, res: Response) => {
   });
 };
 
+/**
+ * @swagger
+ * /certificates/generate:
+ *   post:
+ *     summary: Generate a certificate for a user
+ *     description: Creates a certificate for the given user by username and userId, and stores it in the database.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "john_doe"
+ *               userId:
+ *                 type: integer
+ *                 example: 123
+ *     responses:
+ *       201:
+ *         description: Certificate successfully created.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "certificate created"
+ *                 certificateUrl:
+ *                   type: string
+ *                   example: "john_doe_certificate.pdf"
+ *       400:
+ *         description: Invalid input.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "username must not contain space"
+ *       404:
+ *         description: User not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "user not found"
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "certificate not created"
+ */
 export const CertificateGeneration = async (req: Request, res: Response) => {
   try {
     function containsSpace(str: string) {
@@ -294,12 +391,15 @@ export const CertificateGeneration = async (req: Request, res: Response) => {
     let { username, userId } = req.body;
     if (containsSpace(username))
       throw new Error("username must not contain space");
+
     function removeSpaces(inputString: string) {
       return inputString.replace(/\s+/g, "");
     }
 
+    // Call function to generate the certificate (assuming this is implemented elsewhere)
     createCertificateWithImage(username);
     username = removeSpaces(username);
+
     const userIssued = await User.findOne({ where: { id: userId } });
     if (userIssued) {
       const certificate = await Certificate.update(
@@ -323,6 +423,38 @@ export const CertificateGeneration = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /certificates/{certificateUrl}:
+ *   get:
+ *     summary: Retrieve a certificate by URL
+ *     description: Retrieve a certificate using the provided certificate URL.
+ *     parameters:
+ *       - name: certificateUrl
+ *         in: path
+ *         required: true
+ *         description: The URL of the certificate to retrieve.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Certificate file retrieved successfully.
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       404:
+ *         description: Certificate not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "certificate not found"
+ */
 export const certificateRetrival = async (req: Request, res: Response) => {
   const { certificateUrl } = req.params;
   const filePath = path.join(
