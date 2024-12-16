@@ -61,14 +61,16 @@ import path from "path";
  *         description: Server error
  */
 export const courseAdding = async (req: Request, res: Response) => {
+  console.log("Calling course adding api")
   try {
     const { userId } = req.params;
-    const { title, description, content_type, category } = req.body;
+    const { courseTitle, courseDescription, content_type, category } = req.body;
+    console.log(req.body);
     const user = await User.findOne({ where: { id: userId } });
-    if (user?.role === "admin") {
+    if (user?.role == "admin") {
       const course = await Course.create({
-        title,
-        description,
+        title:courseTitle,
+        description: courseDescription,
         content_type,
         category,
         created_by: Number(userId),
@@ -266,6 +268,26 @@ export const courseDelete = async (req: Request, res: Response) => {
     const { courseId } = req.body;
     const user = await User.findOne({ where: { id: userId } });
     if (user?.role === "admin") {
+      const CourseToDelete = await Course.findOne({ where: { id: courseId } });
+      let filePath;
+      if (CourseToDelete) {
+        filePath = path.join(
+          __dirname,
+          "../../uploads/courses",
+          CourseToDelete.file
+        );
+      }
+      if (filePath) {
+        fs.rm(filePath, (error) => {
+          if (error) {
+            console.log(error);
+            res.status(500).json({ message: "error while deleting file " });
+          } else {
+            console.log("file successively deleted");
+            res.status(201).json({ message: "file successively deleted" });
+          }
+        });
+      }
       const deletedCourse = await Course.destroy({ where: { id: courseId } });
       res
         .status(200)
@@ -329,31 +351,45 @@ export const courseDelete = async (req: Request, res: Response) => {
  *           example: "admin"
  */
 export const CourseFileAdding = async (req: Request, res: Response) => {
+ 
   try {
     const { userId, courseTitle, category, courseDescription, contentType } =
       req.body;
+
     const user = await User.findOne({ where: { id: userId } });
-    if (user?.role === "admin") {
-      if (!req.file) {
-        res.status(400).json({ message: "No file uploaded" });
-      }
-      await Course.create({
-        title: courseTitle,
-        description: courseDescription,
-        content_type: contentType,
-        category,
-        created_by: userId,
-        file: req.file?.filename,
-      });
-      res.status(200).json({
-        message: "course uploaded successfully",
-        file: req.file,
-      });
-    } else {
-      res.json({ message: "you are not allowed adding courses" });
+    
+    console.log(user?.role)
+    if (!user || user.role !== "admin") {
+      
+       res
+        .status(403)
+        .json({ message: "You are not allowed to add courses" });
+        return;
     }
+
+    if (!req.file) {
+      console.log("please include file")
+       res.status(400).json({ message: "No file uploaded" });
+       return;
+    }
+if(req.file){
+    await Course.create({
+      title: courseTitle,
+      description: courseDescription,
+      content_type: contentType,
+      category,
+      created_by: userId,
+      file: req.file.filename,
+    });
+  }
+  res.status(200).json({
+      message: "Course uploaded successfully",
+      file: req.file,
+    });
+    return;
   } catch (error) {
     res.json({ message: error });
+    return;
   }
 };
 export const fileRetrival = async (req: Request, res: Response) => {

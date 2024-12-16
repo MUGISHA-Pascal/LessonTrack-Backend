@@ -74,14 +74,16 @@ const path_1 = __importDefault(require("path"));
  *         description: Server error
  */
 const courseAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("Calling course adding api");
     try {
         const { userId } = req.params;
-        const { title, description, content_type, category } = req.body;
+        const { courseTitle, courseDescription, content_type, category } = req.body;
+        console.log(req.body);
         const user = yield User_1.default.findOne({ where: { id: userId } });
-        if ((user === null || user === void 0 ? void 0 : user.role) === "admin") {
+        if ((user === null || user === void 0 ? void 0 : user.role) == "admin") {
             const course = yield Courses_1.default.create({
-                title,
-                description,
+                title: courseTitle,
+                description: courseDescription,
                 content_type,
                 category,
                 created_by: Number(userId),
@@ -278,6 +280,23 @@ const courseDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         const { courseId } = req.body;
         const user = yield User_1.default.findOne({ where: { id: userId } });
         if ((user === null || user === void 0 ? void 0 : user.role) === "admin") {
+            const CourseToDelete = yield Courses_1.default.findOne({ where: { id: courseId } });
+            let filePath;
+            if (CourseToDelete) {
+                filePath = path_1.default.join(__dirname, "../../uploads/courses", CourseToDelete.file);
+            }
+            if (filePath) {
+                fs_1.default.rm(filePath, (error) => {
+                    if (error) {
+                        console.log(error);
+                        res.status(500).json({ message: "error while deleting file " });
+                    }
+                    else {
+                        console.log("file successively deleted");
+                        res.status(201).json({ message: "file successively deleted" });
+                    }
+                });
+            }
             const deletedCourse = yield Courses_1.default.destroy({ where: { id: courseId } });
             res
                 .status(200)
@@ -344,33 +363,40 @@ exports.courseDelete = courseDelete;
  *           example: "admin"
  */
 const CourseFileAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     try {
         const { userId, courseTitle, category, courseDescription, contentType } = req.body;
         const user = yield User_1.default.findOne({ where: { id: userId } });
-        if ((user === null || user === void 0 ? void 0 : user.role) === "admin") {
-            if (!req.file) {
-                res.status(400).json({ message: "No file uploaded" });
-            }
+        console.log(user === null || user === void 0 ? void 0 : user.role);
+        if (!user || user.role !== "admin") {
+            res
+                .status(403)
+                .json({ message: "You are not allowed to add courses" });
+            return;
+        }
+        if (!req.file) {
+            console.log("please include file");
+            res.status(400).json({ message: "No file uploaded" });
+            return;
+        }
+        if (req.file) {
             yield Courses_1.default.create({
                 title: courseTitle,
                 description: courseDescription,
                 content_type: contentType,
                 category,
                 created_by: userId,
-                file: (_a = req.file) === null || _a === void 0 ? void 0 : _a.filename,
-            });
-            res.status(200).json({
-                message: "course uploaded successfully",
-                file: req.file,
+                file: req.file.filename,
             });
         }
-        else {
-            res.json({ message: "you are not allowed adding courses" });
-        }
+        res.status(200).json({
+            message: "Course uploaded successfully",
+            file: req.file,
+        });
+        return;
     }
     catch (error) {
         res.json({ message: error });
+        return;
     }
 });
 exports.CourseFileAdding = CourseFileAdding;

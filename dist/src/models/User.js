@@ -66,6 +66,11 @@ const User = postgres_1.default.define("User", {
         type: DataTypes.INTEGER,
         allowNull: true,
     },
+    verified: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: "NO",
+    },
 }, {
     createdAt: true,
     updatedAt: true,

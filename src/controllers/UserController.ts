@@ -213,7 +213,8 @@ export const AdminUserDelete = async (req: Request, res: Response) => {
  */
 export const imageRetrival = async (req: Request, res: Response) => {
   const { ImageName } = req.params;
-  const filePath = path.join(__dirname, "../../uploads", ImageName);
+  const filePath = path.join(__dirname, "../../uploads/images", ImageName);
+
   fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
       res.status(404).json({ error: "Image not found" });
@@ -237,16 +238,34 @@ export const fillProfile = async (req: Request, res: Response) => {
   }
 };
 
+export const fill = async (req: Request, res: Response) => {
+  try {
+    const { fullname, nickname,number,id } = req.body;
+    const userUpdated = await User.update(
+      { username: fullname, nickName: nickname, phone_number: number},
+      { where: { id } }
+    );
+    console.log(userUpdated);
+    res.status(201).json({ user: userUpdated });
+    
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error });
+  }
+};
+
 export const AddPin = async (req: Request, res: Response) => {
   try {
     const { pin, id } = req.body;
-    const userUpdated = await User.update({ pin }, { where: { id } });
+    const verified = "YES";
+    const userUpdated = await User.update({ pin , verified}, { where: { id } });
     console.log(userUpdated);
     res.status(201).json({ user: userUpdated });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error });
   }
+  
 };
 
 export const GetUserById = async (req: Request, res: Response) => {

@@ -13,9 +13,12 @@ import LessonRouter from "./routes/LessonRoutes";
 import QuizRoutes from "./routes/QuizRoutes";
 import CommentRoutes from "./routes/CommentRoutes";
 dotenv.config();
+
 const app: Express = express();
 app.use(cors());
 app.use(bodyParser.json());
+
+
 
 postgresConnectionSequelize
   .authenticate()

@@ -1,0 +1,30 @@
+{
+    "development": {
+      "username": "postgres",
+      "password": "fht2005",
+      "database": "LessonTracker",
+      "host": "localhost",
+      "port": 5432,
+      "dialect": "postgres",
+      "logging": false
+    },
+    "test": {
+      "username": "test_user",
+      "password": "test_pass",
+      "database": "test_db",
+      "host": "localhost",
+      "port": 5432,
+      "dialect": "postgres",
+      "logging": false
+    },
+    "production": {
+      "username": "prod_user",
+      "password": "prod_pass",
+      "database": "prod_db",
+      "host": "prod_host",
+      "port": 5432,
+      "dialect": "postgres",
+      "logging": false
+    }
+  }
+  

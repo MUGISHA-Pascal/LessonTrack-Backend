@@ -1,0 +1,10 @@
+{
+  "android": {
+    "package": "com.batizo.lessontrackerapi"
+  },
+  "extra": {
+    "eas": {
+      "projectId": "661a1f9e-9f69-4280-9388-d09e7ca05887"
+    }
+  }
+}

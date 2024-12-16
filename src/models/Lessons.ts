@@ -23,6 +23,7 @@ const Lesson = postgresConnectionSequelize.define<LessonInt>(
     course_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      
       references: {
         model: "courses",
         key: "id",

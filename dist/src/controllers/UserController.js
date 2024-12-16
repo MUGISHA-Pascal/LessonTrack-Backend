@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetUserById = exports.AddPin = exports.fillProfile = exports.imageRetrival = exports.AdminUserDelete = exports.profileUploadController = void 0;
+exports.GetUserById = exports.AddPin = exports.fill = exports.fillProfile = exports.imageRetrival = exports.AdminUserDelete = exports.profileUploadController = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -233,7 +233,7 @@ exports.AdminUserDelete = AdminUserDelete;
  */
 const imageRetrival = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { ImageName } = req.params;
-    const filePath = path_1.default.join(__dirname, "../../uploads", ImageName);
+    const filePath = path_1.default.join(__dirname, "../../uploads/images", ImageName);
     fs_1.default.access(filePath, fs_1.default.constants.F_OK, (err) => {
         if (err) {
             res.status(404).json({ error: "Image not found" });
@@ -255,10 +255,24 @@ const fillProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.fillProfile = fillProfile;
+const fill = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { fullname, nickname, number, id } = req.body;
+        const userUpdated = yield User_1.default.update({ username: fullname, nickName: nickname, phone_number: number }, { where: { id } });
+        console.log(userUpdated);
+        res.status(201).json({ user: userUpdated });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: error });
+    }
+});
+exports.fill = fill;
 const AddPin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { pin, id } = req.body;
-        const userUpdated = yield User_1.default.update({ pin }, { where: { id } });
+        const verified = "YES";
+        const userUpdated = yield User_1.default.update({ pin, verified }, { where: { id } });
         console.log(userUpdated);
         res.status(201).json({ user: userUpdated });
     }

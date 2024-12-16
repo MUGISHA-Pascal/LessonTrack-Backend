@@ -2,7 +2,6 @@ import { Router } from "express";
 import {
   courseAdding,
   courseDelete,
-  CourseFileAdding,
   courseimageRetrival,
   courseprofileUploadController,
   courseUpdate,
@@ -10,6 +9,7 @@ import {
   GetCourseByCategory,
   getCourses,
 } from "../controllers/CourseController";
+import { CourseFileAdding } from "../controllers/CourseController";
 import CourseUpload from "../middlewares/CourseUpload";
 import upload from "../middlewares/profile";
 

@@ -12,5 +12,5 @@ server.listen(port, () => {
 });
 swaggerDocs(app, port);
 handlingCharts(io);
-
 export default io;
+

@@ -9,4 +9,5 @@ export interface userInterface {
   nickName?: string;
   gender?: string;
   pin?: number;
+  verified:string
 }

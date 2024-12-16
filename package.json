@@ -7,12 +7,15 @@
     "dev": "nodemon src/server.ts",
     "build": "tsc -w",
     "start": "nodemon dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.1.0",
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/body-parser": "^1.19.5",
@@ -36,6 +39,7 @@
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
+    "expo-web-browser": "^14.0.1",
     "express": "^4.21.1",
     "fs": "^0.0.1-security",
     "http": "^0.0.1-security",
@@ -46,6 +50,7 @@
     "path": "^0.12.7",
     "pdfkit": "^0.15.1",
     "pg": "^8.13.1",
+    "react-native-alert-notification": "^0.4.2",
     "sequelize": "^6.37.5",
     "sharp": "^0.33.5",
     "socket.io": "^4.8.1",
@@ -53,6 +58,9 @@
     "swagger-ui-express": "^5.0.1",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
-    "validator": "^13.12.0"
+    "validator": "^13.12.0",
+    "expo": "~52.0.18",
+    "react": "18.3.1",
+    "react-native": "0.76.5"
   }
 }

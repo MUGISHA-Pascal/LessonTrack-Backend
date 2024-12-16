@@ -16,7 +16,7 @@ exports.handlingCharts = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const Message_1 = __importDefault(require("../models/Message"));
 const handlingCharts = (io) => {
-    io.on("connection ", (socket) => __awaiter(void 0, void 0, void 0, function* () {
+    io.on("connection", (socket) => __awaiter(void 0, void 0, void 0, function* () {
         socket.on("send_message", (_a) => __awaiter(void 0, [_a], void 0, function* ({ sender, receiver, message }) {
             console.log(sender, receiver, message);
             try {
@@ -86,7 +86,7 @@ const handlingCharts = (io) => {
                 const receiverUser = yield User_1.default.findOne({ where: { email: receiver } });
                 if (!receiverUser)
                     throw new Error("receiver not found");
-                const updatedMessage = yield Message_1.default.update({ message }, { where: { id, receiver } });
+                const updatedMessage = yield Message_1.default.update({ message }, { where: { id, receiver, sender: socket.user } });
                 if (!updatedMessage)
                     throw new Error("message not updated");
             }
