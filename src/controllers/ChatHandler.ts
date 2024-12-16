@@ -12,7 +12,7 @@ interface SocketInterface extends Socket {
   user?: string;
 }
 export const handlingCharts = (io: Server) => {
-  io.on("connection", async (socket: SocketInterface) => {
+  io.on("connection ", async (socket: SocketInterface) => {
     socket.on("send_message", async ({ sender, receiver, message }) => {
       console.log(sender, receiver, message);
       try {
@@ -78,7 +78,7 @@ export const handlingCharts = (io: Server) => {
         if (!receiverUser) throw new Error("receiver not found");
         const updatedMessage = await Message.update(
           { message },
-          { where: { id, receiver, sender: socket.user } }
+          { where: { id, receiver } }
         );
         if (!updatedMessage) throw new Error("message not updated");
       } catch (error) {
