@@ -32,6 +32,18 @@ const Quiz = postgres_1.default.define("Quiz", {
         type: DataTypes.INTEGER,
         defaultValue: 3,
     },
+    description: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    type_of: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    owners: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
 }, {
     tableName: "quizzes",
     schema: "public",

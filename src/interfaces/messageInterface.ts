@@ -5,5 +5,8 @@ export interface messageInterface {
   receiver: string;
   seen?: boolean;
   edited?: boolean;
+  date?: string;
   repliedTo?: number[];
+  type?: string;
+  fileContent?: string;
 }

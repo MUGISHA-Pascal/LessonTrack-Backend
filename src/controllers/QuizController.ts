@@ -57,14 +57,17 @@ import Quiz from "../models/Quiz";
  */
 export const quizAdding = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
-    const { course_id, title, max_attempts } = req.body;
-    const userEligible = await User.findOne({ where: { id: userId } });
+    const { course_id, title, max_attempts, description, type_of, owners } =
+      req.body;
+    const userEligible = await User.findOne({ where: { id: owners } });
     if (userEligible?.role === "sub_admin" || "admin") {
       const quiz = await Quiz.create({
+        owners,
         course_id,
         title,
         max_attempts,
+        description,
+        type_of,
       });
       res.status(200).json({ message: "quiz added successfully", quiz });
     } else {
@@ -74,7 +77,6 @@ export const quizAdding = async (req: Request, res: Response) => {
     console.log(error);
   }
 };
-
 /**
  * @swagger
  * /quiz/:
@@ -111,11 +113,11 @@ export const quizAdding = async (req: Request, res: Response) => {
  */
 export const getQuiz = async (req: Request, res: Response) => {
   try {
-    const { course_id } = req.body;
-    const quiz = await Quiz.findAll({
-      where: { course_id },
+    const { course_id } = req.params;
+    const quizzes = await Quiz.findAll({
+      where: { owners: course_id },
     });
-    res.status(200).json({ message: "quiz found successfully", quiz });
+    res.status(200).json({ message: "quiz found successfully", quizzes });
   } catch (error) {
     console.log(error);
   }
@@ -171,21 +173,33 @@ export const getQuiz = async (req: Request, res: Response) => {
  *       500:
  *         description: Server error
  */
+export const getQuizes = async (req: Request, res: Response) => {
+  try {
+    const quizzes = await Quiz.findAll();
+    res.status(200).json({ message: "quiz found successfully", quizzes });
+  } catch (error) {
+    console.log(error);
+  }
+};
 export const quizUpdate = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { course_id, title, max_attempts, quizId } = req.body;
+    const { title, description, max_attempts, quizId } = req.body;
+    console.log(title, description, max_attempts, quizId);
     const userEligible = await User.findOne({ where: { id: userId } });
     if (userEligible?.role === "sub_admin" || "admin") {
       const updatedQuiz = await Quiz.update(
-        { title, max_attempts },
-        { where: { id: quizId, course_id } }
+        { title, max_attempts, description },
+        { where: { id: quizId } }
       );
+      console.log("working");
       res
         .status(200)
         .json({ message: "quiz updated successfully", updatedQuiz });
+      return;
     } else {
       res.json({ message: "you are not elligible to update quiz" });
+      return;
     }
   } catch (error) {
     console.log(error);
@@ -235,8 +249,8 @@ export const quizUpdate = async (req: Request, res: Response) => {
  */
 export const quizDelete = async (req: Request, res: Response) => {
   try {
-    const { quizId } = req.params;
-    const { userId } = req.body;
+    const { quizId, userId } = req.params;
+
     const userEligible = await User.findOne({ where: { id: userId } });
     if (userEligible?.role === "sub_admin" || "admin") {
       const deletedQuiz = await Quiz.destroy({
@@ -252,6 +266,7 @@ export const quizDelete = async (req: Request, res: Response) => {
     console.log(error);
   }
 };
+
 /**
  * @swagger
  * components:
@@ -280,3 +295,39 @@ export const quizDelete = async (req: Request, res: Response) => {
  *           format: date-time
  *           example: "2024-11-09T00:00:00Z"
  */
+// export const questionAnswersHandling = async (req: Request, res: Response) => {
+//   const { answers, quizId } = req.body;
+//   const quiz = await Quiz.findOne({ where: { id: quizId } });
+//   let correctAnswers: string[] = [];
+//   if (quiz) {
+//     correctAnswers = quiz.answers;
+//   }
+//   if (!quiz) {
+//     res.status(400).json({ error: "the quiz is not found" });
+//   }
+//   if (!Array.isArray(answers)) {
+//     res.status(400).json({ error: "Answers must be an array." });
+//   }
+
+//   if (answers.length !== correctAnswers.length) {
+//     res.status(400).json({
+//       error: "Number of submitted answers does not match the expected length.",
+//     });
+//   }
+
+//   let correctCount = 0;
+//   answers.forEach((answer: string, index: number) => {
+//     if (answer === correctAnswers[index]) {
+//       correctCount++;
+//     }
+//   });
+
+//   const averageScore = (correctCount / correctAnswers.length) * 100;
+
+//   res.json({
+//     message: "Answers processed successfully.",
+//     totalQuestions: correctAnswers.length,
+//     correctAnswers: correctCount,
+//     averageScore: averageScore.toFixed(2),
+//   });
+// };

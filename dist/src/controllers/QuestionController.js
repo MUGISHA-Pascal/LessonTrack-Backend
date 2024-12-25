@@ -12,9 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.questionDelete = exports.questionUpdate = exports.getQuestions = exports.questionAdding = void 0;
+exports.questionDelete = exports.getQuestions = exports.QuestionAdding = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const Questions_1 = __importDefault(require("../models/Questions"));
+const Quiz_1 = __importDefault(require("../models/Quiz"));
+const inspector_1 = require("inspector");
 /**
  * @swagger
  * tags:
@@ -68,30 +70,48 @@ const Questions_1 = __importDefault(require("../models/Questions"));
  *       500:
  *         description: Server error
  */
-const questionAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const QuestionAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { userId } = req.params;
-        const { quiz_id, question_text, correct_answer } = req.body;
-        const userEligible = yield User_1.default.findOne({ where: { id: userId } });
-        if ((userEligible === null || userEligible === void 0 ? void 0 : userEligible.role) === "sub_admin" || "admin") {
-            const question = yield Questions_1.default.create({
+        const { questions } = req.body;
+        inspector_1.console.log(questions);
+        if (!questions || questions.length === 0) {
+            res.status(400).json({ message: "Invalid questions data" });
+            return;
+        }
+        const createdQuestions = [];
+        for (const questionData of questions) {
+            // Destructure fields from questionData
+            const { question, options, correct_answer, quiz_id } = questionData;
+            // Validate quiz existence
+            const quizExists = yield Quiz_1.default.findOne({ where: { id: Number(quiz_id) } });
+            if (!quizExists) {
+                res
+                    .status(404)
+                    .json({ message: `Quiz with ID ${quiz_id} does not exist` });
+                return;
+            }
+            // Save the question in the database
+            const newQuestion = yield Questions_1.default.create({
                 quiz_id,
-                question_text,
+                question,
+                options,
                 correct_answer,
             });
-            res
-                .status(200)
-                .json({ message: "question added successfully", question });
+            inspector_1.console.log(newQuestion);
+            createdQuestions.push(newQuestion);
         }
-        else {
-            res.json({ message: "you are not elligible to add question" });
-        }
+        res.status(200).json({
+            message: "Questions added successfully",
+            questions: createdQuestions,
+        });
+        return;
     }
     catch (error) {
-        console.log(error);
+        inspector_1.console.log("Error in QuestionAdding: ", error);
+        res.status(500).json({ message: "Internal Server Error", error });
     }
 });
-exports.questionAdding = questionAdding;
+exports.QuestionAdding = QuestionAdding;
 /**
  * @swagger
  * /questions/:
@@ -128,7 +148,7 @@ exports.questionAdding = questionAdding;
  */
 const getQuestions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { quiz_id } = req.body;
+        const { quiz_id } = req.params;
         const questions = yield Questions_1.default.findAll({
             where: { quiz_id },
         });
@@ -137,7 +157,7 @@ const getQuestions = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             .json({ message: "Questions found successfully", questions });
     }
     catch (error) {
-        console.log(error);
+        inspector_1.console.log(error);
     }
 });
 exports.getQuestions = getQuestions;
@@ -192,26 +212,32 @@ exports.getQuestions = getQuestions;
  *       500:
  *         description: Server error
  */
-const questionUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { userId } = req.params;
-        const { quiz_id, question_text, correct_answer, questionId } = req.body;
-        const userEligible = yield User_1.default.findOne({ where: { id: userId } });
-        if ((userEligible === null || userEligible === void 0 ? void 0 : userEligible.role) === "sub_admin" || "admin") {
-            const updatedQuestion = yield Questions_1.default.update({ question_text, correct_answer }, { where: { id: questionId, quiz_id } });
-            res
-                .status(200)
-                .json({ message: "question updated successfully", updatedQuestion });
-        }
-        else {
-            res.json({ message: "you are not elligible to update feedback" });
-        }
-    }
-    catch (error) {
-        console.log(error);
-    }
-});
-exports.questionUpdate = questionUpdate;
+// export const questionUpdate = async (req: Request, res: Response) => {
+//   try {
+//     const { userId } = req.params;
+//     const {
+//       quiz_id,
+//       question_title,
+//       question_choices,
+//       correct_answer,
+//       questionId,
+//     } = req.body;
+//     const userEligible = await User.findOne({ where: { id: userId } });
+//     if (userEligible?.role === "sub_admin" || "admin") {
+//       const updatedQuestion = await Question.update(
+//         { question_choices, correct_answer, question_title },
+//         { where: { id: questionId, quiz_id } }
+//       );
+//       res
+//         .status(200)
+//         .json({ message: "question updated successfully", updatedQuestion });
+//     } else {
+//       res.json({ message: "you are not elligible to update feedback" });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
 /**
  * @swagger
  * /questions/delete/{questionId}:
@@ -272,7 +298,7 @@ const questionDelete = (req, res) => __awaiter(void 0, void 0, void 0, function*
         }
     }
     catch (error) {
-        console.log(error);
+        inspector_1.console.log(error);
     }
 });
 exports.questionDelete = questionDelete;

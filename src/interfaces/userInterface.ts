@@ -5,9 +5,20 @@ export interface userInterface {
   phone_number: string;
   password_hash: string;
   role: "lesson_seeker" | "admin" | "sub_admin";
-  profilePicture?: string;
-  nickName?: string;
+  profilepicture?: string;
+  nickname?: string;
   gender?: string;
   pin?: number;
-  verified:string
+  verified: string;
+  activestatus?: string;
+  special_offers?: boolean;
+  sound?: boolean;
+  vibrate?: boolean;
+  general_notification?: boolean;
+  promo_discount?: boolean;
+  payment_options?: boolean;
+  app_update?: boolean;
+  new_service_available?: boolean;
+  new_tips_available?: boolean;
+  device_token?: string;
 }

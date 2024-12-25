@@ -3,6 +3,14 @@ import User from "../models/User";
 import Course from "../models/Courses";
 import fs from "fs";
 import path from "path";
+import CourseTaken from "../models/CourseTaken";
+import BookMark from "../models/BookMark";
+import Module from "../models/module";
+import { lessonInterface } from "../interfaces/lessonInterface";
+import Lesson from "../models/Lesson";
+import { Op } from "sequelize";
+import Quiz from "../models/Quiz";
+import Question from "../models/Questions";
 /**
  * @swagger
  * tags:
@@ -61,26 +69,37 @@ import path from "path";
  *         description: Server error
  */
 export const courseAdding = async (req: Request, res: Response) => {
-  console.log("Calling course adding api")
+  console.log("Calling course adding api");
   try {
     const { userId } = req.params;
-    const { courseTitle, courseDescription, content_type, category } = req.body;
+    const {
+      courseTitle,
+      courseDescription,
+      moduleNumber,
+      content_type,
+      category,
+    } = req.body;
     console.log(req.body);
     const user = await User.findOne({ where: { id: userId } });
     if (user?.role == "admin") {
       const course = await Course.create({
-        title:courseTitle,
+        module: moduleNumber,
+        title: courseTitle,
         description: courseDescription,
         content_type,
         category,
         created_by: Number(userId),
       });
       res.status(200).json({ message: "course created successfully", course });
+      return;
     } else {
       res.json({ message: "you are not allowed adding courses" });
+      return;
     }
   } catch (error) {
     console.log(error);
+    res.status(500).json({ message: "Internal Server Error" });
+    return;
   }
 };
 /**
@@ -134,6 +153,16 @@ export const getCourses = async (req: Request, res: Response) => {
     }
   } catch (error) {
     console.log(error);
+  }
+};
+export const UsergetCourses = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const courses = await Course.findAll({ where: { created_by: userId } });
+    res.status(200).json({ message: "all courses", courses });
+  } catch (error) {
+    console.log(error);
+    return;
   }
 };
 /**
@@ -265,16 +294,16 @@ export const courseUpdate = async (req: Request, res: Response) => {
 export const courseDelete = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { courseId } = req.body;
+    const { courseId } = req.params;
     const user = await User.findOne({ where: { id: userId } });
     if (user?.role === "admin") {
       const CourseToDelete = await Course.findOne({ where: { id: courseId } });
       let filePath;
-      if (CourseToDelete) {
+      if (CourseToDelete?.profile_image) {
         filePath = path.join(
           __dirname,
           "../../uploads/courses",
-          CourseToDelete.file
+          CourseToDelete.profile_image
         );
       }
       if (filePath) {
@@ -282,9 +311,11 @@ export const courseDelete = async (req: Request, res: Response) => {
           if (error) {
             console.log(error);
             res.status(500).json({ message: "error while deleting file " });
+            return;
           } else {
             console.log("file successively deleted");
             res.status(201).json({ message: "file successively deleted" });
+            return;
           }
         });
       }
@@ -292,11 +323,15 @@ export const courseDelete = async (req: Request, res: Response) => {
       res
         .status(200)
         .json({ message: "course deleted successfully", deletedCourse });
+      return;
     } else {
       res.json({ message: "you are not allowed deleting courses" });
+      return;
     }
   } catch (error) {
     console.log(error);
+    res.status(500).json({ message: "Internal Server Error" });
+    return;
   }
 };
 /**
@@ -351,43 +386,43 @@ export const courseDelete = async (req: Request, res: Response) => {
  *           example: "admin"
  */
 export const CourseFileAdding = async (req: Request, res: Response) => {
- 
   try {
-    const { userId, courseTitle, category, courseDescription, contentType } =
-      req.body;
-
+    const { userId, courseTitle, category, courseDescription } = req.body;
+    console.log(userId);
     const user = await User.findOne({ where: { id: userId } });
-    
-    console.log(user?.role)
+    console.log(user?.role);
     if (!user || user.role !== "admin") {
-      
-       res
-        .status(403)
-        .json({ message: "You are not allowed to add courses" });
-        return;
+      res.status(403).json({ message: "You are not allowed to add courses" });
+      return;
     }
-
+    let imagename;
     if (!req.file) {
-      console.log("please include file")
-       res.status(400).json({ message: "No file uploaded" });
-       return;
+      imagename = "course.png";
+      console.log("please include file");
+      res.status(400).json({ message: "No file uploaded" });
+      return;
     }
-if(req.file){
-    await Course.create({
-      title: courseTitle,
-      description: courseDescription,
-      content_type: contentType,
-      category,
-      created_by: userId,
-      file: req.file.filename,
-    });
-  }
-  res.status(200).json({
+    imagename = req.file.filename;
+    if (req.file) {
+      await Course.create({
+        // module: moduleNumber,
+        title: courseTitle,
+        description: courseDescription,
+        // content_type: contentType,
+        category,
+        created_by: userId,
+        profile_image: imagename,
+      });
+    }
+    console.log("working");
+
+    res.status(200).json({
       message: "Course uploaded successfully",
-      file: req.file,
+      // file: req.file,
     });
     return;
   } catch (error) {
+    console.log(error);
     res.json({ message: error });
     return;
   }
@@ -398,8 +433,10 @@ export const fileRetrival = async (req: Request, res: Response) => {
   fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
       res.status(404).json({ error: "file not found" });
+      return;
     }
     res.sendFile(filePath);
+    return;
   });
 };
 export const GetCourseByCategory = async (req: Request, res: Response) => {
@@ -407,9 +444,11 @@ export const GetCourseByCategory = async (req: Request, res: Response) => {
     const { category } = req.params;
     const courses = await Course.findAll({ where: { category } });
     res.status(201).json({ courses });
+    return;
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error });
+    return;
   }
 };
 export const courseprofileUploadController = async (
@@ -424,27 +463,397 @@ export const courseprofileUploadController = async (
         course.profile_image = req.file.path;
         course.save();
         res.json({ message: "course image uploaded successfully", course });
+        return;
       } else {
         res.status(400).json({ message: "no course file uploaded" });
+        return;
       }
     } else {
       res.status(404).json({ message: "course not found" });
+      return;
     }
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "server error" });
+    return;
   }
 };
 export const courseimageRetrival = async (req: Request, res: Response) => {
   const { ImageName } = req.params;
-  const filePath = path.join(__dirname, "../../uploads", ImageName);
+  const filePath = path.join(__dirname, "../../uploads/courses", ImageName);
+  console.log(ImageName);
   fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
       res.status(404).json({ error: "Image not found" });
+      return;
     }
     res.sendFile(filePath);
+    return;
   });
 };
+export const courseTakenHandling = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  const { courseId } = req.body;
+
+  if (!courseId) {
+    res
+      .status(400)
+      .json({ error: "courseId is required in the request body." });
+    return;
+  }
+
+  try {
+    const courseTaken = await CourseTaken.findOne({ where: { userId } });
+
+    if (!courseTaken) {
+      res.status(404).json({
+        error: "User not found or no courses associated with this user.",
+      });
+      return;
+    }
+
+    const updatedCourseIds = Array.from(
+      new Set([...(courseTaken?.courseIds || []), courseId])
+    );
+
+    await courseTaken?.update({ courseIds: updatedCourseIds });
+
+    res.status(200).json({
+      message: "Course ID added successfully.",
+      courseIds: updatedCourseIds,
+    });
+    return;
+  } catch (error) {
+    console.error("Error adding course ID:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while adding the course ID." });
+    return;
+  }
+};
+export const BookMarkHandling = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  const { courseId } = req.body;
+
+  if (!courseId) {
+    res
+      .status(400)
+      .json({ error: "courseId is required in the request body." });
+    return;
+  }
+
+  try {
+    let bookmark = await BookMark.findOne({ where: { userId } });
+
+    if (!bookmark) {
+      bookmark = await BookMark.create({
+        userId: Number(userId),
+        courseIds: [courseId],
+      });
+    } else {
+      const updatedCourseIds = Array.from(
+        new Set([...(bookmark.courseIds || []), courseId])
+      );
+
+      await bookmark.update({ courseIds: updatedCourseIds });
+    }
+
+    res.status(200).json({
+      message: "Course ID bookmarked successfully.",
+      bookmark,
+    });
+    return;
+  } catch (error) {
+    console.error("Error adding course to bookmarks:", error);
+    res.status(500).json({
+      error: "An error occurred while adding the course to bookmarks.",
+    });
+    return;
+  }
+};
+
+export const getQuiz = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const ress = await Module.findByPk(id);
+    if (ress) {
+      res.status(200).json({ ress });
+      return;
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal Server Error" });
+    return;
+  }
+};
+export const userIncrement = async (req: Request, res: Response) => {
+  const { courseId } = req.params;
+
+  try {
+    const course = await Course.findByPk(courseId);
+
+    if (!course) {
+      res.status(404).json({ error: "Course not found." });
+      return;
+    }
+
+    const newUserCount = (course.userCount || 0) + 1;
+
+    await course.update({ userCount: newUserCount });
+
+    res.status(200).json({
+      message: "User count incremented successfully.",
+      course,
+    });
+    return;
+  } catch (error) {
+    console.error("Error incrementing user count:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while incrementing the user count." });
+    return;
+  }
+};
+export const CourseRetrivalBasingOnUserCount = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const courses = await Course.findAll({
+      order: [["userCount", "DESC"]],
+    });
+
+    res.status(200).json({
+      message: "Courses retrieved successfully.",
+      courses,
+    });
+    return;
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving courses." });
+    return;
+  }
+};
+export const CourseRetrievalByCategoryAndUserCount = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { category } = req.params;
+
+    if (!category) {
+      res.status(400).json({
+        error: "Category is required to filter courses.",
+      });
+      return;
+    }
+
+    const courses = await Course.findAll({
+      where: { category },
+      order: [["userCount", "DESC"]],
+    });
+
+    if (courses.length === 0) {
+      res.status(404).json({
+        message: `No courses found for category: ${category}`,
+      });
+      return;
+    }
+
+    res.status(200).json({
+      message: `Courses retrieved successfully for category: ${category}`,
+      courses,
+    });
+    return;
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    res.status(500).json({
+      error: "An error occurred while retrieving courses.",
+    });
+    return;
+  }
+};
+export const ratingUpdate = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { rating } = req.body;
+
+  if (!rating || typeof rating !== "number" || rating < 1 || rating > 5) {
+    res
+      .status(400)
+      .json({ message: "Rating must be a number between 1 and 5." });
+    return;
+  }
+
+  try {
+    const course = await Course.findByPk(id);
+    if (!course) {
+      res.status(404).json({ message: "Course not found." });
+      return;
+    }
+
+    const currentRatingCount = course.ratingCount || 0;
+    const currentRatingAverage = course.ratingAverage || 0;
+
+    const newRatingCount = currentRatingCount + 1;
+    const newRatingAverage =
+      (currentRatingAverage * currentRatingCount + rating) / newRatingCount;
+
+    course.ratingCount = newRatingCount;
+    course.ratingAverage = newRatingAverage;
+
+    await course.save();
+
+    res.status(200).json({
+      message: "Rating updated successfully.",
+      ratingAverage: course.ratingAverage,
+      ratingCount: course.ratingCount,
+    });
+    return;
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while rating the course." });
+    return;
+  }
+};
+
+export const RatingRetrieval = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const course = await Course.findByPk(id);
+    if (!course) {
+      res.status(404).json({ message: "Course not found." });
+      return;
+    }
+
+    res.status(200).json({
+      ratingAverage: course.ratingAverage || 0,
+      ratingCount: course.ratingCount || 0,
+    });
+    return;
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "An error occurred while fetching the course ratings.",
+    });
+    return;
+  }
+};
+export const addingModule = async (req: Request, res: Response) => {
+  try {
+    const { module, courseId } = req.body;
+    const courseChecking = await Course.findOne({ where: { id: courseId } });
+    if (!courseChecking) {
+      res.status(404).json({ message: "course not found" });
+      return;
+    }
+    const savedModule = await Module.create({ module, courseId });
+    if (!savedModule) {
+      res.status(500).json({ message: "the module is not saved" });
+      return;
+    }
+    res.status(201).json({ savedModule, message: "module is saved" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "an error occured when adding the module",
+    });
+    return;
+  }
+};
+export const LessonAdding = async (req: Request, res: Response) => {
+  try {
+    //lessons must be an array of sub lessons for a given module
+    const { moduleId, lessons } = req.body;
+    const moduleCheck = await Module.findOne({ where: { id: moduleId } });
+    if (!moduleCheck) {
+      res.status(404).json({ message: "module not found" });
+      return;
+    }
+    await Promise.all(
+      lessons.map((lesson: lessonInterface) =>
+        Lesson.create({
+          image: lesson.image,
+          content: lesson.content,
+          moduleId,
+        })
+      )
+    );
+    res.status(201).json({ message: "lessons added successively" });
+    return;
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ message: "error while saving lessons for a module" });
+    return;
+  }
+};
+export const getCoursesByKeyword = async (req: Request, res: Response) => {
+  try {
+    const { text } = req.query;
+
+    const courses = await Course.findAll({
+      where: {
+        title: {
+          [Op.iLike]: `%${text}%`, // Wildcard search
+        },
+      },
+    });
+
+    if (courses.length > 0) {
+      res.status(200).json({ courses });
+      return;
+    } else {
+      res.status(200).send({ courses });
+      return;
+    }
+  } catch (error) {
+    res.status(500).send({ message: "An error occurred" });
+    return;
+  }
+};
+export const tripleRelation = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    let courses: any[] = [];
+    let quizzes: any[] = [];
+    let questions: any[] = [];
+
+    const CoursesRetr = await Course.findAll({
+      where: { created_by: userId },
+    });
+
+    courses = CoursesRetr;
+
+    for (const course of courses) {
+      const QuizRetr = await Quiz.findAll({
+        where: { course_id: course.id },
+      });
+
+      for (const quiz of QuizRetr) {
+        quizzes.push(quiz);
+
+        const QuestRetr = await Question.findAll({
+          where: { quiz_id: quiz.id },
+        });
+
+        questions.push(...QuestRetr);
+      }
+    }
+
+    res.status(200).json({ courses, quizzes, questions });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
 /**
  * @openapi
  * /courses/add_file:

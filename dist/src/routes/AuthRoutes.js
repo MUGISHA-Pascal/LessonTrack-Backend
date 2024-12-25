@@ -7,6 +7,7 @@ AuthRoutes.post("/login", AuthController_1.login);
 AuthRoutes.post("/loginForUser", AuthController_1.loginForUser);
 AuthRoutes.post("/signup", AuthController_1.signup);
 AuthRoutes.post("/usersignup", AuthController_1.signup_Not_admin);
+AuthRoutes.post("/web_login", AuthController_1.WebLoginController);
 AuthRoutes.post("/test", (req, res) => {
     res.status(200).json({ message: "Auth route is working!" });
 });

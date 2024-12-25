@@ -23,7 +23,7 @@ const Course = postgres_1.default.define("Course", {
     },
     content_type: {
         type: sequelize_1.DataTypes.STRING(20),
-        allowNull: false,
+        allowNull: true,
         validate: {
             isIn: [["text", "video", "image"]],
         },
@@ -49,6 +49,22 @@ const Course = postgres_1.default.define("Course", {
     },
     file: {
         type: sequelize_1.DataTypes.STRING,
+        allowNull: true,
+    },
+    module: {
+        type: sequelize_1.DataTypes.ARRAY(sequelize_1.DataTypes.INTEGER),
+        allowNull: true,
+    },
+    userCount: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: true,
+    },
+    ratingAverage: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: true,
+    },
+    ratingCount: {
+        type: sequelize_1.DataTypes.INTEGER,
         allowNull: true,
     },
 }, {

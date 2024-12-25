@@ -27,17 +27,17 @@ const User = postgres_1.default.define("User", {
     username: {
         type: DataTypes.STRING(50),
         allowNull: false,
-        unique: true,
+        unique: false,
     },
     email: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        unique: true,
+        unique: false,
     },
     phone_number: {
         type: DataTypes.STRING(15),
         allowNull: true,
-        unique: true,
+        unique: false,
     },
     password_hash: {
         type: DataTypes.STRING(255),
@@ -50,11 +50,11 @@ const User = postgres_1.default.define("User", {
             isIn: [["lesson_seeker", "admin", "sub_admin"]],
         },
     },
-    profilePicture: {
+    profilepicture: {
         type: DataTypes.STRING,
         allowNull: true,
     },
-    nickName: {
+    nickname: {
         type: DataTypes.STRING,
         allowNull: true,
     },
@@ -70,6 +70,60 @@ const User = postgres_1.default.define("User", {
         type: DataTypes.STRING,
         allowNull: true,
         defaultValue: "NO",
+    },
+    activestatus: {
+        type: DataTypes.STRING,
+        defaultValue: "No",
+        allowNull: true,
+    },
+    special_offers: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+    },
+    sound: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+    },
+    vibrate: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
+    general_notification: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+    },
+    promo_discount: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
+    payment_options: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+    },
+    app_update: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+    },
+    new_service_available: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
+    new_tips_available: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
+    device_token: {
+        type: DataTypes.STRING,
+        allowNull: true,
     },
 }, {
     createdAt: true,

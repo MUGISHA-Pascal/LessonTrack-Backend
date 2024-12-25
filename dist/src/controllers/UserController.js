@@ -12,10 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetUserById = exports.AddPin = exports.fill = exports.fillProfile = exports.imageRetrival = exports.AdminUserDelete = exports.profileUploadController = void 0;
+exports.getMentors = exports.getNumber_of_unseen_messages = exports.GetNotificationById = exports.GetUserById = exports.PushNotification = exports.AddPin = exports.updateSeenNotification = exports.fill = exports.updateSetting = exports.fillProfile = exports.imageRetrival = exports.AdminUserDelete = exports.profileUpdateController = exports.profileUploadController = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const Notification_1 = __importDefault(require("../models/Notification"));
 /**
  * @swagger
  * tags:
@@ -72,7 +73,7 @@ const profileUploadController = (req, res) => __awaiter(void 0, void 0, void 0, 
         const user = yield User_1.default.findOne({ where: { id } });
         if (user) {
             if (req.file) {
-                user.profilePicture = req.file.path;
+                user.profilepicture = req.file.path;
                 user.save();
                 res.json({ message: "user image uploaded successfully", user });
             }
@@ -90,6 +91,35 @@ const profileUploadController = (req, res) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.profileUploadController = profileUploadController;
+const profileUpdateController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const { username, phone_number, email } = req.body;
+        const user = yield User_1.default.findOne({ where: { id } });
+        if (user) {
+            if (req.file) {
+                user.update({
+                    username,
+                    phone_number,
+                    email,
+                    profilepicture: req.file.filename,
+                }, { where: { id } });
+                res.json({ message: "user image uploaded successfully", user });
+            }
+            else {
+                res.status(400).json({ message: "no image file uploaded" });
+            }
+        }
+        else {
+            res.status(404).json({ message: "user not found" });
+        }
+    }
+    catch (error) {
+        console.log("here", error);
+        res.status(500).json({ message: "server error" });
+    }
+});
+exports.profileUpdateController = profileUpdateController;
 // using multer-s3 and aws to handle the upload folder
 /**
  * @swagger
@@ -245,7 +275,7 @@ exports.imageRetrival = imageRetrival;
 const fillProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { fullname, nickname, email, gender, phone_number, id } = req.body;
-        const userUpdated = yield User_1.default.update({ username: fullname, nickName: nickname, gender, phone_number, email }, { where: { id } });
+        const userUpdated = yield User_1.default.update({ username: fullname, nickname: nickname, gender, phone_number, email }, { where: { id } });
         console.log(userUpdated);
         res.status(201).json({ user: userUpdated });
     }
@@ -255,10 +285,28 @@ const fillProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.fillProfile = fillProfile;
+const updateSetting = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const { setting_name, setting_value } = req.body;
+        const userUpdated = yield User_1.default.update({ [setting_name]: setting_value }, { where: { id } });
+        if (userUpdated[0] === 0) {
+            res.status(404).json({ message: "User or setting not found." });
+        }
+        else {
+            res.status(200).json({ message: "Setting updated successfully." });
+        }
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "An error occurred.", error });
+    }
+});
+exports.updateSetting = updateSetting;
 const fill = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { fullname, nickname, number, id } = req.body;
-        const userUpdated = yield User_1.default.update({ username: fullname, nickName: nickname, phone_number: number }, { where: { id } });
+        const userUpdated = yield User_1.default.update({ username: fullname, nickname: nickname, phone_number: number }, { where: { id } });
         console.log(userUpdated);
         res.status(201).json({ user: userUpdated });
     }
@@ -268,11 +316,10 @@ const fill = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.fill = fill;
-const AddPin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const updateSeenNotification = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { pin, id } = req.body;
-        const verified = "YES";
-        const userUpdated = yield User_1.default.update({ pin, verified }, { where: { id } });
+        const { id } = req.params;
+        const userUpdated = yield Notification_1.default.update({ seen: "Yes" }, { where: { receiver: id } });
         console.log(userUpdated);
         res.status(201).json({ user: userUpdated });
     }
@@ -281,11 +328,129 @@ const AddPin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(500).json({ message: error });
     }
 });
+exports.updateSeenNotification = updateSeenNotification;
+const AddPin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { pin, id } = req.body;
+        const verified = "YES";
+        const userUpdated = yield User_1.default.update({ pin, verified }, { where: { id } });
+        console.log(userUpdated);
+        const currentDate = new Date();
+        const formattedDate = currentDate.toISOString().slice(0, 10); // YYYY-MM-DD
+        const hours = currentDate.getHours(); // Hours (0-23)
+        const dateAndHours = `${formattedDate} ${hours}:00`;
+        try {
+            yield Notification_1.default.create({
+                title: "Murakoze kwiyandikisha",
+                description: "Hari impamvu wiyandikishije, tangira nonaha maze wige ibirebanye nibinyabziga",
+                receiver: id,
+                sender: "app",
+                sentdate: dateAndHours,
+            });
+        }
+        catch (error) {
+            console.log(error);
+        }
+        yield Notification_1.default.create({
+            title: "Murakaze neza kuri applocation ya amategeko",
+            description: "Amategeko app ni application igufasha kwiga ibyerekanye nibinyabiziga byose kubuntu kandi muburyo bworoshye kandi bunoze",
+            receiver: id,
+            sender: "app",
+            sentdate: dateAndHours,
+        });
+        res.status(201).json({ user: userUpdated });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: error });
+    }
+});
 exports.AddPin = AddPin;
+const PushNotification = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { device_token, id } = req.body;
+        // const verified = "YES";
+        const userUpdated = yield User_1.default.update({ device_token }, { where: { id } });
+        console.log(userUpdated);
+        res.status(201).json({ user: userUpdated });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: error });
+    }
+});
+exports.PushNotification = PushNotification;
 const GetUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
         const user = yield User_1.default.findByPk(id);
+        if (user) {
+            console.log("working");
+            res.json({ user });
+            return;
+        }
+        else {
+            res.status(404).json({ message: "user not found" });
+            return;
+        }
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "internal server error" });
+        return;
+    }
+});
+exports.GetUserById = GetUserById;
+const GetNotificationById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const user = yield Notification_1.default.findAll({
+            where: {
+                receiver: id,
+            },
+        });
+        if (user) {
+            res.status(201).json({ user });
+        }
+        else {
+            res.status(404).json({ message: "notification not found" });
+        }
+        console.log(user);
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
+exports.GetNotificationById = GetNotificationById;
+const getNumber_of_unseen_messages = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const unseenCount = yield Notification_1.default.count({
+            where: {
+                receiver: id,
+                seen: "No",
+            },
+        });
+        if (unseenCount) {
+            res.status(201).json({ unseenCount });
+        }
+        else {
+            res.status(404).json({ unseenCount });
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
+exports.getNumber_of_unseen_messages = getNumber_of_unseen_messages;
+const getMentors = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        // const { id } = req.params;
+        const user = yield User_1.default.findAll({
+            where: {
+                role: "sub_admin",
+            },
+        });
         if (user) {
             res.status(201).json({ user });
         }
@@ -297,7 +462,7 @@ const GetUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         console.log(error);
     }
 });
-exports.GetUserById = GetUserById;
+exports.getMentors = getMentors;
 /**
  * @openapi
  * /users/image/{ImageName}:

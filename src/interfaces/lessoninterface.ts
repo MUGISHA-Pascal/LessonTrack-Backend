@@ -1,7 +1,6 @@
-export interface LessonInterface {
+export interface lessonInterface {
   id?: number;
-  course_id: number;
-  title: string;
-  content: Text;
-  media_url?: string;
+  image: string;
+  content: string;
+  moduleId: number;
 }

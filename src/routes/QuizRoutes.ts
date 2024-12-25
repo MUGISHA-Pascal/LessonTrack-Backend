@@ -1,6 +1,8 @@
 import { Router } from "express";
 import {
   getQuiz,
+  getQuizes,
+  // questionAnswersHandling,
   quizAdding,
   quizDelete,
   quizUpdate,
@@ -8,7 +10,9 @@ import {
 
 const QuizRoutes = Router();
 QuizRoutes.post("/add/:userId", quizAdding);
-QuizRoutes.get("/", getQuiz);
+QuizRoutes.get("/:course_id", getQuiz);
+QuizRoutes.get("/", getQuizes);
 QuizRoutes.put("/update/:userId", quizUpdate);
-QuizRoutes.delete("/delete/:quizId", quizDelete);
+QuizRoutes.delete("/delete/:quizId/:userId", quizDelete);
+// QuizRoutes.post("/answers_handling", questionAnswersHandling);
 export default QuizRoutes;

@@ -3,15 +3,19 @@ import postgresConnectionSequelize from "../config/postgres";
 import { courseInterface } from "../interfaces/courseinterface";
 
 class CourseInt extends Model<courseInterface> implements courseInterface {
-  public id!: string;
+  public id!: number;
   public title!: string;
   public description!: Text;
-  public content_type!: "text" | "video" | "image";
+  public content_type!: "text" | "video" | "image" | "mixed";
   public created_by!: number;
   public category!: string;
   public is_active!: boolean;
+  public module!: number[];
   public file!: string;
   public profile_image!: string;
+  public userCount?: number | undefined;
+  public ratingAverage?: number | undefined;
+  public ratingCount?: number | undefined;
 }
 const Course = postgresConnectionSequelize.define<CourseInt>(
   "Course",
@@ -31,7 +35,7 @@ const Course = postgresConnectionSequelize.define<CourseInt>(
     },
     content_type: {
       type: DataTypes.STRING(20),
-      allowNull: false,
+      allowNull: true,
       validate: {
         isIn: [["text", "video", "image"]],
       },
@@ -57,6 +61,22 @@ const Course = postgresConnectionSequelize.define<CourseInt>(
     },
     file: {
       type: DataTypes.STRING,
+      allowNull: true,
+    },
+    module: {
+      type: DataTypes.ARRAY(DataTypes.INTEGER),
+      allowNull: true,
+    },
+    userCount: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    ratingAverage: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    ratingCount: {
+      type: DataTypes.INTEGER,
       allowNull: true,
     },
   },

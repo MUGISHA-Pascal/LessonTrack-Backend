@@ -12,10 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signup_Not_admin = exports.signup = exports.loginForUser = exports.login = void 0;
+exports.WebLoginController = exports.signup_Not_admin = exports.signup = exports.loginForUser = exports.login = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const sequelize_1 = require("sequelize");
 const maxAge = 24 * 60 * 60;
 const createToken = (id) => {
     return jsonwebtoken_1.default.sign({ id }, process.env.JWT_KEY, { expiresIn: "1d" });
@@ -82,8 +83,11 @@ const createToken = (id) => {
  */
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { email, password_hash } = req.body;
+    const normalizedEmail = email.trim().toLowerCase(); // Trim spaces and normalize case
     try {
-        const user = yield User_1.default.findOne({ where: { email } });
+        const user = yield User_1.default.findOne({
+            where: { email: { [sequelize_1.Op.iLike]: normalizedEmail } },
+        });
         if (user) {
             const ismatch = yield bcrypt_1.default.compare(password_hash, user.password_hash);
             if (ismatch) {
@@ -102,6 +106,8 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         else {
             res.status(401).json({ message: "user not found(password)" });
+            console.log("Request Body Password:", email);
+            // console.log("Stored Hashed Password:", user.password_hash);
         }
     }
     catch (error) {
@@ -115,7 +121,8 @@ const loginForUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         const user = yield User_1.default.findOne({ where: { phone_number, pin } });
         if (user) {
             // Compare the plain pin number
-            if (parseInt(pin) === user.pin) { // assuming 'pin' is the field in your User model
+            if (parseInt(pin) === user.pin) {
+                // assuming 'pin' is the field in your User model
                 const token = createToken(user.id);
                 res.cookie("jwt", token, { maxAge: maxAge * 1000 });
                 res.status(200).json({
@@ -204,7 +211,8 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             phone_number,
             password_hash,
             role,
-            verified: "NO"
+            verified: "NO",
+            profilepicture: "default.png",
         });
         const token = createToken(user.id);
         res.cookie("jwt", token, { maxAge: maxAge * 1000 });
@@ -215,6 +223,7 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 username: user.username,
                 email: user.email,
                 role: user.role,
+                profilepicture: user.profilepicture,
             },
         });
     }
@@ -227,9 +236,11 @@ const signup_Not_admin = (req, res) => __awaiter(void 0, void 0, void 0, functio
     const { username, phone_number } = req.body;
     try {
         // Create the user
-        const userTest = yield User_1.default.findOne({ where: { phone_number, verified: 'YES' } });
+        const userTest = yield User_1.default.findOne({
+            where: { phone_number, verified: "YES" },
+        });
         console.log("userTest:", phone_number);
-        console.log('Type of Phone Number:', typeof phone_number); // Logs its type
+        console.log("Type of Phone Number:", typeof phone_number); // Logs its type
         if (!userTest) {
             const user = yield User_1.default.create({
                 username,
@@ -237,7 +248,8 @@ const signup_Not_admin = (req, res) => __awaiter(void 0, void 0, void 0, functio
                 phone_number,
                 password_hash: "",
                 role: "lesson_seeker",
-                verified: "NO"
+                verified: "NO",
+                profilepicture: "default.png",
             });
             // Generate a token
             const token = createToken(user.id);
@@ -256,7 +268,7 @@ const signup_Not_admin = (req, res) => __awaiter(void 0, void 0, void 0, functio
         }
         else {
             res.status(200).json({
-                success: 0
+                success: 0,
             });
         }
     }
@@ -271,3 +283,44 @@ const signup_Not_admin = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.signup_Not_admin = signup_Not_admin;
+const WebLoginController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let { email, password_hash } = req.body;
+    const normalizedEmail = email.trim().toLowerCase(); // Trim spaces and normalize case
+    try {
+        const user = yield User_1.default.findOne({
+            where: { email: { [sequelize_1.Op.iLike]: normalizedEmail } },
+        });
+        if (user) {
+            if (user.role === "admin") {
+                const ismatch = yield bcrypt_1.default.compare(password_hash, user.password_hash);
+                if (ismatch) {
+                    const token = createToken(user.id);
+                    res.cookie("jwt", token, { maxAge: maxAge * 1000 });
+                    res.status(200).json({
+                        message: "user found",
+                        user: {
+                            id: user.id,
+                            username: user.username,
+                            email: user.email,
+                            role: user.role,
+                            phone_number: user.phone_number,
+                            profilepicture: user.profilepicture,
+                        },
+                    });
+                }
+            }
+            else {
+                res.status(401).json({ message: "you are not the admin" });
+            }
+        }
+        else {
+            res.status(401).json({ message: "user not found(password)" });
+            console.log("Request Body Password:", email);
+            // console.log("Stored Hashed Password:", user.password_hash);
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
+exports.WebLoginController = WebLoginController;

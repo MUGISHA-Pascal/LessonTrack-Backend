@@ -12,11 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.courseimageRetrival = exports.courseprofileUploadController = exports.GetCourseByCategory = exports.fileRetrival = exports.CourseFileAdding = exports.courseDelete = exports.courseUpdate = exports.getCourses = exports.courseAdding = void 0;
+exports.tripleRelation = exports.getCoursesByKeyword = exports.LessonAdding = exports.addingModule = exports.RatingRetrieval = exports.ratingUpdate = exports.CourseRetrievalByCategoryAndUserCount = exports.CourseRetrivalBasingOnUserCount = exports.userIncrement = exports.getQuiz = exports.BookMarkHandling = exports.courseTakenHandling = exports.courseimageRetrival = exports.courseprofileUploadController = exports.GetCourseByCategory = exports.fileRetrival = exports.CourseFileAdding = exports.courseDelete = exports.courseUpdate = exports.UsergetCourses = exports.getCourses = exports.courseAdding = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const Courses_1 = __importDefault(require("../models/Courses"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const CourseTaken_1 = __importDefault(require("../models/CourseTaken"));
+const BookMark_1 = __importDefault(require("../models/BookMark"));
+const module_1 = __importDefault(require("../models/module"));
+const Lesson_1 = __importDefault(require("../models/Lesson"));
+const sequelize_1 = require("sequelize");
+const Quiz_1 = __importDefault(require("../models/Quiz"));
+const Questions_1 = __importDefault(require("../models/Questions"));
 /**
  * @swagger
  * tags:
@@ -77,11 +84,12 @@ const courseAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     console.log("Calling course adding api");
     try {
         const { userId } = req.params;
-        const { courseTitle, courseDescription, content_type, category } = req.body;
+        const { courseTitle, courseDescription, moduleNumber, content_type, category, } = req.body;
         console.log(req.body);
         const user = yield User_1.default.findOne({ where: { id: userId } });
         if ((user === null || user === void 0 ? void 0 : user.role) == "admin") {
             const course = yield Courses_1.default.create({
+                module: moduleNumber,
                 title: courseTitle,
                 description: courseDescription,
                 content_type,
@@ -89,13 +97,17 @@ const courseAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                 created_by: Number(userId),
             });
             res.status(200).json({ message: "course created successfully", course });
+            return;
         }
         else {
             res.json({ message: "you are not allowed adding courses" });
+            return;
         }
     }
     catch (error) {
         console.log(error);
+        res.status(500).json({ message: "Internal Server Error" });
+        return;
     }
 });
 exports.courseAdding = courseAdding;
@@ -155,6 +167,18 @@ const getCourses = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.getCourses = getCourses;
+const UsergetCourses = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { userId } = req.params;
+        const courses = yield Courses_1.default.findAll({ where: { created_by: userId } });
+        res.status(200).json({ message: "all courses", courses });
+    }
+    catch (error) {
+        console.log(error);
+        return;
+    }
+});
+exports.UsergetCourses = UsergetCourses;
 /**
  * @swagger
  * /courses/update/{userId}:
@@ -277,23 +301,25 @@ exports.courseUpdate = courseUpdate;
 const courseDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;
-        const { courseId } = req.body;
+        const { courseId } = req.params;
         const user = yield User_1.default.findOne({ where: { id: userId } });
         if ((user === null || user === void 0 ? void 0 : user.role) === "admin") {
             const CourseToDelete = yield Courses_1.default.findOne({ where: { id: courseId } });
             let filePath;
-            if (CourseToDelete) {
-                filePath = path_1.default.join(__dirname, "../../uploads/courses", CourseToDelete.file);
+            if (CourseToDelete === null || CourseToDelete === void 0 ? void 0 : CourseToDelete.profile_image) {
+                filePath = path_1.default.join(__dirname, "../../uploads/courses", CourseToDelete.profile_image);
             }
             if (filePath) {
                 fs_1.default.rm(filePath, (error) => {
                     if (error) {
                         console.log(error);
                         res.status(500).json({ message: "error while deleting file " });
+                        return;
                     }
                     else {
                         console.log("file successively deleted");
                         res.status(201).json({ message: "file successively deleted" });
+                        return;
                     }
                 });
             }
@@ -301,13 +327,17 @@ const courseDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             res
                 .status(200)
                 .json({ message: "course deleted successfully", deletedCourse });
+            return;
         }
         else {
             res.json({ message: "you are not allowed deleting courses" });
+            return;
         }
     }
     catch (error) {
         console.log(error);
+        res.status(500).json({ message: "Internal Server Error" });
+        return;
     }
 });
 exports.courseDelete = courseDelete;
@@ -364,37 +394,42 @@ exports.courseDelete = courseDelete;
  */
 const CourseFileAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { userId, courseTitle, category, courseDescription, contentType } = req.body;
+        const { userId, courseTitle, category, courseDescription } = req.body;
+        console.log(userId);
         const user = yield User_1.default.findOne({ where: { id: userId } });
         console.log(user === null || user === void 0 ? void 0 : user.role);
         if (!user || user.role !== "admin") {
-            res
-                .status(403)
-                .json({ message: "You are not allowed to add courses" });
+            res.status(403).json({ message: "You are not allowed to add courses" });
             return;
         }
+        let imagename;
         if (!req.file) {
+            imagename = "course.png";
             console.log("please include file");
             res.status(400).json({ message: "No file uploaded" });
             return;
         }
+        imagename = req.file.filename;
         if (req.file) {
             yield Courses_1.default.create({
+                // module: moduleNumber,
                 title: courseTitle,
                 description: courseDescription,
-                content_type: contentType,
+                // content_type: contentType,
                 category,
                 created_by: userId,
-                file: req.file.filename,
+                profile_image: imagename,
             });
         }
+        console.log("working");
         res.status(200).json({
             message: "Course uploaded successfully",
-            file: req.file,
+            // file: req.file,
         });
         return;
     }
     catch (error) {
+        console.log(error);
         res.json({ message: error });
         return;
     }
@@ -406,8 +441,10 @@ const fileRetrival = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     fs_1.default.access(filePath, fs_1.default.constants.F_OK, (err) => {
         if (err) {
             res.status(404).json({ error: "file not found" });
+            return;
         }
         res.sendFile(filePath);
+        return;
     });
 });
 exports.fileRetrival = fileRetrival;
@@ -416,10 +453,12 @@ const GetCourseByCategory = (req, res) => __awaiter(void 0, void 0, void 0, func
         const { category } = req.params;
         const courses = yield Courses_1.default.findAll({ where: { category } });
         res.status(201).json({ courses });
+        return;
     }
     catch (error) {
         console.log(error);
         res.status(500).json({ message: error });
+        return;
     }
 });
 exports.GetCourseByCategory = GetCourseByCategory;
@@ -432,32 +471,370 @@ const courseprofileUploadController = (req, res) => __awaiter(void 0, void 0, vo
                 course.profile_image = req.file.path;
                 course.save();
                 res.json({ message: "course image uploaded successfully", course });
+                return;
             }
             else {
                 res.status(400).json({ message: "no course file uploaded" });
+                return;
             }
         }
         else {
             res.status(404).json({ message: "course not found" });
+            return;
         }
     }
     catch (error) {
         console.log(error);
         res.status(500).json({ message: "server error" });
+        return;
     }
 });
 exports.courseprofileUploadController = courseprofileUploadController;
 const courseimageRetrival = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { ImageName } = req.params;
-    const filePath = path_1.default.join(__dirname, "../../uploads", ImageName);
+    const filePath = path_1.default.join(__dirname, "../../uploads/courses", ImageName);
+    console.log(ImageName);
     fs_1.default.access(filePath, fs_1.default.constants.F_OK, (err) => {
         if (err) {
             res.status(404).json({ error: "Image not found" });
+            return;
         }
         res.sendFile(filePath);
+        return;
     });
 });
 exports.courseimageRetrival = courseimageRetrival;
+const courseTakenHandling = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.params;
+    const { courseId } = req.body;
+    if (!courseId) {
+        res
+            .status(400)
+            .json({ error: "courseId is required in the request body." });
+        return;
+    }
+    try {
+        const courseTaken = yield CourseTaken_1.default.findOne({ where: { userId } });
+        if (!courseTaken) {
+            res.status(404).json({
+                error: "User not found or no courses associated with this user.",
+            });
+            return;
+        }
+        const updatedCourseIds = Array.from(new Set([...((courseTaken === null || courseTaken === void 0 ? void 0 : courseTaken.courseIds) || []), courseId]));
+        yield (courseTaken === null || courseTaken === void 0 ? void 0 : courseTaken.update({ courseIds: updatedCourseIds }));
+        res.status(200).json({
+            message: "Course ID added successfully.",
+            courseIds: updatedCourseIds,
+        });
+        return;
+    }
+    catch (error) {
+        console.error("Error adding course ID:", error);
+        res
+            .status(500)
+            .json({ error: "An error occurred while adding the course ID." });
+        return;
+    }
+});
+exports.courseTakenHandling = courseTakenHandling;
+const BookMarkHandling = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.params;
+    const { courseId } = req.body;
+    if (!courseId) {
+        res
+            .status(400)
+            .json({ error: "courseId is required in the request body." });
+        return;
+    }
+    try {
+        let bookmark = yield BookMark_1.default.findOne({ where: { userId } });
+        if (!bookmark) {
+            bookmark = yield BookMark_1.default.create({
+                userId: Number(userId),
+                courseIds: [courseId],
+            });
+        }
+        else {
+            const updatedCourseIds = Array.from(new Set([...(bookmark.courseIds || []), courseId]));
+            yield bookmark.update({ courseIds: updatedCourseIds });
+        }
+        res.status(200).json({
+            message: "Course ID bookmarked successfully.",
+            bookmark,
+        });
+        return;
+    }
+    catch (error) {
+        console.error("Error adding course to bookmarks:", error);
+        res.status(500).json({
+            error: "An error occurred while adding the course to bookmarks.",
+        });
+        return;
+    }
+});
+exports.BookMarkHandling = BookMarkHandling;
+const getQuiz = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const ress = yield module_1.default.findByPk(id);
+        if (ress) {
+            res.status(200).json({ ress });
+            return;
+        }
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal Server Error" });
+        return;
+    }
+});
+exports.getQuiz = getQuiz;
+const userIncrement = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { courseId } = req.params;
+    try {
+        const course = yield Courses_1.default.findByPk(courseId);
+        if (!course) {
+            res.status(404).json({ error: "Course not found." });
+            return;
+        }
+        const newUserCount = (course.userCount || 0) + 1;
+        yield course.update({ userCount: newUserCount });
+        res.status(200).json({
+            message: "User count incremented successfully.",
+            course,
+        });
+        return;
+    }
+    catch (error) {
+        console.error("Error incrementing user count:", error);
+        res
+            .status(500)
+            .json({ error: "An error occurred while incrementing the user count." });
+        return;
+    }
+});
+exports.userIncrement = userIncrement;
+const CourseRetrivalBasingOnUserCount = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const courses = yield Courses_1.default.findAll({
+            order: [["userCount", "DESC"]],
+        });
+        res.status(200).json({
+            message: "Courses retrieved successfully.",
+            courses,
+        });
+        return;
+    }
+    catch (error) {
+        console.error("Error fetching courses:", error);
+        res
+            .status(500)
+            .json({ error: "An error occurred while retrieving courses." });
+        return;
+    }
+});
+exports.CourseRetrivalBasingOnUserCount = CourseRetrivalBasingOnUserCount;
+const CourseRetrievalByCategoryAndUserCount = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { category } = req.params;
+        if (!category) {
+            res.status(400).json({
+                error: "Category is required to filter courses.",
+            });
+            return;
+        }
+        const courses = yield Courses_1.default.findAll({
+            where: { category },
+            order: [["userCount", "DESC"]],
+        });
+        if (courses.length === 0) {
+            res.status(404).json({
+                message: `No courses found for category: ${category}`,
+            });
+            return;
+        }
+        res.status(200).json({
+            message: `Courses retrieved successfully for category: ${category}`,
+            courses,
+        });
+        return;
+    }
+    catch (error) {
+        console.error("Error fetching courses:", error);
+        res.status(500).json({
+            error: "An error occurred while retrieving courses.",
+        });
+        return;
+    }
+});
+exports.CourseRetrievalByCategoryAndUserCount = CourseRetrievalByCategoryAndUserCount;
+const ratingUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const { rating } = req.body;
+    if (!rating || typeof rating !== "number" || rating < 1 || rating > 5) {
+        res
+            .status(400)
+            .json({ message: "Rating must be a number between 1 and 5." });
+        return;
+    }
+    try {
+        const course = yield Courses_1.default.findByPk(id);
+        if (!course) {
+            res.status(404).json({ message: "Course not found." });
+            return;
+        }
+        const currentRatingCount = course.ratingCount || 0;
+        const currentRatingAverage = course.ratingAverage || 0;
+        const newRatingCount = currentRatingCount + 1;
+        const newRatingAverage = (currentRatingAverage * currentRatingCount + rating) / newRatingCount;
+        course.ratingCount = newRatingCount;
+        course.ratingAverage = newRatingAverage;
+        yield course.save();
+        res.status(200).json({
+            message: "Rating updated successfully.",
+            ratingAverage: course.ratingAverage,
+            ratingCount: course.ratingCount,
+        });
+        return;
+    }
+    catch (error) {
+        console.error(error);
+        res
+            .status(500)
+            .json({ message: "An error occurred while rating the course." });
+        return;
+    }
+});
+exports.ratingUpdate = ratingUpdate;
+const RatingRetrieval = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const course = yield Courses_1.default.findByPk(id);
+        if (!course) {
+            res.status(404).json({ message: "Course not found." });
+            return;
+        }
+        res.status(200).json({
+            ratingAverage: course.ratingAverage || 0,
+            ratingCount: course.ratingCount || 0,
+        });
+        return;
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: "An error occurred while fetching the course ratings.",
+        });
+        return;
+    }
+});
+exports.RatingRetrieval = RatingRetrieval;
+const addingModule = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { module, courseId } = req.body;
+        const courseChecking = yield Courses_1.default.findOne({ where: { id: courseId } });
+        if (!courseChecking) {
+            res.status(404).json({ message: "course not found" });
+            return;
+        }
+        const savedModule = yield module_1.default.create({ module, courseId });
+        if (!savedModule) {
+            res.status(500).json({ message: "the module is not saved" });
+            return;
+        }
+        res.status(201).json({ savedModule, message: "module is saved" });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "an error occured when adding the module",
+        });
+        return;
+    }
+});
+exports.addingModule = addingModule;
+const LessonAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        //lessons must be an array of sub lessons for a given module
+        const { moduleId, lessons } = req.body;
+        const moduleCheck = yield module_1.default.findOne({ where: { id: moduleId } });
+        if (!moduleCheck) {
+            res.status(404).json({ message: "module not found" });
+            return;
+        }
+        yield Promise.all(lessons.map((lesson) => Lesson_1.default.create({
+            image: lesson.image,
+            content: lesson.content,
+            moduleId,
+        })));
+        res.status(201).json({ message: "lessons added successively" });
+        return;
+    }
+    catch (error) {
+        console.log(error);
+        res
+            .status(500)
+            .json({ message: "error while saving lessons for a module" });
+        return;
+    }
+});
+exports.LessonAdding = LessonAdding;
+const getCoursesByKeyword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { text } = req.query;
+        const courses = yield Courses_1.default.findAll({
+            where: {
+                title: {
+                    [sequelize_1.Op.iLike]: `%${text}%`, // Wildcard search
+                },
+            },
+        });
+        if (courses.length > 0) {
+            res.status(200).json({ courses });
+            return;
+        }
+        else {
+            res.status(200).send({ courses });
+            return;
+        }
+    }
+    catch (error) {
+        res.status(500).send({ message: "An error occurred" });
+        return;
+    }
+});
+exports.getCoursesByKeyword = getCoursesByKeyword;
+const tripleRelation = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { userId } = req.params;
+        let courses = [];
+        let quizzes = [];
+        let questions = [];
+        const CoursesRetr = yield Courses_1.default.findAll({
+            where: { created_by: userId },
+        });
+        courses = CoursesRetr;
+        for (const course of courses) {
+            const QuizRetr = yield Quiz_1.default.findAll({
+                where: { course_id: course.id },
+            });
+            for (const quiz of QuizRetr) {
+                quizzes.push(quiz);
+                const QuestRetr = yield Questions_1.default.findAll({
+                    where: { quiz_id: quiz.id },
+                });
+                questions.push(...QuestRetr);
+            }
+        }
+        res.status(200).json({ courses, quizzes, questions });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal server error", error });
+    }
+});
+exports.tripleRelation = tripleRelation;
 /**
  * @openapi
  * /courses/add_file:

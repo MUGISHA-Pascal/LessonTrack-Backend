@@ -1,6 +1,11 @@
 import { Request, Response } from "express";
 import User from "../models/User";
 import Question from "../models/Questions";
+import Quiz from "../models/Quiz";
+import multer from "multer";
+import fs from "fs";
+import path from "path";
+import { console } from "inspector";
 /**
  * @swagger
  * tags:
@@ -55,27 +60,56 @@ import Question from "../models/Questions";
  *       500:
  *         description: Server error
  */
-export const questionAdding = async (req: Request, res: Response) => {
+
+export const QuestionAdding = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
-    const { quiz_id, question_text, correct_answer } = req.body;
-    const userEligible = await User.findOne({ where: { id: userId } });
-    if (userEligible?.role === "sub_admin" || "admin") {
-      const question = await Question.create({
+    const { questions } = req.body;
+    console.log(questions);
+
+    if (!questions || questions.length === 0) {
+      res.status(400).json({ message: "Invalid questions data" });
+      return;
+    }
+
+    const createdQuestions: any[] = [];
+
+    for (const questionData of questions) {
+      // Destructure fields from questionData
+      const { question, options, correct_answer, quiz_id } = questionData;
+
+      // Validate quiz existence
+      const quizExists = await Quiz.findOne({ where: { id: Number(quiz_id) } });
+
+      if (!quizExists) {
+        res
+          .status(404)
+          .json({ message: `Quiz with ID ${quiz_id} does not exist` });
+        return;
+      }
+
+      // Save the question in the database
+      const newQuestion = await Question.create({
         quiz_id,
-        question_text,
+        question,
+        options,
         correct_answer,
       });
-      res
-        .status(200)
-        .json({ message: "question added successfully", question });
-    } else {
-      res.json({ message: "you are not elligible to add question" });
+
+      console.log(newQuestion);
+      createdQuestions.push(newQuestion);
     }
+
+    res.status(200).json({
+      message: "Questions added successfully",
+      questions: createdQuestions,
+    });
+    return;
   } catch (error) {
-    console.log(error);
+    console.log("Error in QuestionAdding: ", error);
+    res.status(500).json({ message: "Internal Server Error", error });
   }
 };
+
 /**
  * @swagger
  * /questions/:
@@ -112,7 +146,7 @@ export const questionAdding = async (req: Request, res: Response) => {
  */
 export const getQuestions = async (req: Request, res: Response) => {
   try {
-    const { quiz_id } = req.body;
+    const { quiz_id } = req.params;
     const questions = await Question.findAll({
       where: { quiz_id },
     });
@@ -175,26 +209,32 @@ export const getQuestions = async (req: Request, res: Response) => {
  *         description: Server error
  */
 
-export const questionUpdate = async (req: Request, res: Response) => {
-  try {
-    const { userId } = req.params;
-    const { quiz_id, question_text, correct_answer, questionId } = req.body;
-    const userEligible = await User.findOne({ where: { id: userId } });
-    if (userEligible?.role === "sub_admin" || "admin") {
-      const updatedQuestion = await Question.update(
-        { question_text, correct_answer },
-        { where: { id: questionId, quiz_id } }
-      );
-      res
-        .status(200)
-        .json({ message: "question updated successfully", updatedQuestion });
-    } else {
-      res.json({ message: "you are not elligible to update feedback" });
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
+// export const questionUpdate = async (req: Request, res: Response) => {
+//   try {
+//     const { userId } = req.params;
+//     const {
+//       quiz_id,
+//       question_title,
+//       question_choices,
+//       correct_answer,
+//       questionId,
+//     } = req.body;
+//     const userEligible = await User.findOne({ where: { id: userId } });
+//     if (userEligible?.role === "sub_admin" || "admin") {
+//       const updatedQuestion = await Question.update(
+//         { question_choices, correct_answer, question_title },
+//         { where: { id: questionId, quiz_id } }
+//       );
+//       res
+//         .status(200)
+//         .json({ message: "question updated successfully", updatedQuestion });
+//     } else {
+//       res.json({ message: "you are not elligible to update feedback" });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
 /**
  * @swagger
  * /questions/delete/{questionId}:

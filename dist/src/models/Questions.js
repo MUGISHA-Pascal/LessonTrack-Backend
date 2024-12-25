@@ -5,38 +5,39 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const postgres_1 = __importDefault(require("../config/postgres"));
-const { DataTypes } = require("sequelize");
 class QuestionInt extends sequelize_1.Model {
 }
 const Question = postgres_1.default.define("Question", {
     id: {
-        type: DataTypes.INTEGER,
+        type: sequelize_1.DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
     },
     quiz_id: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: false,
         references: {
             model: "quizzes",
             key: "id",
         },
-        onUpdate: "NO ACTION",
+        onUpdate: "CASCADE",
         onDelete: "CASCADE",
     },
-    question_text: {
-        type: DataTypes.TEXT,
+    question: {
+        type: sequelize_1.DataTypes.TEXT,
+        allowNull: false,
+    },
+    options: {
+        type: sequelize_1.DataTypes.ARRAY(sequelize_1.DataTypes.TEXT),
         allowNull: false,
     },
     correct_answer: {
-        type: DataTypes.TEXT,
+        type: sequelize_1.DataTypes.TEXT,
         allowNull: false,
     },
 }, {
-    createdAt: true,
-    updatedAt: true,
     tableName: "questions",
     schema: "public",
-    timestamps: false,
+    timestamps: false, // Disabling default Sequelize timestamps since `created_at` is manually handled
 });
 exports.default = Question;
