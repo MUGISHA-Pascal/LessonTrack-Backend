@@ -29,7 +29,7 @@ postgresConnectionSequelize
     console.log("connected to the db");
   })
   .catch((error) => {
-    console.log(error);
+    console.log("not connected");
   });
 postgresConnectionSequelize.sync({ alter: true });
 app.get(
