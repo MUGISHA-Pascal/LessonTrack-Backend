@@ -24,4 +24,4 @@ function createCertificateWithImage(name) {
     })
         .catch((err) => console.error("Error processing image:", err));
 }
-createCertificateWithImage("MUGISHA Pascal");
+// createCertificateWithImage("MUGISHA Pascal");

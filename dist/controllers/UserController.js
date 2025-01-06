@@ -70,7 +70,7 @@ const profileUploadController = (req, res) => __awaiter(void 0, void 0, void 0, 
         const user = yield User_1.default.findOne({ where: { id } });
         if (user) {
             if (req.file) {
-                user.profilePicture = req.file.path;
+                user.profilepicture = req.file.path;
                 user.save();
                 res.json({ message: "user image uploaded successfully", user });
             }
@@ -173,7 +173,7 @@ exports.AdminUserDelete = AdminUserDelete;
  *         role:
  *           type: string
  *           example: "user"
- *         profilePicture:
+ *         profilepicture:
  *           type: string
  *           example: "https://example.com/profile-pictures/johndoe.jpg"
  *         createdAt:

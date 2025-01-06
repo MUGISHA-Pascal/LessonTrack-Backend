@@ -211,7 +211,7 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             phone_number,
             password_hash,
             role,
-            verified: "NO",
+            verified: "YES",
             profilepicture: "default.png",
         });
         const token = createToken(user.id);
@@ -235,7 +235,7 @@ exports.signup = signup;
 const signup_Not_admin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, phone_number } = req.body;
     try {
-        // Create the user
+        // Create the use
         const userTest = yield User_1.default.findOne({
             where: { phone_number, verified: "YES" },
         });
@@ -285,13 +285,14 @@ const signup_Not_admin = (req, res) => __awaiter(void 0, void 0, void 0, functio
 exports.signup_Not_admin = signup_Not_admin;
 const WebLoginController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { email, password_hash } = req.body;
-    const normalizedEmail = email.trim().toLowerCase(); // Trim spaces and normalize case
+    const normalizedEmail = email.trim().toLowerCase();
+    console.log(email);
     try {
         const user = yield User_1.default.findOne({
             where: { email: { [sequelize_1.Op.iLike]: normalizedEmail } },
         });
         if (user) {
-            if (user.role === "admin") {
+            if (user.role === "admin" || user.role === "sub_admin") {
                 const ismatch = yield bcrypt_1.default.compare(password_hash, user.password_hash);
                 if (ismatch) {
                     const token = createToken(user.id);
@@ -308,9 +309,14 @@ const WebLoginController = (req, res) => __awaiter(void 0, void 0, void 0, funct
                         },
                     });
                 }
+                if (!ismatch) {
+                    console.log("Incorrect password for email:", normalizedEmail); // Log for debugging
+                    res.status(401).json({ message: "Incorrect password" });
+                    return;
+                }
             }
             else {
-                res.status(401).json({ message: "you are not the admin" });
+                res.status(401).json({ message: "you are not the admin or sub admin" });
             }
         }
         else {

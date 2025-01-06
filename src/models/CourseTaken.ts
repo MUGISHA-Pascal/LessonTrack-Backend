@@ -9,6 +9,8 @@ class CourseTakenInt
   public userId!: number;
   public courseIds!: string[];
   public currentCourse!: string;
+  public modules!:string;
+  public indexx!: number;
 }
 const CourseTaken = postgresConnectionSequelize.define<CourseTakenInt>(
   "CourseTaken",
@@ -23,6 +25,14 @@ const CourseTaken = postgresConnectionSequelize.define<CourseTakenInt>(
     currentCourse: {
       type: DataTypes.STRING,
     },
+    modules:{
+      type: DataTypes.STRING,
+
+    }
+    ,
+    indexx:{
+      type:DataTypes.INTEGER
+    }
   },
   {
     timestamps: true,

@@ -12,9 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.quizDelete = exports.quizUpdate = exports.getQuizes = exports.getQuiz = exports.quizAdding = void 0;
+exports.quizDelete = exports.update = exports.saveQuiz = exports.quizUpdate = exports.getQuizesStart = exports.getQuizesLast = exports.getQuizesCat = exports.getYourDoneQuiz = exports.getQuizesExam = exports.getQuizes = exports.getQuizFetch = exports.getQuiz = exports.getCategory = exports.quizAdding = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const Quiz_1 = __importDefault(require("../models/Quiz"));
+const Questions_1 = __importDefault(require("../models/Questions"));
+const sequelize_1 = require("sequelize");
+const sequelize_2 = require("sequelize");
+const Taken_1 = __importDefault(require("../models/Taken"));
 /**
  * @swagger
  * tags:
@@ -70,7 +74,33 @@ const Quiz_1 = __importDefault(require("../models/Quiz"));
  */
 const quizAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { course_id, title, max_attempts, description, type_of, owners } = req.body;
+        const { course_id, title, max_attempts, description, type_of, owners, category } = req.body;
+        if (type_of === "quiz") {
+            const QuizFound = yield Quiz_1.default.findOne({
+                where: { course_id, type_of: "quiz" },
+            });
+            if (QuizFound) {
+                res
+                    .status(405)
+                    .json({
+                    message: "you are allowed to only add one quiz for a course",
+                });
+                return;
+            }
+        }
+        if (type_of === "exam") {
+            const ExamFound = yield Quiz_1.default.findOne({
+                where: { course_id, type_of: "exam" },
+            });
+            if (ExamFound) {
+                res
+                    .status(405)
+                    .json({
+                    message: "you are allowed to only add one exam for a course",
+                });
+                return;
+            }
+        }
         const userEligible = yield User_1.default.findOne({ where: { id: owners } });
         if ((userEligible === null || userEligible === void 0 ? void 0 : userEligible.role) === "sub_admin" || "admin") {
             const quiz = yield Quiz_1.default.create({
@@ -80,11 +110,12 @@ const quizAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 max_attempts,
                 description,
                 type_of,
+                categoryName: category
             });
             res.status(200).json({ message: "quiz added successfully", quiz });
         }
         else {
-            res.json({ message: "you are not elligible to add quiz" });
+            res.status(404).json({ message: "you are not elligible to add quiz" });
         }
     }
     catch (error) {
@@ -92,6 +123,27 @@ const quizAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.quizAdding = quizAdding;
+const getCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        // Fetch grouped courses by category
+        const groupedCourses = yield Quiz_1.default.findAll({
+            attributes: ['categoryName'] // Fixed typo here
+        });
+        if (!groupedCourses || groupedCourses.length === 0) {
+            res.status(404).json({ message: "No courses found" });
+            return;
+        }
+        res.status(200).json({
+            message: "Courses grouped by category",
+            groupedCourses,
+        });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "An error occurred while fetching courses." });
+    }
+});
+exports.getCategory = getCategory;
 /**
  * @swagger
  * /quiz/:
@@ -139,6 +191,19 @@ const getQuiz = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getQuiz = getQuiz;
+const getQuizFetch = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { course_id } = req.params;
+        const quizzes = yield Quiz_1.default.findAll({
+            where: { owners: course_id },
+        });
+        res.status(200).json({ message: "quiz found successfully", quizzes });
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
+exports.getQuizFetch = getQuizFetch;
 /**
  * @swagger
  * /quiz/update/{userId}:
@@ -192,14 +257,150 @@ exports.getQuiz = getQuiz;
  */
 const getQuizes = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const quizzes = yield Quiz_1.default.findAll();
+        const quizzes = yield Quiz_1.default.findAll({
+            include: [
+                {
+                    model: Questions_1.default,
+                    attributes: ['question', 'options'], // Optional attributes
+                },
+            ],
+        });
+        res.status(200).json({ message: "Quizzes found successfully", quizzes });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Error fetching quizzes" });
+    }
+});
+exports.getQuizes = getQuizes;
+const getQuizesExam = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const quizzes = yield Quiz_1.default.findAll({
+            include: [
+                {
+                    model: Questions_1.default,
+                    attributes: ['question', 'options'], // Optional attributes
+                },
+            ],
+            where: {
+                type_of: { [sequelize_2.Op.iLike]: "exam" }
+            }
+        });
+        res.status(200).json({ message: "Quizzes found successfullys", quizzes });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Error fetching quizzes" });
+    }
+});
+exports.getQuizesExam = getQuizesExam;
+const getYourDoneQuiz = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userid } = req.params; // Assuming userid is passed as a parameter
+    try {
+        // Fetch all entries from the Taken table for the given userid
+        const takenEntries = yield Taken_1.default.findAll({
+            where: { userid },
+            attributes: ['id', 'quiz', 'marks', 'status', 'userid'], // Select all attributes
+            raw: true, // Fetch raw data for easier processing
+        });
+        // Extract quiz IDs from the Taken table
+        const quizIds = takenEntries.map((entry) => entry.quiz);
+        if (quizIds.length === 0) {
+            res.status(404).json({ message: 'No quizzes found for the given user', data: [] });
+            return;
+        }
+        const quizzes = yield Quiz_1.default.findAll({
+            include: [
+                {
+                    model: Questions_1.default,
+                    attributes: ['id', 'question', 'options'],
+                },
+            ],
+            where: {
+                id: {
+                    [sequelize_2.Op.in]: quizIds,
+                },
+            },
+            raw: false,
+        });
+        const result = takenEntries.map((entry) => {
+            const quizDetails = quizzes.find((quiz) => quiz.id === entry.quiz);
+            return Object.assign(Object.assign({}, entry), { quizDetails: quizDetails || null });
+        });
+        res.status(200).json({ message: 'Quizzes found successfully', data: result });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error fetching quizzes', error: error });
+    }
+});
+exports.getYourDoneQuiz = getYourDoneQuiz;
+const getQuizesCat = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { cat } = req.params;
+    try {
+        const quizzes = yield Quiz_1.default.findAll({
+            include: [
+                {
+                    model: Questions_1.default,
+                    attributes: ['question', 'options'], // Optional attributes
+                },
+            ],
+            where: {
+                categoryName: cat
+            }
+        });
         res.status(200).json({ message: "quiz found successfully", quizzes });
     }
     catch (error) {
         console.log(error);
     }
 });
-exports.getQuizes = getQuizes;
+exports.getQuizesCat = getQuizesCat;
+const getQuizesLast = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const quizzes = yield Quiz_1.default.findAll({
+            include: [
+                {
+                    model: Questions_1.default,
+                    attributes: ['question', 'options', "id"],
+                },
+            ],
+            where: {
+                course_id: id
+            },
+            limit: 1,
+            order: [sequelize_1.Sequelize.literal('RANDOM()')],
+        });
+        res.status(200).json({ message: "quiz found successfully", quizzes });
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
+exports.getQuizesLast = getQuizesLast;
+const getQuizesStart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const quizzes = yield Quiz_1.default.findAll({
+            include: [
+                {
+                    model: Questions_1.default,
+                    attributes: ['question', 'options', "id"],
+                },
+            ],
+            where: {
+                id: id
+            },
+            limit: 1,
+        });
+        res.status(200).json({ message: "quiz found successfully", quizzes });
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
+exports.getQuizesStart = getQuizesStart;
 const quizUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;
@@ -208,7 +409,7 @@ const quizUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const userEligible = yield User_1.default.findOne({ where: { id: userId } });
         if ((userEligible === null || userEligible === void 0 ? void 0 : userEligible.role) === "sub_admin" || "admin") {
             const updatedQuiz = yield Quiz_1.default.update({ title, max_attempts, description }, { where: { id: quizId } });
-            console.log("working");
+            // console.log("working");
             res
                 .status(200)
                 .json({ message: "quiz updated successfully", updatedQuiz });
@@ -224,6 +425,40 @@ const quizUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.quizUpdate = quizUpdate;
+const saveQuiz = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userid, quiz, marks, status } = req.body;
+    try {
+        const save = yield Taken_1.default.create({ userid, quiz, marks, status });
+        res.status(200).json({ message: "Quiz saved", save });
+        console.log("quiz was saved successfully");
+    }
+    catch (error) {
+        console.error("Error saving quiz:", error);
+        res.status(500).json({ message: "An error occurred", error });
+    }
+});
+exports.saveQuiz = saveQuiz;
+const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userid, quiz, marks, status } = req.body;
+    try {
+        const save = yield Taken_1.default.update({
+            marks,
+            status,
+        }, {
+            where: {
+                userid,
+                quiz
+            }
+        });
+        res.status(200).json({ message: "Quiz saved", save });
+        console.log("quiz was saved successfully");
+    }
+    catch (error) {
+        console.error("Error saving quiz:", error);
+        res.status(500).json({ message: "An error occurred", error });
+    }
+});
+exports.update = update;
 /**
  * @swagger
  * /quiz/delete/{quizId}:

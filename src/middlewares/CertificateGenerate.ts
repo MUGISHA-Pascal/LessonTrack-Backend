@@ -26,4 +26,4 @@ export function createCertificateWithImage(name: string): void {
     .catch((err: Error) => console.error("Error processing image:", err));
 }
 
-createCertificateWithImage("MUGISHA Pascal");
+// createCertificateWithImage("MUGISHA Pascal");

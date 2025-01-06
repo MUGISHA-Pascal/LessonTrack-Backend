@@ -6,6 +6,7 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 import { console } from "inspector";
+import Taken from "../models/Taken";
 /**
  * @swagger
  * tags:
@@ -157,6 +158,7 @@ export const getQuestions = async (req: Request, res: Response) => {
     console.log(error);
   }
 };
+
 /**
  * @swagger
  * /questions/update/{userId}:
@@ -282,19 +284,22 @@ export const questionDelete = async (req: Request, res: Response) => {
   try {
     const { questionId } = req.params;
     const { userId } = req.body;
-    const userEligible = await User.findOne({ where: { id: userId } });
-    if (userEligible?.role === "sub_admin" || "admin") {
-      const deletedQuestion = await Question.destroy({
-        where: { id: questionId },
-      });
-      res
-        .status(200)
-        .json({ message: "question deleted successfully", deletedQuestion });
-    } else {
-      res.json({ message: "you are not elligible to delete question" });
-    }
+    // const userEligible = await User.findOne({ where: { id: userId } });
+    // if (userEligible?.role === "sub_admin" || "admin") {
+    const deletedQuestion = await Question.destroy({
+      where: { id: questionId },
+    });
+    res
+      .status(200)
+      .json({ message: "question deleted successfully", deletedQuestion });
+    return;
+    // } else {
+    //   res.json({ message: "you are not elligible to delete question" });
+    // }
   } catch (error) {
     console.log(error);
+    res.status(500).json({ message: error });
+    return;
   }
 };
 /**

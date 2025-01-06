@@ -18,20 +18,9 @@ const { Expo } = require("expo-server-sdk");
 let expo = new Expo();
 
 dotenv.config();
-
 const app: Express = express();
 app.use(cors());
 app.use(bodyParser.json());
-
-postgresConnectionSequelize
-  .authenticate()
-  .then(() => {
-    console.log("connected to the db");
-  })
-  .catch((error) => {
-    console.log("not connected");
-  });
-postgresConnectionSequelize.sync({ alter: true });
 app.get(
   "/send-notifications",
   async (req: Request, res: Response): Promise<void> => {

@@ -17,7 +17,7 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:4000/",
+        url: "http://192.168.1.78:4000/",
         description: "Local server",
       },
       {

@@ -18,6 +18,12 @@ const CourseTaken = postgres_1.default.define("CourseTaken", {
     currentCourse: {
         type: sequelize_1.DataTypes.STRING,
     },
+    modules: {
+        type: sequelize_1.DataTypes.STRING,
+    },
+    indexx: {
+        type: sequelize_1.DataTypes.INTEGER
+    }
 }, {
     timestamps: true,
     tableName: "CourseTaken",

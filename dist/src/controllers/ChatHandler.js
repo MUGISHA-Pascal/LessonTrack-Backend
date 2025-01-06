@@ -20,16 +20,15 @@ const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const handlingCharts = (io) => {
     io.on("connection", (socket) => __awaiter(void 0, void 0, void 0, function* () {
-        socket.on("send_message", (_a) => __awaiter(void 0, [_a], void 0, function* ({ sender, receiver, message, type }) {
+        socket.on("send_message", (_a) => __awaiter(void 0, [_a], void 0, function* ({ sender, receiver, message, type, date }) {
             console.log(sender, receiver, message);
             // console.log(dateWithTime);
             try {
-                const date = new Date("2024-06-17T14:30:00");
                 const messageSaved = yield Message_1.default.create({
                     sender,
                     receiver,
                     message,
-                    date: `${date}`,
+                    date,
                     type,
                 });
                 console.log("the message is saved ", messageSaved);
@@ -115,9 +114,6 @@ const handlingCharts = (io) => {
                         verified: { [sequelize_1.Op.iLike]: "YES" },
                     },
                 });
-                const allUsers = yield User_1.default.findAll();
-                console.log("All Users:", allUsers);
-                console.log("Fetched sub-admins IDs:", subAdmins.map((u) => u.id));
                 const usersWithLastMessage = yield Promise.all(subAdmins.map((user) => __awaiter(void 0, void 0, void 0, function* () {
                     const lastMessage = yield Message_1.default.findOne({
                         where: {
@@ -132,21 +128,24 @@ const handlingCharts = (io) => {
                                 },
                             ],
                         },
-                        order: [["createdAt", "DESC"]],
+                        order: [["id", "DESC"]],
                     });
                     return {
                         user: user.id,
-                        lastMessage: lastMessage
-                            ? lastMessage.message
-                            : "No messages yet",
+                        lastMessage: lastMessage ? lastMessage.message : "No messages yet",
                         timestamp: lastMessage ? lastMessage.date : null,
                         username: user.username,
-                        profilePicture: user.profilepicture,
+                        profilepicture: user.profilepicture,
                         sender: lastMessage ? lastMessage.sender : null,
                         receiver: lastMessage ? lastMessage.receiver : null,
                         status: user.activestatus,
+                        email: user.email,
+                        type: lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.type
                     };
                 })));
+                // Ensure the order is maintained as subAdmins array order
+                console.log("Fetched sub-admins IDs:", subAdmins.map((u) => u.id));
+                console.log("Users with Last Message:", usersWithLastMessage);
                 io.to(socket.id).emit("last_message_update", usersWithLastMessage);
             }
             catch (error) {
@@ -177,15 +176,16 @@ const handlingCharts = (io) => {
                 socket.emit("error", { message: "Error fetching messages" });
             }
         }));
-        socket.on("sendFile", (fileData, receiver, sender) => __awaiter(void 0, void 0, void 0, function* () {
-            const { fileName, fileContent } = fileData;
-            const filePath = path_1.default.join(__dirname, "uploads/messages", fileName);
+        socket.on("sendFile", (_a) => __awaiter(void 0, [_a], void 0, function* ({ message, receiver, sender, type, date }) {
+            const { fileName, fileContent } = message;
+            const filePath = path_1.default.join(__dirname, "../../uploads/messages", fileName);
             fs_1.default.writeFileSync(filePath, fileContent, "base64");
             yield Message_1.default.create({
                 sender,
                 receiver,
                 message: fileName,
-                fileContent,
+                date,
+                type
             });
         }));
     }));

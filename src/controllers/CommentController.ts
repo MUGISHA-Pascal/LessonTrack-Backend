@@ -53,12 +53,13 @@ import Comment from "../models/Comments";
 export const commentAdding = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { course_id, comment_text } = req.body;
+    const { course_id, comment_text, dates } = req.body;
 
     const comment = await Comment.create({
       user_id: Number(userId),
       course_id,
       comment_text,
+      dates
     });
     res.status(200).json({ message: "comment added successfully", comment });
   } catch (error) {
@@ -110,10 +111,16 @@ export const commentAdding = async (req: Request, res: Response) => {
  */
 export const getComments = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
-    const { courseId } = req.body;
+    const { courseId } = req.params;
+    // const { courseId } = req.body;
     const comments = await Comment.findAll({
-      where: { user_id: userId, course_id: courseId },
+      include: [
+        {
+          model: User,
+          attributes: ['username', 'profilepicture'],  // Optional attributes
+        },
+      ],
+      where: {course_id: courseId },
     });
     res.status(200).json({ message: "comments found successfully", comments });
   } catch (error) {

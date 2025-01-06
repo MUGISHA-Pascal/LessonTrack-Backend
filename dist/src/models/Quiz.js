@@ -44,6 +44,10 @@ const Quiz = postgres_1.default.define("Quiz", {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    categoryName: {
+        type: DataTypes.STRING,
+        allowNull: true
+    }
 }, {
     tableName: "quizzes",
     schema: "public",

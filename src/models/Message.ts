@@ -1,6 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 import postgresConnectionSequelize from "../config/postgres";
 import { messageInterface } from "../interfaces/messageInterface";
+import User from "./User";
 class MessageInt extends Model<messageInterface> implements messageInterface {
   public id!: string;
   public sender!: string;
@@ -53,7 +54,7 @@ const Message = postgresConnectionSequelize.define<MessageInt>(
       allowNull: true,
     },
     fileContent: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
   },
@@ -65,4 +66,6 @@ const Message = postgresConnectionSequelize.define<MessageInt>(
     tableName: "messages",
   }
 );
+
+
 export default Message;

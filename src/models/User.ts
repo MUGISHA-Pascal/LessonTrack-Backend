@@ -27,6 +27,7 @@ class UserInt extends Model<userInterface> {
   public new_service_available!: boolean;
   public new_tips_available!: boolean;
   public device_token!: string;
+  public paid!: boolean;
 }
 
 const User = postgresConnectionSequelize.define<UserInt>(
@@ -137,6 +138,11 @@ const User = postgresConnectionSequelize.define<UserInt>(
     device_token: {
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    paid: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: false,
     },
   },
   {

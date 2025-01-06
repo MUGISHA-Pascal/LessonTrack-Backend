@@ -8,7 +8,17 @@ const socket_io_1 = require("socket.io");
 const app_1 = __importDefault(require("./app"));
 const swagger_1 = __importDefault(require("./swagger"));
 const ChatHandler_1 = require("./controllers/ChatHandler");
+const postgres_1 = __importDefault(require("./config/postgres"));
 const server = http_1.default.createServer(app_1.default);
+postgres_1.default
+    .authenticate()
+    .then(() => {
+    console.log("connected to the db");
+})
+    .catch((error) => {
+    console.log("not connected ", error);
+});
+postgres_1.default.sync({ alter: true });
 const io = new socket_io_1.Server(server, {
     cors: {
         origin: "*", // Allow all origins; replace with specific frontend URL for security

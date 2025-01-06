@@ -12,6 +12,7 @@ class QuizInt extends Model<quizinterface> implements quizinterface {
   public description!: string;
   public type_of!: string;
   public owners!: number;
+  public categoryName!: string ;
 }
 const Quiz = postgresConnectionSequelize.define<QuizInt>(
   "Quiz",
@@ -51,6 +52,10 @@ const Quiz = postgresConnectionSequelize.define<QuizInt>(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    categoryName:{
+      type: DataTypes.STRING,
+      allowNull: true
+    }
   },
   {
     tableName: "quizzes",

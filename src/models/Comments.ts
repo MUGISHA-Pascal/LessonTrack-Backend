@@ -1,6 +1,7 @@
 import { Model } from "sequelize";
 import postgresConnectionSequelize from "../config/postgres";
 import { commentInterface } from "../interfaces/commentinterface";
+import User from "./User";
 
 const { DataTypes } = require("sequelize");
 class CommentInt extends Model<commentInterface> implements commentInterface {
@@ -8,6 +9,7 @@ class CommentInt extends Model<commentInterface> implements commentInterface {
   public user_id!: number;
   public course_id!: number;
   public comment_text!: Text;
+  public dates!:string
 }
 
 const Comment = postgresConnectionSequelize.define<CommentInt>(
@@ -42,6 +44,10 @@ const Comment = postgresConnectionSequelize.define<CommentInt>(
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    dates:{
+      type:DataTypes.STRING,
+      allowNull:false
+    }
   },
   {
     createdAt: true,
@@ -51,5 +57,15 @@ const Comment = postgresConnectionSequelize.define<CommentInt>(
     timestamps: false,
   }
 );
+
+User.hasMany(Comment, {
+  sourceKey: "id", // Primary key in the User table
+  foreignKey: "user_id", // Column in Comment table referencing User
+});
+Comment.belongsTo(User, {
+  targetKey: "id", // Primary key in the User table
+  foreignKey: "user_id", // Column in Comment table referencing User
+});
+
 
 export default Comment;

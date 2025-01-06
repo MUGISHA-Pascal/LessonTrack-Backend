@@ -67,6 +67,14 @@ const Course = postgres_1.default.define("Course", {
         type: sequelize_1.DataTypes.INTEGER,
         allowNull: true,
     },
+    video: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: true,
+    },
+    users: {
+        type: sequelize_1.DataTypes.ARRAY(sequelize_1.DataTypes.INTEGER),
+        allowNull: true,
+    },
 }, {
     createdAt: true,
     updatedAt: true,

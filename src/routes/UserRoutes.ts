@@ -9,6 +9,8 @@ import {
   getNumber_of_unseen_messages,
   GetUserById,
   imageRetrival,
+  imageRetrivalMessage,
+  imageRetrivalWeb,
   profileUpdateController,
   profileUploadController,
   PushNotification,
@@ -20,12 +22,13 @@ import upload from "../middlewares/profile";
 const UserRoutes = Router();
 UserRoutes.put(
   "/upload_profile/:id",
-  upload.single("ProfilePicture"),
+  upload.single("profilepicture"),
   profileUploadController
 );
 UserRoutes.put("/update/:id", upload.single("file"), profileUpdateController);
 UserRoutes.delete("/admin/delete-user/:userId", AdminUserDelete);
 UserRoutes.get("/image/:ImageName", imageRetrival);
+UserRoutes.get("/messages/:ImageName", imageRetrivalMessage);
 UserRoutes.put("/fill_profile", fillProfile);
 UserRoutes.put("/fill", fill);
 UserRoutes.put("/add_pin", AddPin);

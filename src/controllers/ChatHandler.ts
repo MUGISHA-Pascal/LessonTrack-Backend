@@ -16,18 +16,17 @@ interface SocketInterface extends Socket {
 }
 export const handlingCharts = (io: Server) => {
   io.on("connection", async (socket: SocketInterface) => {
-    socket.on("send_message", async ({ sender, receiver, message, type }) => {
+    socket.on("send_message", async ({ sender, receiver, message, type , date}) => {
       console.log(sender, receiver, message);
       // console.log(dateWithTime);
 
       try {
-        const date = new Date("2024-06-17T14:30:00");
 
         const messageSaved = await Message.create({
           sender,
           receiver,
           message,
-          date: `${date}`,
+          date,
           type,
         });
         console.log("the message is saved ", messageSaved);
@@ -105,53 +104,52 @@ export const handlingCharts = (io: Server) => {
       );
 
       try {
-        // Fetch all sub-admins with verified = "YES"
-        const subAdmins = await User.findAll({
-          where: {
-            role: role,
-            verified: { [Op.iLike]: "YES" },
+       // Fetch all sub-admins with verified = "YES"
+const subAdmins = await User.findAll({
+  where: {
+    role: role,
+    verified: { [Op.iLike]: "YES" },
+  },
+});
+
+
+const usersWithLastMessage = await Promise.all(
+  subAdmins.map(async (user) => {
+    const lastMessage = await Message.findOne({
+      where: {
+        [Op.or]: [
+          {
+            sender: activeUser.toString(),
+            receiver: user.id.toString(),
           },
-        });
-        const allUsers = await User.findAll();
-        console.log("All Users:", allUsers);
+          {
+            sender: user.id.toString(),
+            receiver: activeUser.toString(),
+          },
+        ],
+      },
+      order: [["id", "DESC"]],
+    });
 
-        console.log(
-          "Fetched sub-admins IDs:",
-          subAdmins.map((u) => u.id)
-        );
+    return {
+      user: user.id,
+      lastMessage: lastMessage ? lastMessage.message : "No messages yet",
+      timestamp: lastMessage ? lastMessage.date : null,
+      username: user.username,
+      profilepicture: user.profilepicture,
+      sender: lastMessage ? lastMessage.sender : null,
+      receiver: lastMessage ? lastMessage.receiver : null,
+      status: user.activestatus,
+      email: user.email,
+      type: lastMessage?.type
+    };
+  })
+);
 
-        const usersWithLastMessage = await Promise.all(
-          subAdmins.map(async (user) => {
-            const lastMessage = await Message.findOne({
-              where: {
-                [Op.or]: [
-                  {
-                    sender: activeUser.toString(),
-                    receiver: user.id.toString(),
-                  },
-                  {
-                    sender: user.id.toString(),
-                    receiver: activeUser.toString(),
-                  },
-                ],
-              },
-              order: [["createdAt", "DESC"]],
-            });
+// Ensure the order is maintained as subAdmins array order
+console.log("Fetched sub-admins IDs:", subAdmins.map((u) => u.id));
+console.log("Users with Last Message:", usersWithLastMessage);
 
-            return {
-              user: user.id,
-              lastMessage: lastMessage
-                ? lastMessage.message
-                : "No messages yet",
-              timestamp: lastMessage ? lastMessage.date : null,
-              username: user.username,
-              profilePicture: user.profilepicture,
-              sender: lastMessage ? lastMessage.sender : null,
-              receiver: lastMessage ? lastMessage.receiver : null,
-              status: user.activestatus,
-            };
-          })
-        );
 
         io.to(socket.id).emit("last_message_update", usersWithLastMessage);
       } catch (error) {
@@ -183,18 +181,22 @@ export const handlingCharts = (io: Server) => {
         socket.emit("error", { message: "Error fetching messages" });
       }
     });
-    socket.on("sendFile", async (fileData, receiver, sender) => {
-      const { fileName, fileContent } = fileData;
 
-      const filePath = path.join(__dirname, "uploads/messages", fileName);
+    socket.on("sendFile", async ({message, receiver, sender, type, date}) => {
+      const { fileName, fileContent } = message;
+  
+      const filePath = path.join(__dirname, "../../uploads/messages", fileName);
       fs.writeFileSync(filePath, fileContent, "base64");
       await Message.create({
         sender,
         receiver,
         message: fileName,
-        fileContent,
+        date,
+        type
       });
+
     });
+  
   });
 };
 

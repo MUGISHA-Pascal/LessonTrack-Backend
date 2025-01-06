@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { Op } from "sequelize";
 import Notification from "../models/Notification";
+import { sendVerificationEmail } from "../utils/sendEmail";
 const maxAge = 24 * 60 * 60;
 
 const createToken = (id: number): string => {
@@ -198,7 +199,7 @@ export const signup = async (req: Request, res: Response) => {
       phone_number,
       password_hash,
       role,
-      verified: "NO",
+      verified: "yes",
       profilepicture: "default.png",
     });
     const token = createToken(user.id);
@@ -218,12 +219,72 @@ export const signup = async (req: Request, res: Response) => {
   }
 };
 
+export const webSignup = async (req: Request, res: Response) => {
+  const { username, email, phone_number, password_hash, role } = req.body;
+  try {
+    const user = await User.create({
+      username,
+      email,
+      phone_number,
+      password_hash,
+      role,
+      verified: "no",
+      profilepicture: "default.png",
+    });
+    const token = createToken(user.id);
+    await sendVerificationEmail(user.email, token);
+    // res.cookie("jwt", token, { maxAge: maxAge * 1000 });
+    res.status(200).json({
+      message: "please verify your email",
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        profilepicture: user.profilepicture,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+const verifyToken = (token: string) => {
+  const secret = process.env.JWT_KEY;
+  return jwt.verify(token, secret as string);
+};
+export const emailVerification = async (req: Request, res: Response) => {
+  const { token } = req.params;
+
+  try {
+    const payload = verifyToken(token as string) as { id: number };
+    const user = await User.findByPk(payload.id);
+    console.log(user?.verified);
+    if (!user) {
+      res.status(404).json({ error: "User not found." });
+      return;
+    }
+
+    if (user.verified === "yes") {
+      res.status(200).json({ message: "Email already verified." });
+      return;
+    } else {
+      user.verified = "yes";
+      await user.save();
+
+      res.status(200).json({ message: "Email successfully verified." });
+      return;
+    }
+  } catch (error) {
+    res.status(400).json({ error: "Invalid or expired token." });
+    return;
+  }
+};
 export const signup_Not_admin = async (req: Request, res: Response) => {
   const { username, phone_number } = req.body;
   try {
-    // Create the user
+    // Create the use
     const userTest = await User.findOne({
-      where: { phone_number, verified: "YES" },
+      where: { phone_number, verified: "yes" },
     });
     console.log("userTest:", phone_number);
     console.log("Type of Phone Number:", typeof phone_number); // Logs its type
@@ -235,7 +296,7 @@ export const signup_Not_admin = async (req: Request, res: Response) => {
         phone_number,
         password_hash: "",
         role: "lesson_seeker",
-        verified: "NO",
+        verified: "no",
         profilepicture: "default.png",
       });
 
@@ -274,15 +335,18 @@ export const signup_Not_admin = async (req: Request, res: Response) => {
 
 export const WebLoginController = async (req: Request, res: Response) => {
   let { email, password_hash } = req.body;
-  const normalizedEmail = email.trim().toLowerCase(); // Trim spaces and normalize case
+  const normalizedEmail = email.trim().toLowerCase();
+  console.log(email);
 
   try {
     const user = await User.findOne({
       where: { email: { [Op.iLike]: normalizedEmail } },
     });
+    console.log("the email ", normalizedEmail, password_hash);
     if (user) {
-      if (user.role === "admin") {
+      if (user.role === "admin" || user.role === "sub_admin") {
         const ismatch = await bcrypt.compare(password_hash, user.password_hash);
+        console.log(user.password_hash);
         if (ismatch) {
           const token = createToken(user.id);
           res.cookie("jwt", token, { maxAge: maxAge * 1000 });
@@ -295,17 +359,26 @@ export const WebLoginController = async (req: Request, res: Response) => {
               role: user.role,
               phone_number: user.phone_number,
               profilepicture: user.profilepicture,
+              verified: user.verified,
             },
           });
+          return;
+        }
+
+        if (ismatch === false) {
+          console.log("Incorrect password for email:", normalizedEmail); // Log for debugging
+          res.status(401).json({ message: "Incorrect password" });
+          return;
         }
       } else {
-        res.status(401).json({ message: "you are not the admin" });
+        res.status(401).json({ message: "you are not the admin or sub admin" });
+        return;
       }
     } else {
       res.status(401).json({ message: "user not found(password)" });
 
       console.log("Request Body Password:", email);
-      // console.log("Stored Hashed Password:", user.password_hash);
+      return;
     }
   } catch (error) {
     console.log(error);

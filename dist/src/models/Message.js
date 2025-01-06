@@ -45,7 +45,7 @@ const Message = postgres_1.default.define("Message", {
         allowNull: true,
     },
     fileContent: {
-        type: sequelize_1.DataTypes.STRING,
+        type: sequelize_1.DataTypes.TEXT,
         allowNull: true,
     },
 }, {

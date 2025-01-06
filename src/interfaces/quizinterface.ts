@@ -6,4 +6,5 @@ export interface quizinterface {
   description?: string;
   type_of?: string;
   owners?: number;
+  categoryName?:string
 }

@@ -1,6 +1,7 @@
 import { Model, DataTypes } from "sequelize";
 import postgresConnectionSequelize from "../config/postgres";
 import { questionInterface } from "../interfaces/questioninterface";
+import Quiz from "./Quiz";
 
 class QuestionInt
   extends Model<questionInterface>
@@ -50,5 +51,13 @@ const Question = postgresConnectionSequelize.define<QuestionInt>(
     timestamps: false, // Disabling default Sequelize timestamps since `created_at` is manually handled
   }
 );
-
+Quiz.hasMany(Question,{
+  sourceKey:"id",
+  foreignKey:"quiz_id"  
+})
+Question.belongsTo(Quiz,{
+  targetKey:"id",
+  foreignKey:"quiz_id"
+})
 export default Question;
+

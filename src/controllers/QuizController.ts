@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import User from "../models/User";
 import Quiz from "../models/Quiz";
+import Question from "../models/Questions";
+import { Sequelize } from "sequelize";
+import { Op } from "sequelize";
+import Taken from "../models/Taken";
 /**
  * @swagger
  * tags:
@@ -57,8 +61,34 @@ import Quiz from "../models/Quiz";
  */
 export const quizAdding = async (req: Request, res: Response) => {
   try {
-    const { course_id, title, max_attempts, description, type_of, owners } =
+    const { course_id, title, max_attempts, description, type_of, owners , category} =
       req.body;
+    if (type_of === "quiz") {
+      const QuizFound = await Quiz.findOne({
+        where: { course_id, type_of: "quiz" },
+      });
+      if (QuizFound) {
+        res
+          .status(405)
+          .json({
+            message: "you are allowed to only add one quiz for a course",
+          });
+        return;
+      }
+    }
+    if (type_of === "exam") {
+      const ExamFound = await Quiz.findOne({
+        where: { course_id, type_of: "exam" },
+      });
+      if (ExamFound) {
+        res
+          .status(405)
+          .json({
+            message: "you are allowed to only add one exam for a course",
+          });
+        return;
+      }
+    }
     const userEligible = await User.findOne({ where: { id: owners } });
     if (userEligible?.role === "sub_admin" || "admin") {
       const quiz = await Quiz.create({
@@ -68,15 +98,41 @@ export const quizAdding = async (req: Request, res: Response) => {
         max_attempts,
         description,
         type_of,
+        categoryName: category
       });
       res.status(200).json({ message: "quiz added successfully", quiz });
     } else {
-      res.json({ message: "you are not elligible to add quiz" });
+      res.status(404).json({ message: "you are not elligible to add quiz" });
     }
   } catch (error) {
     console.log(error);
   }
 };
+
+
+
+export const getCategory= async (req: Request, res: Response) => {
+  try {
+    // Fetch grouped courses by category
+    const groupedCourses = await Quiz.findAll({
+      attributes: ['categoryName']  // Fixed typo here
+    });
+
+    if (!groupedCourses || groupedCourses.length === 0) {
+       res.status(404).json({ message: "No courses found" });
+       return
+    }
+
+     res.status(200).json({
+      message: "Courses grouped by category",
+      groupedCourses,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "An error occurred while fetching courses." });
+  }
+};
+
 /**
  * @swagger
  * /quiz/:
@@ -112,6 +168,18 @@ export const quizAdding = async (req: Request, res: Response) => {
  *         description: Server error
  */
 export const getQuiz = async (req: Request, res: Response) => {
+  try {
+    const { course_id } = req.params;
+    const quizzes = await Quiz.findAll({
+      where: { owners: course_id },
+    });
+    res.status(200).json({ message: "quiz found successfully", quizzes });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getQuizFetch = async (req: Request, res: Response) => {
   try {
     const { course_id } = req.params;
     const quizzes = await Quiz.findAll({
@@ -173,9 +241,166 @@ export const getQuiz = async (req: Request, res: Response) => {
  *       500:
  *         description: Server error
  */
+
 export const getQuizes = async (req: Request, res: Response) => {
   try {
-    const quizzes = await Quiz.findAll();
+    const quizzes = await Quiz.findAll({
+        include: [
+          {
+            model: Question,
+            attributes: ['question', 'options'],  // Optional attributes
+          },
+        ],
+    });
+
+    res.status(200).json({ message: "Quizzes found successfully", quizzes });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error fetching quizzes" });
+  }
+};
+
+export const getQuizesExam = async (req: Request, res: Response) => {
+
+  try {
+    const quizzes = await Quiz.findAll({
+        include: [
+          {
+            model: Question,
+            attributes: ['question', 'options'],  // Optional attributes
+          },
+        ],
+        where: {
+          type_of: {[Op.iLike]: "exam"}
+        }
+    });
+
+    res.status(200).json({ message: "Quizzes found successfullys", quizzes });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error fetching quizzes" });
+  }
+};
+
+
+export const getYourDoneQuiz = async (req: Request, res: Response) => {
+  const { userid } = req.params; // Assuming userid is passed as a parameter
+
+  try {
+    // Fetch all entries from the Taken table for the given userid
+    const takenEntries = await Taken.findAll({
+      where: { userid },
+      attributes: ['id', 'quiz', 'marks', 'status', 'userid'], // Select all attributes
+      raw: true, // Fetch raw data for easier processing
+    });
+
+    // Extract quiz IDs from the Taken table
+    const quizIds = takenEntries.map((entry) => entry.quiz);
+
+    if (quizIds.length === 0) {
+       res.status(404).json({ message: 'No quizzes found for the given user', data: [] });
+       return
+    }
+
+   
+    const quizzes = await Quiz.findAll({
+      include: [
+        {
+          model: Question,
+          attributes: ['id', 'question', 'options'], 
+        },
+      ],
+      where: {
+        id: {
+          [Op.in]: quizIds, 
+        },
+      
+      },
+      raw: false, 
+    });
+
+    const result = takenEntries.map((entry) => {
+      const quizDetails = quizzes.find((quiz) => quiz.id === entry.quiz);
+      return {
+        ...entry, 
+        quizDetails: quizDetails || null, 
+      };
+    });
+
+    res.status(200).json({ message: 'Quizzes found successfully', data: result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching quizzes', error: error });
+  }
+};  
+export const getQuizesCat = async (req: Request, res: Response) => {
+
+  const {cat} = req.params
+  try {
+    const quizzes = await Quiz.findAll({
+      include: [
+        {
+          model: Question,
+          attributes: ['question', 'options'],  // Optional attributes
+        },
+      ],
+     where: {
+      categoryName: cat
+     }
+    });
+    
+    res.status(200).json({ message: "quiz found successfully", quizzes });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getQuizesLast = async (req: Request, res: Response) => {
+
+  const {id} = req.params
+  try {
+    const quizzes = await Quiz.findAll({
+      include: [
+        {
+          model: Question,
+          attributes: ['question', 'options', "id" as "questionid"], 
+        },
+      ],
+     where: {
+      course_id: id
+     },
+     limit:1,
+     order: [Sequelize.literal('RANDOM()')], 
+
+    });
+    
+    res.status(200).json({ message: "quiz found successfully", quizzes });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+
+export const getQuizesStart= async (req: Request, res: Response) => {
+
+  const {id} = req.params
+  try {
+    const quizzes = await Quiz.findAll({
+      include: [
+        {
+          model: Question,
+          attributes: ['question', 'options', "id" as "questionid"], 
+        },
+      ],
+     where: {
+      id: id
+     },
+     limit:1,
+
+
+    });
+    
     res.status(200).json({ message: "quiz found successfully", quizzes });
   } catch (error) {
     console.log(error);
@@ -192,7 +417,7 @@ export const quizUpdate = async (req: Request, res: Response) => {
         { title, max_attempts, description },
         { where: { id: quizId } }
       );
-      console.log("working");
+      // console.log("working");
       res
         .status(200)
         .json({ message: "quiz updated successfully", updatedQuiz });
@@ -203,6 +428,41 @@ export const quizUpdate = async (req: Request, res: Response) => {
     }
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const saveQuiz = async (req: Request, res: Response) => {
+  const { userid, quiz, marks, status } = req.body;
+  try {
+    const save = await Taken.create({ userid, quiz, marks, status });
+    res.status(200).json({ message: "Quiz saved", save });
+    console.log("quiz was saved successfully");
+  } catch (error) {
+    console.error("Error saving quiz:", error);
+    res.status(500).json({ message: "An error occurred", error });
+  }
+};
+
+export const update = async (req: Request, res: Response) => {
+  const { userid, quiz, marks, status } = req.body;
+  try {
+    const save = await Taken.update({
+      marks,
+      status,
+    },
+    {
+      where: {
+        userid,
+        quiz
+      }
+    }
+  
+  )
+    res.status(200).json({ message: "Quiz saved", save });
+    console.log("quiz was saved successfully");
+  } catch (error) {
+    console.error("Error saving quiz:", error);
+    res.status(500).json({ message: "An error occurred", error });
   }
 };
 /**

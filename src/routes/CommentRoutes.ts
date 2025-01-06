@@ -8,7 +8,7 @@ import {
 
 const CommentRoutes = Router();
 CommentRoutes.post("/add/:userId", commentAdding);
-CommentRoutes.get("/:userId", getComments);
+CommentRoutes.get("/:courseId", getComments);
 CommentRoutes.put("/update/:userId", commentUpdate);
 CommentRoutes.delete("/delete/:commentId", commentDelete);
 export default CommentRoutes;

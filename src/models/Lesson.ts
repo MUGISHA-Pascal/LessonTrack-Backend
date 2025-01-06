@@ -10,6 +10,8 @@ class LessonInt extends Model<lessonInterface> implements lessonInterface {
   public moduleId!: number;
 }
 
+
+
 const Lesson = postgresConnectionSequelize.define<LessonInt>(
   "Lesson",
   {

@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.commentDelete = exports.commentUpdate = exports.getComments = exports.commentAdding = void 0;
+const User_1 = __importDefault(require("../models/User"));
 const Comments_1 = __importDefault(require("../models/Comments"));
 /**
  * @swagger
@@ -65,11 +66,12 @@ const Comments_1 = __importDefault(require("../models/Comments"));
 const commentAdding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;
-        const { course_id, comment_text } = req.body;
+        const { course_id, comment_text, dates } = req.body;
         const comment = yield Comments_1.default.create({
             user_id: Number(userId),
             course_id,
             comment_text,
+            dates
         });
         res.status(200).json({ message: "comment added successfully", comment });
     }
@@ -122,10 +124,16 @@ exports.commentAdding = commentAdding;
  */
 const getComments = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { userId } = req.params;
-        const { courseId } = req.body;
+        const { courseId } = req.params;
+        // const { courseId } = req.body;
         const comments = yield Comments_1.default.findAll({
-            where: { user_id: userId, course_id: courseId },
+            include: [
+                {
+                    model: User_1.default,
+                    attributes: ['username', 'profilepicture'], // Optional attributes
+                },
+            ],
+            where: { course_id: courseId },
         });
         res.status(200).json({ message: "comments found successfully", comments });
     }

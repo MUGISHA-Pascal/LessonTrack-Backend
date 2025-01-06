@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/server.ts",
-    "build": "tsc -w",
+    "build": "tsc",
     "start": "nodemon dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -23,10 +23,10 @@
     "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/multer": "^1.4.12",
+    "@types/nodemailer": "^6.4.17",
     "@types/nodemon": "^1.19.6",
     "@types/pdfkit": "^0.13.5",
     "@types/pg": "^8.11.10",
-    "@types/sequelize": "^4.28.20",
     "@types/sharp": "^0.32.0",
     "@types/socket.io": "^3.0.2",
     "@types/swagger-jsdoc": "^6.0.4",
@@ -36,7 +36,7 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "expo-server-sdk": "^3.13.0",
     "express": "^4.21.1",
     "fs": "^0.0.1-security",
@@ -49,6 +49,7 @@
     "path": "^0.12.7",
     "pdfkit": "^0.15.1",
     "pg": "^8.13.1",
+    "pg-hstore": "^2.3.4",
     "react-native-alert-notification": "^0.4.2",
     "sequelize": "^6.37.5",
     "sharp": "^0.33.5",
@@ -58,5 +59,10 @@
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "validator": "^13.12.0"
+  },
+  "devDependencies": {
+    "@types/sequelize": "^4.28.20",
+    "sequelize-cli": "^6.6.2",
+    "typescript": "^5.7.2"
   }
 }

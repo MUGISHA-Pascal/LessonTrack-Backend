@@ -12,4 +12,6 @@ export interface courseInterface {
   userCount?: number;
   ratingAverage?: number;
   ratingCount?: number;
+  video?: string;
+  users?: number[];
 }

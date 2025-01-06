@@ -3,4 +3,5 @@ export interface commentInterface {
   user_id: number;
   course_id: number;
   comment_text: Text;
+  dates:string
 }

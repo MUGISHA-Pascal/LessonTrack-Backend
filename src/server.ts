@@ -3,8 +3,18 @@ import { Server } from "socket.io";
 import app from "./app";
 import swaggerDocs from "./swagger";
 import { handlingCharts } from "./controllers/ChatHandler";
+import postgresConnectionSequelize from "./config/postgres";
 const server = http.createServer(app);
+postgresConnectionSequelize
 
+  .authenticate()
+  .then(() => {
+    console.log("connected to the db");
+  })
+  .catch((error) => {
+    console.log("not connected ", error);
+  });
+postgresConnectionSequelize.sync({ alter: true });
 const io = new Server(server, {
   cors: {
     origin: "*", // Allow all origins; replace with specific frontend URL for security

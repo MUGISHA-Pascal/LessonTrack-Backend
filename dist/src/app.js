@@ -33,14 +33,6 @@ dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(body_parser_1.default.json());
-postgres_1.postgresConnectionSequelize
-    .authenticate()
-    .then(() => {
-    console.log("connected to the db");
-})
-    .catch((error) => {
-    console.log(error);
-});
 postgres_1.postgresConnectionSequelize.sync({ alter: true });
 app.get("/send-notifications", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {

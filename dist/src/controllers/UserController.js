@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMentors = exports.getNumber_of_unseen_messages = exports.GetNotificationById = exports.GetUserById = exports.PushNotification = exports.AddPin = exports.updateSeenNotification = exports.fill = exports.updateSetting = exports.fillProfile = exports.imageRetrival = exports.AdminUserDelete = exports.profileUpdateController = exports.profileUploadController = void 0;
+exports.getMentors = exports.getNumber_of_unseen_messages = exports.GetNotificationById = exports.GetUserById = exports.PushNotification = exports.AddPin = exports.updateSeenNotification = exports.fill = exports.updateSetting = exports.fillProfile = exports.imageRetrivalWeb = exports.imageRetrivalMessage = exports.imageRetrival = exports.AdminUserDelete = exports.profileUpdateController = exports.profileUploadController = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -73,7 +73,7 @@ const profileUploadController = (req, res) => __awaiter(void 0, void 0, void 0, 
         const user = yield User_1.default.findOne({ where: { id } });
         if (user) {
             if (req.file) {
-                user.profilepicture = req.file.path;
+                user.profilepicture = req.file.filename;
                 user.save();
                 res.json({ message: "user image uploaded successfully", user });
             }
@@ -205,7 +205,7 @@ exports.AdminUserDelete = AdminUserDelete;
  *         role:
  *           type: string
  *           example: "user"
- *         profilePicture:
+ *         profilepicture:
  *           type: string
  *           example: "https://example.com/profile-pictures/johndoe.jpg"
  *         createdAt:
@@ -272,6 +272,28 @@ const imageRetrival = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     });
 });
 exports.imageRetrival = imageRetrival;
+const imageRetrivalMessage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { ImageName } = req.params;
+    const filePath = path_1.default.join(__dirname, "../../uploads/messages", ImageName);
+    fs_1.default.access(filePath, fs_1.default.constants.F_OK, (err) => {
+        if (err) {
+            res.status(404).json({ error: "Image not found" });
+        }
+        res.sendFile(filePath);
+    });
+});
+exports.imageRetrivalMessage = imageRetrivalMessage;
+const imageRetrivalWeb = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { ImageName } = req.params;
+    const filePath = path_1.default.join(__dirname, "../../uploads/", ImageName);
+    fs_1.default.access(filePath, fs_1.default.constants.F_OK, (err) => {
+        if (err) {
+            res.status(404).json({ error: "Image not found" });
+        }
+        res.sendFile(filePath);
+    });
+});
+exports.imageRetrivalWeb = imageRetrivalWeb;
 const fillProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { fullname, nickname, email, gender, phone_number, id } = req.body;
@@ -385,7 +407,7 @@ const GetUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const { id } = req.params;
         const user = yield User_1.default.findByPk(id);
         if (user) {
-            console.log("working");
+            // console.log("working");
             res.json({ user });
             return;
         }
@@ -425,21 +447,25 @@ exports.GetNotificationById = GetNotificationById;
 const getNumber_of_unseen_messages = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
+        // Convert id to string to match the `receiver` type in the database
+        const receiverId = String(id);
         const unseenCount = yield Notification_1.default.count({
             where: {
-                receiver: id,
+                receiver: receiverId, // Use the converted string
                 seen: "No",
             },
         });
-        if (unseenCount) {
-            res.status(201).json({ unseenCount });
+        if (unseenCount !== undefined) { // Handle 0 as a valid count
+            res.status(200).json({ unseenCount });
         }
         else {
-            res.status(404).json({ unseenCount });
+            res.status(404).json({ unseenCount: 0 }); // Explicitly return 0 when not found
         }
+        // console.log("The count of unseen notifications is:", unseenCount);
     }
     catch (error) {
         console.log(error);
+        res.status(500).json({ error: "An error occurred while fetching unseen messages." });
     }
 });
 exports.getNumber_of_unseen_messages = getNumber_of_unseen_messages;

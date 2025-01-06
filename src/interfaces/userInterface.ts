@@ -21,4 +21,5 @@ export interface userInterface {
   new_service_available?: boolean;
   new_tips_available?: boolean;
   device_token?: string;
+  paid?: boolean;
 }

@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const postgres_1 = __importDefault(require("../config/postgres"));
+const Quiz_1 = __importDefault(require("./Quiz"));
 class QuestionInt extends sequelize_1.Model {
 }
 const Question = postgres_1.default.define("Question", {
@@ -39,5 +40,13 @@ const Question = postgres_1.default.define("Question", {
     tableName: "questions",
     schema: "public",
     timestamps: false, // Disabling default Sequelize timestamps since `created_at` is manually handled
+});
+Quiz_1.default.hasMany(Question, {
+    sourceKey: "id",
+    foreignKey: "quiz_id"
+});
+Question.belongsTo(Quiz_1.default, {
+    targetKey: "id",
+    foreignKey: "quiz_id"
 });
 exports.default = Question;

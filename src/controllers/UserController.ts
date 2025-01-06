@@ -60,7 +60,7 @@ export const profileUploadController = async (req: Request, res: Response) => {
     const user = await User.findOne({ where: { id } });
     if (user) {
       if (req.file) {
-        user.profilepicture = req.file.path;
+        user.profilepicture = req.file.filename;
         user.save();
         res.json({ message: "user image uploaded successfully", user });
       } else {
@@ -184,7 +184,7 @@ export const AdminUserDelete = async (req: Request, res: Response) => {
  *         role:
  *           type: string
  *           example: "user"
- *         profilePicture:
+ *         profilepicture:
  *           type: string
  *           example: "https://example.com/profile-pictures/johndoe.jpg"
  *         createdAt:
@@ -240,9 +240,34 @@ export const AdminUserDelete = async (req: Request, res: Response) => {
  *         sender: sender@example.com
  *         receiver: receiver@example.com
  */
-export const imageRetrival = async (req: Request, res: Response) => {
+export const  imageRetrival = async (req: Request, res: Response) => {
   const { ImageName } = req.params;
   const filePath = path.join(__dirname, "../../uploads/images", ImageName);
+
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      res.status(404).json({ error: "Image not found" });
+    }
+    res.sendFile(filePath);
+  });
+};
+
+export const imageRetrivalMessage = async (req: Request, res: Response) => {
+  const { ImageName } = req.params;
+  const filePath = path.join(__dirname, "../../uploads/messages", ImageName);
+
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      res.status(404).json({ error: "Image not found" });
+    }
+    res.sendFile(filePath);
+  });
+};
+
+
+export const imageRetrivalWeb = async (req: Request, res: Response) => {
+  const { ImageName } = req.params;
+  const filePath = path.join(__dirname, "../../uploads/", ImageName);
 
   fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
@@ -373,7 +398,7 @@ export const GetUserById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const user = await User.findByPk(id);
     if (user) {
-      console.log("working");
+      // console.log("working");
       res.json({ user });
       return;
     } else {
@@ -413,21 +438,31 @@ export const getNumber_of_unseen_messages = async (
 ) => {
   try {
     const { id } = req.params;
+    
+    // Convert id to string to match the `receiver` type in the database
+    const receiverId = String(id);
+
     const unseenCount = await Notification.count({
       where: {
-        receiver: id,
+        receiver: receiverId, // Use the converted string
         seen: "No",
       },
     });
-    if (unseenCount) {
-      res.status(201).json({ unseenCount });
+
+    if (unseenCount !== undefined) { // Handle 0 as a valid count
+      res.status(200).json({ unseenCount });
     } else {
-      res.status(404).json({ unseenCount });
+      res.status(404).json({ unseenCount: 0 }); // Explicitly return 0 when not found
     }
+
+    // console.log("The count of unseen notifications is:", unseenCount);
   } catch (error) {
     console.log(error);
+    res.status(500).json({ error: "An error occurred while fetching unseen messages." });
   }
 };
+
+
 
 export const getMentors = async (req: Request, res: Response) => {
   try {
