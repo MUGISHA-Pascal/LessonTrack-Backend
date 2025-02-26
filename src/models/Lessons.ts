@@ -1,18 +1,20 @@
 import { Model } from "sequelize";
 import postgresConnectionSequelize from "../config/postgres";
-import { LessonInterface } from "../interfaces/lessoninterface";
+import { lessonInterface } from "../interfaces/lessoninterface";
 
 const { DataTypes } = require("sequelize");
 
-class LessonInt extends Model<LessonInterface> implements LessonInterface {
-  public id!: number;
-  public course_id!: number;
-  public title!: string;
-  public content!: Text;
-  public media_url!: string;
-}
+// class LessonInt extends Model<lessonInterface> implements lessonInterface {
+//   public id!: number;
+//   public course_id!: number;
+//   public title!: string;
+//   public content!: Text;
+//   public course_id: number;
 
-const Lesson = postgresConnectionSequelize.define<LessonInt>(
+//   public media_url!: string;
+// }
+
+const Lesson = postgresConnectionSequelize.define<any>(
   "Lesson",
   {
     id: {
@@ -23,7 +25,7 @@ const Lesson = postgresConnectionSequelize.define<LessonInt>(
     course_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      
+
       references: {
         model: "courses",
         key: "id",

@@ -6,7 +6,7 @@ import path from "path";
 import CourseTaken from "../models/CourseTaken";
 import BookMark from "../models/BookMark";
 import Module from "../models/module";
-import { lessonInterface } from "../interfaces/lessonInterface";
+import { lessonInterface } from "../interfaces/lessoninterface";
 import Lesson from "../models/Lesson";
 import { Op, Sequelize } from "sequelize";
 import Quiz from "../models/Quiz";
