@@ -1,6 +1,6 @@
 import { Model } from "sequelize";
 import postgresConnectionSequelize from "../config/postgres";
-import { lessonInterface } from "../interfaces/lessoninterface";
+// import { lessonInterface } from "../interfaces/lessoninterface";
 
 const { DataTypes } = require("sequelize");
 
