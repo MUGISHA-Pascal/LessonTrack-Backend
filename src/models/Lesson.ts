@@ -1,5 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import { lessonInterface } from "../interfaces/lessonInterface";
+import { lessonInterface } from "../interfaces/lessoninterface";
 import postgresConnectionSequelize from "../config/postgres";
 import Module from "./module";
 
@@ -9,8 +9,6 @@ class LessonInt extends Model<lessonInterface> implements lessonInterface {
   public content!: string;
   public moduleId!: number;
 }
-
-
 
 const Lesson = postgresConnectionSequelize.define<LessonInt>(
   "Lesson",
